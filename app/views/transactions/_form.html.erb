@@ -1,0 +1,27 @@
+<%= form_with model: transaction do |f| %>
+  <div>
+    <%= f.label :description %>
+    <%= f.text_field :description %>
+  </div>
+  <div>
+    <%= f.label :amount %>
+    <%= f.number_field :amount, step: 0.01 %>
+  </div>
+  <div>
+    <%= f.label :kind %>
+    <%= f.select :kind, Transaction.kinds.keys %>
+  </div>
+  <div>
+    <%= f.label :date %>
+    <%= f.date_field :date %>
+  </div>
+  <div>
+    <%= f.label :account_id, "Conta" %>
+    <%= f.collection_select :account_id, Account.order(:name), :id, :name %>
+  </div>
+  <div>
+    <%= f.label :category_id, "Categoria" %>
+    <%= f.collection_select :category_id, Category.order(:name), :id, :name %>
+  </div>
+  <%= f.submit %>
+<% end %>
