@@ -27,6 +27,20 @@
   </tfoot>
 </table>
 
+<h2>Resumo do mês</h2>
+<table>
+  <tbody>
+    <tr>
+      <td>Receitas do mês</td>
+      <td><%= number_to_currency(@month_income_total, unit: "R$ ") %></td>
+    </tr>
+    <tr>
+      <td>Gastos do mês</td>
+      <td><%= number_to_currency(@month_expense_total, unit: "R$ ") %></td>
+    </tr>
+  </tbody>
+</table>
+
 <h2>Lançamentos do mês</h2>
 <ul>
   <% @transactions.each do |transaction| %>
