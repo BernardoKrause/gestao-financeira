@@ -41,7 +41,7 @@ class QuickEntriesController < ApplicationController
       kind: @kind,
       day_of_month: params[:day_of_month],
       start_date: Date.current,
-      end_date: installments_end_date,
+      installments: params[:installments].presence,
       category_id: params[:category_id]
     )
 
@@ -51,13 +51,6 @@ class QuickEntriesController < ApplicationController
     else
       render_dashboard_with_error(@recurring_entry)
     end
-  end
-
-  def installments_end_date
-    installments = params[:installments].presence&.to_i
-    return nil unless installments && installments > 1
-
-    Date.current + (installments - 1).months
   end
 
   def render_dashboard_with_error(record)

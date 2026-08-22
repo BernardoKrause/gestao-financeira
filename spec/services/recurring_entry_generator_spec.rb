@@ -40,12 +40,24 @@ RSpec.describe RecurringEntryGenerator do
     expect(entry.transactions).to be_empty
   end
 
-  it "does not generate a transaction after end_date" do
-    entry = create(:recurring_entry, category: category, day_of_month: 5, start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 2, 28))
+  it "does not generate a transaction after the last installment" do
+    # start_date Jan 1 (installment 1's month), day_of_month 5, 2 installments
+    # -> end_date Feb 5, so nothing should fire in March.
+    entry = create(:recurring_entry, category: category, day_of_month: 5, start_date: Date.new(2026, 1, 1), installments: 2)
 
     described_class.call(today: Date.new(2026, 3, 5))
 
     expect(entry.transactions).to be_empty
+  end
+
+  it "stops generating once the installment count is reached" do
+    entry = create(:recurring_entry, category: category, day_of_month: 5, start_date: Date.new(2026, 1, 1), installments: 2)
+
+    described_class.call(today: Date.new(2026, 1, 5))
+    described_class.call(today: Date.new(2026, 2, 5))
+    described_class.call(today: Date.new(2026, 3, 5))
+
+    expect(entry.transactions.count).to eq(2)
   end
 
   it "generates the next month's transaction after end of previous month" do

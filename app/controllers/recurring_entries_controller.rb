@@ -42,6 +42,6 @@ class RecurringEntriesController < ApplicationController
   end
 
   def recurring_entry_params
-    params.require(:recurring_entry).permit(:description, :amount, :kind, :day_of_month, :active, :start_date, :end_date, :category_id)
+    params.require(:recurring_entry).permit(:description, :amount, :kind, :day_of_month, :active, :start_date, :installments, :category_id)
   end
 end

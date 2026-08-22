@@ -5,6 +5,7 @@
     <li>
       <%= entry.description %> — dia <%= entry.day_of_month %> — <%= entry.kind %> — <%= entry.amount %> —
       <%= entry.category.name %> — <%= entry.active? ? "ativa" : "inativa" %> —
+      <%= entry.end_date ? "até #{entry.end_date}" : "sem fim" %> —
       <%= link_to "Editar", edit_recurring_entry_path(entry) %> —
       <%= link_to "Remover", recurring_entry_path(entry), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" } %>
     </li>

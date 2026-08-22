@@ -6,7 +6,7 @@ FactoryBot.define do
     day_of_month { 5 }
     active { true }
     start_date { Date.current.beginning_of_month }
-    end_date { nil }
+    installments { nil }
     category
   end
 end

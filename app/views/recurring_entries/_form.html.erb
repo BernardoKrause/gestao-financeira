@@ -24,8 +24,8 @@
     <%= f.date_field :start_date %>
   </div>
   <div>
-    <%= f.label :end_date %>
-    <%= f.date_field :end_date %>
+    <%= f.label :installments, "Número de parcelas (deixe em branco pra recorrência sem fim)" %>
+    <%= f.number_field :installments, min: 1 %>
   </div>
   <div>
     <%= f.label :category_id, "Categoria" %>

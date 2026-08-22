@@ -46,7 +46,7 @@
 
     <div class="quick-entry-field quick-entry-field--fixo">
       <%= label_tag "installments_#{kind}", "Número de parcelas (deixe em branco pra recorrência sem fim)" %>
-      <%= number_field_tag :installments, nil, min: 2, id: "installments_#{kind}" %>
+      <%= number_field_tag :installments, nil, min: 1, id: "installments_#{kind}" %>
     </div>
 
     <%= submit_tag label %>
