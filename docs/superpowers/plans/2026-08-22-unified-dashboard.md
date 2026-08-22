@@ -340,8 +340,12 @@ Append to `spec/requests/quick_entries_spec.rb`, inside the existing `RSpec.desc
     get root_path
 
     body = response.body
-    expense_form = body[/quick-entry--expense.*?<\/details>/m]
-    income_form = body[/quick-entry--income.*?<\/details>/m]
+    # Anchor the capture at the opening "<details" tag itself (not at the
+    # "quick-entry--expense" text inside its class attribute) so an "open"
+    # attribute — which is written *before* the class in the markup — is
+    # still included in the captured slice.
+    expense_form = body[/<details[^>]*quick-entry--expense.*?<\/details>/m]
+    income_form = body[/<details[^>]*quick-entry--income.*?<\/details>/m]
 
     expect(expense_form).to include("Mercado")
     expect(expense_form).not_to include("Salário")
@@ -356,7 +360,7 @@ Append to `spec/requests/quick_entries_spec.rb`, inside the existing `RSpec.desc
     post quick_entries_path, params: { kind: "expense", description: "Mercado", amount: 0, date: Date.current, account_id: account.id, category_id: category.id }
 
     body = response.body
-    expense_form = body[/quick-entry--expense.*?<\/details>/m]
+    expense_form = body[/<details[^>]*quick-entry--expense.*?<\/details>/m]
 
     expect(expense_form).to include("error-messages")
     expect(expense_form).to match(/<details open/)
