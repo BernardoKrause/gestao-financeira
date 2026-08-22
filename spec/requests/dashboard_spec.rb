@@ -22,4 +22,13 @@ RSpec.describe "Dashboard", type: :request do
     get root_path
     expect(response).to redirect_to(new_user_session_path)
   end
+
+  it "shows navigation links" do
+    get root_path
+
+    expect(response.body).to include(accounts_path)
+    expect(response.body).to include(categories_path)
+    expect(response.body).to include(transactions_path)
+    expect(response.body).to include(recurring_entries_path)
+  end
 end
