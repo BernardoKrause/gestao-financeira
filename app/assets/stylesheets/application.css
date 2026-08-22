@@ -279,3 +279,61 @@ tfoot td {
   border-bottom: none;
   border-top: 2px solid var(--border);
 }
+
+/* Quick entries */
+
+.quick-entries {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.quick-entry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  flex: 1;
+  min-width: 260px;
+}
+
+.quick-entry summary {
+  cursor: pointer;
+  padding: 0.875rem 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  list-style: none;
+}
+
+.quick-entry summary::-webkit-details-marker {
+  display: none;
+}
+
+.quick-entry--expense summary {
+  background: #dc2626;
+}
+
+.quick-entry--income summary {
+  background: #16a34a;
+}
+
+.quick-entry form {
+  border: none;
+  border-radius: 0;
+  max-width: none;
+  margin-bottom: 0;
+  background: none;
+}
+
+.quick-entry-field--fixo {
+  display: none;
+}
+
+.quick-entry:has(.fixed-toggle:checked) .quick-entry-field--fixo {
+  display: flex;
+}
+
+.quick-entry:has(.fixed-toggle:checked) .quick-entry-field--avulso {
+  display: none;
+}

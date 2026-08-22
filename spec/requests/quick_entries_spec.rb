@@ -45,4 +45,33 @@ RSpec.describe "QuickEntries", type: :request do
 
     expect(response).to have_http_status(:unprocessable_entity)
   end
+
+  it "filters categories by kind in each quick entry form" do
+    expense_cat = create(:category, name: "Mercado", kind: :expense)
+    income_cat = create(:category, name: "Salário", kind: :income)
+
+    get root_path
+
+    body = response.body
+    expense_form = body[/<details[^>]*quick-entry--expense.*?<\/details>/m]
+    income_form = body[/<details[^>]*quick-entry--income.*?<\/details>/m]
+
+    expect(expense_form).to include("Mercado")
+    expect(expense_form).not_to include("Salário")
+    expect(income_form).to include("Salário")
+    expect(income_form).not_to include("Mercado")
+  end
+
+  it "reopens the expense form with the validation error after an invalid submission" do
+    account = create(:account)
+    category = create(:category, kind: :expense)
+
+    post quick_entries_path, params: { kind: "expense", description: "Mercado", amount: 0, date: Date.current, account_id: account.id, category_id: category.id }
+
+    body = response.body
+    expense_form = body[/<details[^>]*quick-entry--expense.*?<\/details>/m]
+
+    expect(expense_form).to include("error-messages")
+    expect(expense_form).to match(/<details open/)
+  end
 end

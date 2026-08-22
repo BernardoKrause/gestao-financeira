@@ -41,6 +41,17 @@
   </tbody>
 </table>
 
+<h2>Lançar</h2>
+<div class="quick-entries">
+  <%= render "dashboard/quick_entry_form", kind: "expense", label: "Gasto",
+        categories: Category.expense.order(:name),
+        record: (@quick_entry_kind == "expense" ? @quick_entry_record : nil) %>
+
+  <%= render "dashboard/quick_entry_form", kind: "income", label: "Receita",
+        categories: Category.income.order(:name),
+        record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
+</div>
+
 <h2>Lançamentos do mês</h2>
 <ul>
   <% @transactions.each do |transaction| %>
