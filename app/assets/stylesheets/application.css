@@ -371,3 +371,22 @@ tfoot td {
 .quick-entry:has(.fixed-toggle:checked) .quick-entry-field--avulso {
   display: none;
 }
+
+.quick-entry-recurring-options {
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quick-entry-subfield--parcelado {
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quick-entry:has(.parcelado-toggle:checked) .quick-entry-subfield--parcelado {
+  display: flex;
+}
+
+.quick-entry:has(.parcelado-toggle:checked) .quick-entry-subfield--sem-parcelas {
+  display: none;
+}

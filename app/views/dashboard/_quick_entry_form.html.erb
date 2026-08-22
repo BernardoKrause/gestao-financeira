@@ -39,14 +39,30 @@
       <%= date_field_tag :date, (record.is_a?(Transaction) ? record.date : Date.current), id: "date_#{kind}" %>
     </div>
 
-    <div class="quick-entry-field quick-entry-field--fixo">
-      <%= label_tag "day_of_month_#{kind}", "Dia do mês" %>
-      <%= number_field_tag :day_of_month, (record.is_a?(RecurringEntry) ? record.day_of_month : nil), min: 1, max: 31, id: "day_of_month_#{kind}" %>
-    </div>
+    <% is_recurring = record.is_a?(RecurringEntry)
+       is_parcelado = is_recurring && record.installments.present? %>
 
-    <div class="quick-entry-field quick-entry-field--fixo">
-      <%= label_tag "installments_#{kind}", "Número de parcelas (deixe em branco pra recorrência sem fim)" %>
-      <%= number_field_tag :installments, nil, min: 1, id: "installments_#{kind}" %>
+    <div class="quick-entry-field quick-entry-field--fixo quick-entry-recurring-options">
+      <div class="quick-entry-parcelado-toggle">
+        <%= check_box_tag :parcelado, "1", is_parcelado, class: "parcelado-toggle", id: "parcelado_#{kind}" %>
+        <%= label_tag "parcelado_#{kind}", "Parcelado (tem fim)?" %>
+      </div>
+
+      <div class="quick-entry-subfield quick-entry-subfield--sem-parcelas">
+        <%= label_tag "day_of_month_#{kind}", "Dia do mês" %>
+        <%= number_field_tag :day_of_month, (is_recurring && !is_parcelado ? record.day_of_month : nil), min: 1, max: 31, id: "day_of_month_#{kind}" %>
+      </div>
+
+      <div class="quick-entry-subfield quick-entry-subfield--parcelado">
+        <div>
+          <%= label_tag "start_date_#{kind}", "Data de início" %>
+          <%= date_field_tag :start_date, (is_parcelado ? record.start_date : Date.current), id: "start_date_#{kind}" %>
+        </div>
+        <div>
+          <%= label_tag "installments_#{kind}", "Número de parcelas" %>
+          <%= number_field_tag :installments, (is_parcelado ? record.installments : nil), min: 1, id: "installments_#{kind}" %>
+        </div>
+      </div>
     </div>
 
     <%= submit_tag label %>

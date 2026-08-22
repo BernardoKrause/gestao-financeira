@@ -39,9 +39,11 @@ RSpec.describe "QuickEntries", type: :request do
   end
 
   it "creates an installment purchase with a computed end_date, stopping after the last installment" do
-    post quick_entries_path, params: { kind: "expense", fixed: "1", description: "TV parcelada", amount: 300, day_of_month: Date.current.day, installments: 3, category_id: expense_category.id }
+    post quick_entries_path, params: { kind: "expense", fixed: "1", parcelado: "1", description: "TV parcelada", amount: 300, start_date: Date.current, installments: 3, category_id: expense_category.id }
 
     entry = RecurringEntry.last
+    expect(entry.day_of_month).to eq(Date.current.day)
+    expect(entry.start_date).to eq(Date.current)
     expect(entry.end_date).to eq(Date.current + 2.months)
 
     # First installment generated immediately (today).
@@ -55,6 +57,14 @@ RSpec.describe "QuickEntries", type: :request do
     # ...but not a 4th, past end_date.
     RecurringEntryGenerator.call(today: Date.current + 3.months)
     expect(entry.transactions.count).to eq(3)
+  end
+
+  it "derives day_of_month from the given start_date when parcelado is checked" do
+    post quick_entries_path, params: { kind: "expense", fixed: "1", parcelado: "1", description: "Sofá parcelado", amount: 200, start_date: Date.new(2026, 3, 17), installments: 5, category_id: expense_category.id }
+
+    entry = RecurringEntry.last
+    expect(entry.day_of_month).to eq(17)
+    expect(entry.start_date).to eq(Date.new(2026, 3, 17))
   end
 
   it "creates a fixed income recurring entry and generates this month's transaction immediately" do

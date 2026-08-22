@@ -35,13 +35,23 @@ class QuickEntriesController < ApplicationController
   end
 
   def create_recurring_entry
+    if params[:parcelado] == "1"
+      start_date = safe_parse_date(params[:start_date])
+      day_of_month = start_date&.day
+      installments = params[:installments].presence
+    else
+      start_date = Date.current
+      day_of_month = params[:day_of_month]
+      installments = nil
+    end
+
     @recurring_entry = RecurringEntry.new(
       description: params[:description],
       amount: params[:amount],
       kind: @kind,
-      day_of_month: params[:day_of_month],
-      start_date: Date.current,
-      installments: params[:installments].presence,
+      day_of_month: day_of_month,
+      start_date: start_date,
+      installments: installments,
       category_id: params[:category_id]
     )
 
@@ -51,6 +61,12 @@ class QuickEntriesController < ApplicationController
     else
       render_dashboard_with_error(@recurring_entry)
     end
+  end
+
+  def safe_parse_date(value)
+    Date.parse(value) if value.present?
+  rescue ArgumentError, TypeError
+    nil
   end
 
   def render_dashboard_with_error(record)
