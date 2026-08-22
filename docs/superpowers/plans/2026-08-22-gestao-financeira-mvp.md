@@ -276,7 +276,7 @@ git commit -m "Add Devise authentication with password complexity and seed user"
 
 **Interfaces:**
 - Consumes: authenticated `ApplicationController` from Task 2.
-- Produces: `Account` model — `name:string`, `account_type:integer` (enum `checking/savings/credit_card/cash`), `initial_balance:decimal`; `accounts` RESTful routes; used by Tasks 5, 6, 9, 10.
+- Produces: `Account` model — `name:string`, `account_type:integer` (enum `checking/savings/credit_card/cash`), `initial_balance:decimal`; `accounts` RESTful routes; used by Tasks 5, 6, 9, 10. No `has_many :transactions`/`has_many :recurring_entries` yet (added in Tasks 5/6).
 
 - [ ] **Step 1: Write the failing model test**
 
@@ -352,14 +352,13 @@ Create `app/models/account.rb`:
 class Account < ApplicationRecord
   enum :account_type, { checking: 0, savings: 1, credit_card: 2, cash: 3 }
 
-  has_many :transactions, dependent: :restrict_with_error
-  has_many :recurring_entries, dependent: :restrict_with_error
-
   validates :name, presence: true
   validates :account_type, presence: true
   validates :initial_balance, numericality: true
 end
 ```
+
+Note: no `has_many :transactions` / `has_many :recurring_entries` yet — those models don't exist until Tasks 5 and 6, which add the associations to this file when they create them. Do not create stub `Transaction`/`RecurringEntry` models or migrations to satisfy a forward reference; there is none in this version of the task.
 
 - [ ] **Step 4: Run to verify it passes**
 
@@ -559,7 +558,7 @@ git commit -m "Add Account model and CRUD"
 
 **Interfaces:**
 - Consumes: authenticated `ApplicationController` from Task 2.
-- Produces: `Category` model — `name:string`, `kind:integer` (enum `expense/income`), `color:string`; `categories` RESTful routes; used by Tasks 5, 6.
+- Produces: `Category` model — `name:string`, `kind:integer` (enum `expense/income`), `color:string`; `categories` RESTful routes; used by Tasks 5, 6. No `has_many :transactions`/`has_many :recurring_entries` yet (added in Tasks 5/6).
 
 - [ ] **Step 1: Write the failing model test**
 
@@ -634,13 +633,12 @@ Create `app/models/category.rb`:
 class Category < ApplicationRecord
   enum :kind, { expense: 0, income: 1 }
 
-  has_many :transactions, dependent: :restrict_with_error
-  has_many :recurring_entries, dependent: :restrict_with_error
-
   validates :name, presence: true
   validates :kind, presence: true
 end
 ```
+
+Note: no `has_many :transactions` / `has_many :recurring_entries` yet — those models don't exist until Tasks 5 and 6, which add the associations to this file when they create them. Do not create stub `Transaction`/`RecurringEntry` models or migrations to satisfy a forward reference; there is none in this version of the task.
 
 - [ ] **Step 4: Run to verify it passes**
 
@@ -837,7 +835,7 @@ git commit -m "Add Category model and CRUD"
 
 **Interfaces:**
 - Consumes: `Account` (Task 3), `Category` (Task 4).
-- Produces: `Transaction` model — `description:string`, `amount:decimal`, `kind:integer` (enum `expense/income`), `date:date`, `belongs_to :account`, `belongs_to :category`, `belongs_to :recurring_entry, optional: true`; `Transaction#signed_amount` (income → `+amount`, expense → `-amount`); `transactions` RESTful routes. Used by Tasks 7, 9, 10.
+- Produces: `Transaction` model — `description:string`, `amount:decimal`, `kind:integer` (enum `expense/income`), `date:date`, `belongs_to :account`, `belongs_to :category`; `Transaction#signed_amount` (income → `+amount`, expense → `-amount`); `transactions` RESTful routes. Used by Tasks 7, 9, 10. No `recurring_entry_id` column or `belongs_to :recurring_entry` yet (added in Task 6, alongside `RecurringEntry` itself).
 
 - [ ] **Step 1: Write the failing model test**
 
@@ -914,13 +912,14 @@ class CreateTransactions < ActiveRecord::Migration[8.0]
       t.date :date, null: false
       t.references :account, null: false, foreign_key: true
       t.references :category, null: false, foreign_key: true
-      t.references :recurring_entry, foreign_key: true
 
       t.timestamps
     end
   end
 end
 ```
+
+Note: no `recurring_entry` reference yet — the `recurring_entries` table doesn't exist until Task 6, and `foreign_key: true` requires the target table to exist at migration time. Task 6 adds the `recurring_entry_id` column (via a separate migration) and the `belongs_to :recurring_entry` line once `RecurringEntry` exists. Do not add a stub `RecurringEntry` model to work around this.
 
 ```bash
 bin/rails db:migrate
@@ -934,7 +933,6 @@ class Transaction < ApplicationRecord
 
   belongs_to :account
   belongs_to :category
-  belongs_to :recurring_entry, optional: true
 
   validates :description, presence: true
   validates :amount, numericality: { greater_than: 0 }
@@ -1148,7 +1146,9 @@ git commit -m "Add Transaction model and CRUD"
 
 **Files:**
 - Create: `db/migrate/xxxx_create_recurring_entries.rb`
+- Create: `db/migrate/xxxx_add_recurring_entry_to_transactions.rb`
 - Create: `app/models/recurring_entry.rb`
+- Modify: `app/models/transaction.rb`, `app/models/account.rb`, `app/models/category.rb`
 - Create: `app/controllers/recurring_entries_controller.rb`
 - Create: `app/views/recurring_entries/index.html.erb`, `new.html.erb`, `edit.html.erb`, `_form.html.erb`, `show.html.erb`
 - Modify: `config/routes.rb`
@@ -1156,8 +1156,8 @@ git commit -m "Add Transaction model and CRUD"
 - Test: `spec/models/recurring_entry_spec.rb`, `spec/requests/recurring_entries_spec.rb`
 
 **Interfaces:**
-- Consumes: `Account` (Task 3), `Category` (Task 4), `Transaction` (Task 5, via `recurring_entry_id` foreign key already in place).
-- Produces: `RecurringEntry` model — `description:string`, `amount:decimal`, `kind:integer` (enum `expense/income`), `day_of_month:integer`, `active:boolean`, `start_date:date`, `end_date:date` (nullable), `belongs_to :account`, `belongs_to :category`, `has_many :transactions`; scope `RecurringEntry.active`; `recurring_entries` RESTful routes. Used by Tasks 7, 9.
+- Consumes: `Account` (Task 3), `Category` (Task 4), `Transaction` (Task 5).
+- Produces: `RecurringEntry` model — `description:string`, `amount:decimal`, `kind:integer` (enum `expense/income`), `day_of_month:integer`, `active:boolean`, `start_date:date`, `end_date:date` (nullable), `belongs_to :account`, `belongs_to :category`, `has_many :transactions`; scope `RecurringEntry.active`; `recurring_entries` RESTful routes. This task also adds `Transaction#recurring_entry_id` + `belongs_to :recurring_entry, optional: true` (Step 4), and `has_many :transactions`/`has_many :recurring_entries, dependent: :restrict_with_error` on `Account` and `Category` (Step 4). Used by Tasks 7, 9.
 
 - [ ] **Step 1: Write the failing model test**
 
@@ -1289,9 +1289,31 @@ class RecurringEntry < ApplicationRecord
 end
 ```
 
-Note: `Transaction` already declares `belongs_to :recurring_entry, optional: true` from Task 5, so no model change is needed there.
+- [ ] **Step 4: Wire up the associations that could only be declared once `RecurringEntry` exists**
 
-- [ ] **Step 4: Run to verify it passes**
+Edit `app/models/transaction.rb`, add `belongs_to :recurring_entry, optional: true` alongside the existing `belongs_to` lines:
+
+```ruby
+  belongs_to :account
+  belongs_to :category
+  belongs_to :recurring_entry, optional: true
+```
+
+Edit `app/models/account.rb`, add inside the `Account` class (above `validates`):
+
+```ruby
+  has_many :transactions, dependent: :restrict_with_error
+  has_many :recurring_entries, dependent: :restrict_with_error
+```
+
+Edit `app/models/category.rb`, add inside the `Category` class (above `validates`):
+
+```ruby
+  has_many :transactions, dependent: :restrict_with_error
+  has_many :recurring_entries, dependent: :restrict_with_error
+```
+
+- [ ] **Step 5: Run to verify it passes**
 
 ```bash
 bundle exec rspec spec/models/recurring_entry_spec.rb
@@ -1299,7 +1321,7 @@ bundle exec rspec spec/models/recurring_entry_spec.rb
 
 Expected: `5 examples, 0 failures`.
 
-- [ ] **Step 5: Add routes, controller and views**
+- [ ] **Step 6: Add routes, controller and views**
 
 Edit `config/routes.rb`:
 
@@ -1442,7 +1464,7 @@ Create `app/views/recurring_entries/show.html.erb`:
 <%= link_to "Voltar", recurring_entries_path %>
 ```
 
-- [ ] **Step 6: Write the failing request spec**
+- [ ] **Step 7: Write the failing request spec**
 
 Create `spec/requests/recurring_entries_spec.rb`:
 
@@ -1483,7 +1505,7 @@ RSpec.describe "RecurringEntries", type: :request do
 end
 ```
 
-- [ ] **Step 7: Run to verify it passes**
+- [ ] **Step 8: Run to verify it passes**
 
 ```bash
 bundle exec rspec spec/requests/recurring_entries_spec.rb
@@ -1491,7 +1513,15 @@ bundle exec rspec spec/requests/recurring_entries_spec.rb
 
 Expected: `4 examples, 0 failures`.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Run the full suite**
+
+```bash
+bundle exec rspec
+```
+
+Expected: all examples pass (this exercises the Account/Category/Transaction associations added in Step 4 together with everything from Tasks 1-5).
+
+- [ ] **Step 10: Commit**
 
 ```bash
 git add -A
