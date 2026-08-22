@@ -1605,6 +1605,23 @@ RSpec.describe RecurringEntryGenerator do
 
     expect(entry.transactions.count).to eq(2)
   end
+
+  it "clamps a day_of_month past the end of a shorter month to the last day of that month" do
+    entry = create(:recurring_entry, account: account, category: category, day_of_month: 31, start_date: Date.new(2026, 1, 1))
+
+    described_class.call(today: Date.new(2026, 4, 30))
+
+    transaction = entry.transactions.sole
+    expect(transaction.date).to eq(Date.new(2026, 4, 30))
+  end
+
+  it "does not generate the clamped transaction before the last day of a shorter month" do
+    entry = create(:recurring_entry, account: account, category: category, day_of_month: 31, start_date: Date.new(2026, 1, 1))
+
+    described_class.call(today: Date.new(2026, 4, 29))
+
+    expect(entry.transactions).to be_empty
+  end
 end
 ```
 
@@ -1640,7 +1657,8 @@ class RecurringEntryGenerator
 
   def due_entries
     RecurringEntry.active
-                  .where("day_of_month <= ?", today.day)
+                  .where("day_of_month <= ? OR (? = ? AND day_of_month > ?)",
+                         today.day, today.day, today.end_of_month.day, today.end_of_month.day)
                   .where("start_date <= ?", today)
                   .where("end_date IS NULL OR end_date >= ?", today)
   end
@@ -1665,13 +1683,15 @@ class RecurringEntryGenerator
 end
 ```
 
+Note on `due_entries`: the second half of the `OR` (`today.day == today.end_of_month.day AND day_of_month > today.end_of_month.day`) exists specifically so an entry whose `day_of_month` doesn't fit in the current month (e.g. 31 in April) fires once, on the month's last day, instead of never matching `day_of_month <= today.day` at all. Without it, `transaction_date_for`'s clamp is unreachable dead code — `due_entries` would already have filtered the entry out before the clamp could run. Both branches are covered by the "clamps a day_of_month past the end of a shorter month" and "does not generate the clamped transaction before the last day" tests above.
+
 - [ ] **Step 4: Run to verify it passes**
 
 ```bash
 bundle exec rspec spec/services/recurring_entry_generator_spec.rb
 ```
 
-Expected: `6 examples, 0 failures`.
+Expected: `8 examples, 0 failures`.
 
 - [ ] **Step 5: Commit**
 
