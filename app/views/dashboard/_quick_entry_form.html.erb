@@ -12,26 +12,26 @@
       </div>
     <% end %>
 
-    <%= hidden_field_tag :kind, kind %>
+    <%= hidden_field_tag :kind, kind, id: "kind_#{kind}" %>
 
     <div>
-      <%= label_tag :description, "Descrição" %>
-      <%= text_field_tag :description, record&.description %>
+      <%= label_tag "description_#{kind}", "Descrição" %>
+      <%= text_field_tag :description, record&.description, id: "description_#{kind}" %>
     </div>
 
     <div>
-      <%= label_tag :amount, "Valor" %>
-      <%= number_field_tag :amount, record&.amount, step: 0.01 %>
+      <%= label_tag "amount_#{kind}", "Valor" %>
+      <%= number_field_tag :amount, record&.amount, step: 0.01, id: "amount_#{kind}" %>
     </div>
 
     <div>
-      <%= label_tag :account_id, "Conta" %>
-      <%= select_tag :account_id, options_from_collection_for_select(Account.order(:name), :id, :name, record&.account_id) %>
+      <%= label_tag "account_id_#{kind}", "Conta" %>
+      <%= select_tag :account_id, options_from_collection_for_select(Account.order(:name), :id, :name, record&.account_id), id: "account_id_#{kind}" %>
     </div>
 
     <div>
-      <%= label_tag :category_id, "Categoria" %>
-      <%= select_tag :category_id, options_from_collection_for_select(categories, :id, :name, record&.category_id) %>
+      <%= label_tag "category_id_#{kind}", "Categoria" %>
+      <%= select_tag :category_id, options_from_collection_for_select(categories, :id, :name, record&.category_id), id: "category_id_#{kind}" %>
     </div>
 
     <div class="quick-entry-fixed-toggle">
@@ -40,13 +40,13 @@
     </div>
 
     <div class="quick-entry-field quick-entry-field--avulso">
-      <%= label_tag :date, "Data" %>
-      <%= date_field_tag :date, (record.is_a?(Transaction) ? record.date : Date.current) %>
+      <%= label_tag "date_#{kind}", "Data" %>
+      <%= date_field_tag :date, (record.is_a?(Transaction) ? record.date : Date.current), id: "date_#{kind}" %>
     </div>
 
     <div class="quick-entry-field quick-entry-field--fixo">
-      <%= label_tag :day_of_month, "Dia do mês" %>
-      <%= number_field_tag :day_of_month, (record.is_a?(RecurringEntry) ? record.day_of_month : nil), min: 1, max: 31 %>
+      <%= label_tag "day_of_month_#{kind}", "Dia do mês" %>
+      <%= number_field_tag :day_of_month, (record.is_a?(RecurringEntry) ? record.day_of_month : nil), min: 1, max: 31, id: "day_of_month_#{kind}" %>
     </div>
 
     <%= submit_tag label %>

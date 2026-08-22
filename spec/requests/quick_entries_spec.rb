@@ -38,6 +38,17 @@ RSpec.describe "QuickEntries", type: :request do
     expect(response).to redirect_to(root_path)
   end
 
+  it "creates a fixed income recurring entry and generates this month's transaction immediately" do
+    expect {
+      post quick_entries_path, params: { kind: "income", fixed: "1", description: "Salário", amount: 5000, day_of_month: Date.current.day, account_id: account.id, category_id: income_category.id }
+    }.to change(RecurringEntry, :count).by(1)
+
+    entry = RecurringEntry.last
+    expect(entry.kind).to eq("income")
+    expect(entry.transactions.count).to eq(1)
+    expect(response).to redirect_to(root_path)
+  end
+
   it "does not create anything with an invalid amount, and re-renders the dashboard" do
     expect {
       post quick_entries_path, params: { kind: "expense", description: "Mercado", amount: 0, date: Date.current, account_id: account.id, category_id: expense_category.id }
@@ -73,5 +84,18 @@ RSpec.describe "QuickEntries", type: :request do
 
     expect(expense_form).to include("error-messages")
     expect(expense_form).to match(/<details open/)
+  end
+
+  it "keeps the expense form closed when an income submission fails validation" do
+    account = create(:account)
+    category = create(:category, kind: :income)
+
+    post quick_entries_path, params: { kind: "income", description: "Salário", amount: 0, date: Date.current, account_id: account.id, category_id: category.id }
+
+    body = response.body
+    expense_form = body[/<details[^>]*quick-entry--expense.*?<\/details>/m]
+
+    expect(expense_form).not_to match(/<details open/)
+    expect(expense_form).not_to include("error-messages")
   end
 end

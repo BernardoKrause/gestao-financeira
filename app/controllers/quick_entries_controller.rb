@@ -2,6 +2,13 @@ class QuickEntriesController < ApplicationController
   include DashboardData
 
   def create
+    @kind = params[:kind].presence_in(%w[expense income])
+
+    if @kind.nil?
+      render_dashboard_with_error(nil)
+      return
+    end
+
     if params[:fixed] == "1"
       create_recurring_entry
     else
@@ -15,7 +22,7 @@ class QuickEntriesController < ApplicationController
     @transaction = Transaction.new(
       description: params[:description],
       amount: params[:amount],
-      kind: params[:kind],
+      kind: @kind,
       date: params[:date],
       account_id: params[:account_id],
       category_id: params[:category_id]
@@ -32,7 +39,7 @@ class QuickEntriesController < ApplicationController
     @recurring_entry = RecurringEntry.new(
       description: params[:description],
       amount: params[:amount],
-      kind: params[:kind],
+      kind: @kind,
       day_of_month: params[:day_of_month],
       start_date: Date.current,
       account_id: params[:account_id],
@@ -49,7 +56,7 @@ class QuickEntriesController < ApplicationController
 
   def render_dashboard_with_error(record)
     load_dashboard_data
-    @quick_entry_kind = params[:kind]
+    @quick_entry_kind = @kind
     @quick_entry_record = record
     render "dashboard/index", status: :unprocessable_entity
   end
