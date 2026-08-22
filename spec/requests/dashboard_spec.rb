@@ -5,16 +5,18 @@ RSpec.describe "Dashboard", type: :request do
 
   before { sign_in user }
 
-  it "shows the current balance and this month's transactions" do
+  it "shows the current balance and the full transaction history" do
     Setting.instance.update!(initial_balance: 1000)
     category = create(:category)
     create(:transaction, category: category, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+    create(:transaction, category: category, description: "Aluguel de fevereiro", amount: 50, kind: :expense, date: 3.months.ago.to_date)
 
     get root_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(900, unit: "R$ "))
+    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(850, unit: "R$ "))
     expect(response.body).to include("Mercado")
+    expect(response.body).to include("Aluguel de fevereiro")
   end
 
   it "redirects to sign in when not authenticated" do

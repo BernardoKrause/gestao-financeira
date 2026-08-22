@@ -280,6 +280,18 @@ tfoot td {
   border-top: 2px solid var(--border);
 }
 
+.transaction-row td:last-child {
+  font-weight: 600;
+}
+
+.transaction-row--expense td:last-child {
+  color: #dc2626;
+}
+
+.transaction-row--income td:last-child {
+  color: #16a34a;
+}
+
 /* Setting edit */
 
 .setting-edit {

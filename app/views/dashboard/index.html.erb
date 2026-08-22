@@ -62,13 +62,24 @@
         record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
 </div>
 
-<h2>Lançamentos do mês</h2>
-<ul>
-  <% @transactions.each do |transaction| %>
-    <li>
-      <%= transaction.date %> — <%= transaction.description %> — <%= transaction.kind %> —
-      <%= number_to_currency(transaction.amount, unit: "R$ ") %> —
-      <%= transaction.category.name %>
-    </li>
-  <% end %>
-</ul>
+<h2>Histórico</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Descrição</th>
+      <th>Categoria</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @transactions.each do |transaction| %>
+      <tr class="transaction-row transaction-row--<%= transaction.kind %>">
+        <td><%= transaction.date %></td>
+        <td><%= transaction.description %></td>
+        <td><%= transaction.category.name %></td>
+        <td><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
