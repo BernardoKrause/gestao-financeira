@@ -53,7 +53,8 @@ Tela principal, para o mês corrente:
 
 - Saldo atual por conta (`initial_balance` + transações lançadas até hoje).
 - Previsto até o fim do mês, por conta e total consolidado:
-  `saldo atual + receitas fixas restantes do mês + receitas avulsas já lançadas − gastos fixos restantes do mês − gastos avulsos já lançados`.
+  `saldo atual + receitas fixas restantes do mês − gastos fixos restantes do mês`.
+  Decisão de escopo (MVP): um lançamento avulso com data futura dentro do mês corrente só entra na previsão quando essa data chegar (passa a integrar o "saldo atual"). Avulsos futuros não são somados antecipadamente nesta versão — mantém o cálculo simples; pode ser revisitado depois se fizer falta na prática.
 - Lista de lançamentos do mês (fixos e avulsos), com filtro por conta e por categoria.
 
 ## Testes
