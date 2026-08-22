@@ -1,0 +1,30 @@
+<h1>Criar conta</h1>
+
+<%= form_with model: @user, url: setup_path do |f| %>
+  <% if @user.errors.any? %>
+    <div class="error-messages">
+      <ul>
+        <% @user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :email %>
+    <%= f.email_field :email, autofocus: true %>
+  </div>
+
+  <div>
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+  </div>
+
+  <div>
+    <%= f.label :password_confirmation, "Confirmação de senha" %>
+    <%= f.password_field :password_confirmation %>
+  </div>
+
+  <%= f.submit "Criar conta" %>
+<% end %>
