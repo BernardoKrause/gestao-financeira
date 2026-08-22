@@ -1,0 +1,39 @@
+<%= form_with model: recurring_entry do |f| %>
+  <div>
+    <%= f.label :description %>
+    <%= f.text_field :description %>
+  </div>
+  <div>
+    <%= f.label :amount %>
+    <%= f.number_field :amount, step: 0.01 %>
+  </div>
+  <div>
+    <%= f.label :kind %>
+    <%= f.select :kind, RecurringEntry.kinds.keys %>
+  </div>
+  <div>
+    <%= f.label :day_of_month %>
+    <%= f.number_field :day_of_month, min: 1, max: 31 %>
+  </div>
+  <div>
+    <%= f.label :active %>
+    <%= f.check_box :active %>
+  </div>
+  <div>
+    <%= f.label :start_date %>
+    <%= f.date_field :start_date %>
+  </div>
+  <div>
+    <%= f.label :end_date %>
+    <%= f.date_field :end_date %>
+  </div>
+  <div>
+    <%= f.label :account_id, "Conta" %>
+    <%= f.collection_select :account_id, Account.order(:name), :id, :name %>
+  </div>
+  <div>
+    <%= f.label :category_id, "Categoria" %>
+    <%= f.collection_select :category_id, Category.order(:name), :id, :name %>
+  </div>
+  <%= f.submit %>
+<% end %>

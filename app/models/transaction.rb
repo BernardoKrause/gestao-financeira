@@ -3,6 +3,7 @@ class Transaction < ApplicationRecord
 
   belongs_to :account
   belongs_to :category
+  belongs_to :recurring_entry, optional: true
 
   validates :description, presence: true
   validates :amount, numericality: { greater_than: 0 }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_144113) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_22_144504) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_144113) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "recurring_entries", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.boolean "active", default: true, null: false
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "day_of_month", null: false
+    t.string "description", null: false
+    t.date "end_date"
+    t.integer "kind", default: 0, null: false
+    t.date "start_date", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_recurring_entries_on_account_id"
+    t.index ["category_id"], name: "index_recurring_entries_on_category_id"
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.decimal "amount", precision: 12, scale: 2, null: false
@@ -38,9 +54,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_144113) do
     t.date "date", null: false
     t.string "description", null: false
     t.integer "kind", default: 0, null: false
+    t.bigint "recurring_entry_id"
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_transactions_on_account_id"
     t.index ["category_id"], name: "index_transactions_on_category_id"
+    t.index ["recurring_entry_id"], name: "index_transactions_on_recurring_entry_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -55,6 +73,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_144113) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "recurring_entries", "accounts"
+  add_foreign_key "recurring_entries", "categories"
   add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "categories"
+  add_foreign_key "transactions", "recurring_entries"
 end
