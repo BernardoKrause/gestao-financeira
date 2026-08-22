@@ -1,0 +1,39 @@
+<h1>Painel</h1>
+
+<h2>Contas</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Conta</th>
+      <th>Saldo atual</th>
+      <th>Previsto até o fim do mês</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @accounts.each do |account| %>
+      <tr>
+        <td><%= account.name %></td>
+        <td><%= number_to_currency(account.current_balance(as_of: @today), unit: "R$ ") %></td>
+        <td><%= number_to_currency(account.projected_month_end_balance(as_of: @today), unit: "R$ ") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td>Total</td>
+      <td><%= number_to_currency(@total_current_balance, unit: "R$ ") %></td>
+      <td><%= number_to_currency(@total_projected_balance, unit: "R$ ") %></td>
+    </tr>
+  </tfoot>
+</table>
+
+<h2>Lançamentos do mês</h2>
+<ul>
+  <% @transactions.each do |transaction| %>
+    <li>
+      <%= transaction.date %> — <%= transaction.description %> — <%= transaction.kind %> —
+      <%= number_to_currency(transaction.amount, unit: "R$ ") %> —
+      <%= transaction.account.name %> / <%= transaction.category.name %>
+    </li>
+  <% end %>
+</ul>
