@@ -1,31 +1,41 @@
 <h1>Painel</h1>
 
-<h2>Contas</h2>
+<h2>Saldo</h2>
 <table>
-  <thead>
-    <tr>
-      <th>Conta</th>
-      <th>Saldo atual</th>
-      <th>Previsto até o fim do mês</th>
-    </tr>
-  </thead>
   <tbody>
-    <% @accounts.each do |account| %>
-      <tr>
-        <td><%= account.name %></td>
-        <td><%= number_to_currency(account.current_balance(as_of: @today), unit: "R$ ") %></td>
-        <td><%= number_to_currency(account.projected_month_end_balance(as_of: @today), unit: "R$ ") %></td>
-      </tr>
-    <% end %>
-  </tbody>
-  <tfoot>
     <tr>
-      <td>Total</td>
-      <td><%= number_to_currency(@total_current_balance, unit: "R$ ") %></td>
-      <td><%= number_to_currency(@total_projected_balance, unit: "R$ ") %></td>
+      <td>Saldo atual</td>
+      <td><%= number_to_currency(@current_balance, unit: "R$ ") %></td>
     </tr>
-  </tfoot>
+    <tr>
+      <td>Previsto até o fim do mês</td>
+      <td><%= number_to_currency(@projected_balance, unit: "R$ ") %></td>
+    </tr>
+  </tbody>
 </table>
+
+<details<%= " open" if @setting&.errors&.any? %> class="setting-edit">
+  <summary>Editar saldo inicial</summary>
+
+  <%= form_with model: @setting, url: setting_path, method: :patch do |f| %>
+    <% if @setting.errors.any? %>
+      <div class="error-messages">
+        <ul>
+          <% @setting.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.label :initial_balance, "Saldo inicial" %>
+      <%= f.number_field :initial_balance, step: 0.01 %>
+    </div>
+
+    <%= f.submit "Salvar" %>
+  <% end %>
+</details>
 
 <h2>Resumo do mês</h2>
 <table>
@@ -58,7 +68,7 @@
     <li>
       <%= transaction.date %> — <%= transaction.description %> — <%= transaction.kind %> —
       <%= number_to_currency(transaction.amount, unit: "R$ ") %> —
-      <%= transaction.account.name %> / <%= transaction.category.name %>
+      <%= transaction.category.name %>
     </li>
   <% end %>
 </ul>

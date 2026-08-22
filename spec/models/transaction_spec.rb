@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Transaction, type: :model do
-  it "is valid with description, amount, kind, date, account and category" do
+  it "is valid with description, amount, kind, date and category" do
     expect(build(:transaction)).to be_valid
   end
 

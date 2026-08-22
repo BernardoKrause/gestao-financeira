@@ -7,7 +7,6 @@ FactoryBot.define do
     active { true }
     start_date { Date.current.beginning_of_month }
     end_date { nil }
-    account
     category
   end
 end

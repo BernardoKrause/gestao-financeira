@@ -5,7 +5,7 @@
     <li>
       <%= transaction.date %> — <%= transaction.description %> —
       <%= transaction.kind %> — <%= transaction.amount %> —
-      <%= transaction.account.name %> / <%= transaction.category.name %> —
+      <%= transaction.category.name %> —
       <%= link_to "Editar", edit_transaction_path(transaction) %> —
       <%= link_to "Remover", transaction_path(transaction), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" } %>
     </li>

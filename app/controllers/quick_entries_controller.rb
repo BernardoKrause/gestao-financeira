@@ -24,7 +24,6 @@ class QuickEntriesController < ApplicationController
       amount: params[:amount],
       kind: @kind,
       date: params[:date],
-      account_id: params[:account_id],
       category_id: params[:category_id]
     )
 
@@ -42,7 +41,6 @@ class QuickEntriesController < ApplicationController
       kind: @kind,
       day_of_month: params[:day_of_month],
       start_date: Date.current,
-      account_id: params[:account_id],
       category_id: params[:category_id]
     )
 

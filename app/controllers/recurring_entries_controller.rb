@@ -2,7 +2,7 @@ class RecurringEntriesController < ApplicationController
   before_action :set_recurring_entry, only: %i[show edit update destroy]
 
   def index
-    @recurring_entries = RecurringEntry.includes(:account, :category).order(:description)
+    @recurring_entries = RecurringEntry.includes(:category).order(:description)
   end
 
   def show; end
@@ -42,6 +42,6 @@ class RecurringEntriesController < ApplicationController
   end
 
   def recurring_entry_params
-    params.require(:recurring_entry).permit(:description, :amount, :kind, :day_of_month, :active, :start_date, :end_date, :account_id, :category_id)
+    params.require(:recurring_entry).permit(:description, :amount, :kind, :day_of_month, :active, :start_date, :end_date, :category_id)
   end
 end

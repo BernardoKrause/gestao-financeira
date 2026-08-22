@@ -2,7 +2,7 @@ class TransactionsController < ApplicationController
   before_action :set_transaction, only: %i[show edit update destroy]
 
   def index
-    @transactions = Transaction.includes(:account, :category).order(date: :desc)
+    @transactions = Transaction.includes(:category).order(date: :desc)
   end
 
   def show; end
@@ -42,6 +42,6 @@ class TransactionsController < ApplicationController
   end
 
   def transaction_params
-    params.require(:transaction).permit(:description, :amount, :kind, :date, :account_id, :category_id)
+    params.require(:transaction).permit(:description, :amount, :kind, :date, :category_id)
   end
 end

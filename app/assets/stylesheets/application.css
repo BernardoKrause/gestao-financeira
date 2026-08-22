@@ -280,6 +280,28 @@ tfoot td {
   border-top: 2px solid var(--border);
 }
 
+/* Setting edit */
+
+.setting-edit {
+  margin-bottom: 1.5rem;
+}
+
+.setting-edit summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  list-style: none;
+}
+
+.setting-edit summary::-webkit-details-marker {
+  display: none;
+}
+
+.setting-edit form {
+  margin-top: 0.75rem;
+}
+
 /* Quick entries */
 
 .quick-entries {

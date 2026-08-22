@@ -30,7 +30,6 @@ class RecurringEntryGenerator
       description: entry.description,
       amount: entry.amount,
       kind: entry.kind,
-      account: entry.account,
       category: entry.category,
       date: transaction_date_for(entry)
     )

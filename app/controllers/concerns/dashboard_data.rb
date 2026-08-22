@@ -5,10 +5,10 @@ module DashboardData
 
   def load_dashboard_data
     @today = Date.current
-    @accounts = Account.order(:name)
-    @total_current_balance = @accounts.sum { |account| account.current_balance(as_of: @today) }
-    @total_projected_balance = @accounts.sum { |account| account.projected_month_end_balance(as_of: @today) }
-    @transactions = Transaction.includes(:account, :category)
+    @setting = Setting.instance
+    @current_balance = @setting.current_balance(as_of: @today)
+    @projected_balance = @setting.projected_month_end_balance(as_of: @today)
+    @transactions = Transaction.includes(:category)
                                 .where(date: @today.beginning_of_month..@today.end_of_month)
                                 .order(date: :desc)
     @month_income_total = @transactions.select(&:income?).sum(&:amount)

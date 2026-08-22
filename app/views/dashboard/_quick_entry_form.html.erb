@@ -25,11 +25,6 @@
     </div>
 
     <div>
-      <%= label_tag "account_id_#{kind}", "Conta" %>
-      <%= select_tag :account_id, options_from_collection_for_select(Account.order(:name), :id, :name, record&.account_id), id: "account_id_#{kind}" %>
-    </div>
-
-    <div>
       <%= label_tag "category_id_#{kind}", "Categoria" %>
       <%= select_tag :category_id, options_from_collection_for_select(categories, :id, :name, record&.category_id), id: "category_id_#{kind}" %>
     </div>
