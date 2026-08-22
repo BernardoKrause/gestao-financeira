@@ -33,11 +33,16 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "shows the month's income and expense totals" do
+    # Two transactions per kind, no single one equal to the total, so the
+    # assertions below can only pass if a *summed* total is rendered
+    # somewhere — not just each transaction's own line in the list below.
     account = create(:account)
     expense_category = create(:category, kind: :expense)
     income_category = create(:category, kind: :income)
-    create(:transaction, account: account, category: expense_category, kind: :expense, amount: 100, date: Date.current)
-    create(:transaction, account: account, category: income_category, kind: :income, amount: 350, date: Date.current)
+    create(:transaction, account: account, category: expense_category, kind: :expense, amount: 40, date: Date.current)
+    create(:transaction, account: account, category: expense_category, kind: :expense, amount: 60, date: Date.current)
+    create(:transaction, account: account, category: income_category, kind: :income, amount: 150, date: Date.current)
+    create(:transaction, account: account, category: income_category, kind: :income, amount: 200, date: Date.current)
 
     get root_path
 
