@@ -4,12 +4,12 @@ Aplicação pessoal de gestão financeira em Ruby on Rails: contas, categorias,
 gastos/receitas fixas (recorrentes) e avulsas, e um painel com saldo atual e
 previsto do mês.
 
-## Setup
+## Setup inicial (só na primeira vez, ou depois de `git pull` com migrations novas)
 
     bundle install
     bin/rails db:create db:migrate
 
-## Criar o usuário
+## Criar o usuário (só na primeira vez)
 
 Defina as variáveis de ambiente e rode o seed:
 
@@ -17,9 +17,16 @@ Defina as variáveis de ambiente e rode o seed:
 
 A senha precisa ter ao menos uma letra maiúscula e um caractere especial.
 
-## Rodar localmente
+## Rodar localmente (dia a dia)
 
-    bin/rails server
+    bin/dev
+
+E acessar http://localhost:3000 — vai pedir login com o usuário criado acima.
+
+O PostgreSQL roda em background como serviço do Homebrew (`postgresql@17`) e
+inicia sozinho no login da máquina — não precisa subir nada manualmente. Se
+quiser conferir se está no ar: `pg_isready` (deve responder `accepting
+connections`). Se não estiver: `brew services start postgresql@17`.
 
 ## Rodar os testes
 
