@@ -67,5 +67,21 @@ RSpec.describe Account, type: :model do
 
       expect(account.projected_month_end_balance(as_of: Date.new(2026, 4, 30))).to eq(700)
     end
+
+    it "ignores a recurring entry whose end_date is before its fire date this month" do
+      account = create(:account, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, account: account, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 3, 20))
+
+      expect(account.projected_month_end_balance(as_of: Date.new(2026, 3, 10))).to eq(1000)
+    end
+
+    it "ignores a recurring entry whose start_date is after its fire date this month" do
+      account = create(:account, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, account: account, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 3, 28))
+
+      expect(account.projected_month_end_balance(as_of: Date.new(2026, 3, 10))).to eq(1000)
+    end
   end
 end

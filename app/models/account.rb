@@ -21,10 +21,14 @@ class Account < ApplicationRecord
   def pending_recurring_signed_total(as_of:)
     return 0 if as_of.day == as_of.end_of_month.day
 
-    recurring_entries.active
-                      .where("day_of_month > ?", as_of.day)
-                      .where("start_date <= ?", as_of.end_of_month)
-                      .where("end_date IS NULL OR end_date >= ?", as_of)
+    recurring_entries.active.select { |entry| pending?(entry, as_of) }
                       .sum { |entry| entry.income? ? entry.amount : -entry.amount }
+  end
+
+  def pending?(entry, as_of)
+    return false unless entry.day_of_month > as_of.day
+
+    fire_date = Date.new(as_of.year, as_of.month, [ entry.day_of_month, as_of.end_of_month.day ].min)
+    entry.start_date <= fire_date && (entry.end_date.nil? || entry.end_date >= fire_date)
   end
 end

@@ -29,4 +29,14 @@ RSpec.describe "Accounts", type: :request do
     account = create(:account)
     expect { delete account_path(account) }.to change(Account, :count).by(-1)
   end
+
+  it "does not destroy an account that still has transactions, and shows an error" do
+    account = create(:account)
+    category = create(:category)
+    create(:transaction, account: account, category: category)
+
+    expect { delete account_path(account) }.not_to change(Account, :count)
+    expect(response).to redirect_to(accounts_path)
+    expect(flash[:alert]).to be_present
+  end
 end

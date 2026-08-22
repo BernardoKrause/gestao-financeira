@@ -31,8 +31,11 @@ class CategoriesController < ApplicationController
   end
 
   def destroy
-    @category.destroy
-    redirect_to categories_path, notice: "Categoria removida."
+    if @category.destroy
+      redirect_to categories_path, notice: "Categoria removida."
+    else
+      redirect_to categories_path, alert: @category.errors.full_messages.to_sentence
+    end
   end
 
   private

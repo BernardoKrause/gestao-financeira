@@ -29,4 +29,14 @@ RSpec.describe "Categories", type: :request do
     category = create(:category)
     expect { delete category_path(category) }.to change(Category, :count).by(-1)
   end
+
+  it "does not destroy a category that still has transactions, and shows an error" do
+    account = create(:account)
+    category = create(:category)
+    create(:transaction, account: account, category: category)
+
+    expect { delete category_path(category) }.not_to change(Category, :count)
+    expect(response).to redirect_to(categories_path)
+    expect(flash[:alert]).to be_present
+  end
 end

@@ -31,8 +31,11 @@ class AccountsController < ApplicationController
   end
 
   def destroy
-    @account.destroy
-    redirect_to accounts_path, notice: "Conta removida."
+    if @account.destroy
+      redirect_to accounts_path, notice: "Conta removida."
+    else
+      redirect_to accounts_path, alert: @account.errors.full_messages.to_sentence
+    end
   end
 
   private
