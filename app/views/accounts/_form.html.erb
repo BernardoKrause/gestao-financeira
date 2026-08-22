@@ -1,0 +1,15 @@
+<%= form_with model: account do |f| %>
+  <div>
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+  <div>
+    <%= f.label :account_type %>
+    <%= f.select :account_type, Account.account_types.keys %>
+  </div>
+  <div>
+    <%= f.label :initial_balance %>
+    <%= f.number_field :initial_balance, step: 0.01 %>
+  </div>
+  <%= f.submit %>
+<% end %>
