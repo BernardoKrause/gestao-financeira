@@ -11,7 +11,11 @@ previsto do mês.
 
 ## Criar o usuário (só na primeira vez)
 
-Defina as variáveis de ambiente e rode o seed:
+Suba a aplicação (`bin/dev`) e acesse http://localhost:3000/setup — a tela cria o único
+usuário do sistema. Ela só funciona enquanto não existir nenhum usuário; depois de criar
+sua conta, `/setup` passa a redirecionar para o login automaticamente.
+
+Alternativa via terminal (útil em deploys automatizados), com o mesmo resultado:
 
     SEED_USER_EMAIL=seu@email.com SEED_USER_PASSWORD='SenhaForte#1' bin/rails db:seed
 

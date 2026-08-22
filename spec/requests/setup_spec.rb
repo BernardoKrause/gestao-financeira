@@ -8,6 +8,12 @@ RSpec.describe "Setup", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "also responds at the bare /setup path" do
+      get "/setup"
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "creates the user, signs in, and redirects to root" do
       expect {
         post setup_path, params: { user: { email: "dono@example.com", password: "Strong#Pass1", password_confirmation: "Strong#Pass1" } }

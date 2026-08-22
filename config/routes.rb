@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   root "dashboard#index"
 
   devise_for :users
+  get "setup", to: "setup#new"
   resource :setup, only: %i[new create], controller: "setup"
   resources :accounts
   resources :categories

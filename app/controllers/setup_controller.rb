@@ -9,7 +9,7 @@ class SetupController < ApplicationController
   def create
     @user = User.new(setup_params)
     if @user.save
-      sign_in(@user)
+      sign_in(@user, event: :authentication)
       redirect_to root_path, notice: "Conta criada com sucesso."
     else
       render :new, status: :unprocessable_entity
