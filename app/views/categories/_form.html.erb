@@ -1,0 +1,15 @@
+<%= form_with model: category do |f| %>
+  <div>
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+  <div>
+    <%= f.label :kind %>
+    <%= f.select :kind, Category.kinds.keys %>
+  </div>
+  <div>
+    <%= f.label :color %>
+    <%= f.text_field :color %>
+  </div>
+  <%= f.submit %>
+<% end %>
