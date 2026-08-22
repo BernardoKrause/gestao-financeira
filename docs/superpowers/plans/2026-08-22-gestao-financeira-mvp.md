@@ -1851,6 +1851,16 @@ Append to `spec/models/account_spec.rb` (inside the existing `RSpec.describe Acc
 
       expect(account.projected_month_end_balance(as_of: Date.new(2026, 3, 10))).to eq(1000)
     end
+
+    it "does not double-count a recurring entry that already fired today via the month-end clamp" do
+      account = create(:account, initial_balance: 1000)
+      category = create(:category)
+      entry = create(:recurring_entry, account: account, category: category, kind: :expense, amount: 300, day_of_month: 31, start_date: Date.new(2026, 1, 1))
+      # April has 30 days: RecurringEntryGenerator would have generated this on April 30 via the clamp (see Task 7).
+      create(:transaction, account: account, category: category, kind: :expense, amount: 300, date: Date.new(2026, 4, 30), recurring_entry: entry)
+
+      expect(account.projected_month_end_balance(as_of: Date.new(2026, 4, 30))).to eq(700)
+    end
   end
 ```
 
@@ -1878,6 +1888,8 @@ Edit `app/models/account.rb`, adding inside the `Account` class:
   private
 
   def pending_recurring_signed_total(as_of:)
+    return 0 if as_of.day == as_of.end_of_month.day
+
     recurring_entries.active
                       .where("day_of_month > ?", as_of.day)
                       .where("start_date <= ?", as_of.end_of_month)
@@ -1887,6 +1899,8 @@ Edit `app/models/account.rb`, adding inside the `Account` class:
 ```
 
 Note: keep existing `validates` calls above the new `private` section; do not duplicate `private`.
+
+Note on the `return 0 if as_of.day == as_of.end_of_month.day` guard: on the last day of the month, `RecurringEntryGenerator` (Task 7) treats every still-active entry as due — including ones whose `day_of_month` exceeds this month's length, via its own month-end clamp — so by the time `as_of` is the month's last day, nothing should still be "pending"; anything not yet generated is either already reflected in `current_balance` or will be generated today. Without this guard, an entry with `day_of_month` 29-31 would be double-counted on a short month's last day: once via its actual generated `Transaction` (in `current_balance`) and again via `day_of_month > as_of.day` still evaluating true (e.g. `31 > 30`). See the "does not double-count..." test above.
 
 - [ ] **Step 4: Run to verify it passes**
 
