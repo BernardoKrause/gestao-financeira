@@ -7,9 +7,5 @@
     <%= f.label :kind %>
     <%= f.select :kind, Category.kinds.keys %>
   </div>
-  <div>
-    <%= f.label :color %>
-    <%= f.text_field :color %>
-  </div>
   <%= f.submit %>
 <% end %>

@@ -33,8 +33,28 @@ RSpec.describe "QuickEntries", type: :request do
 
     entry = RecurringEntry.last
     expect(entry.start_date).to eq(Date.current)
+    expect(entry.end_date).to be_nil
     expect(entry.transactions.count).to eq(1)
     expect(response).to redirect_to(root_path)
+  end
+
+  it "creates an installment purchase with a computed end_date, stopping after the last installment" do
+    post quick_entries_path, params: { kind: "expense", fixed: "1", description: "TV parcelada", amount: 300, day_of_month: Date.current.day, installments: 3, category_id: expense_category.id }
+
+    entry = RecurringEntry.last
+    expect(entry.end_date).to eq(Date.current + 2.months)
+
+    # First installment generated immediately (today).
+    expect(entry.transactions.count).to eq(1)
+
+    # Still due next month and the month after (2nd and 3rd installments)...
+    RecurringEntryGenerator.call(today: Date.current + 1.month)
+    RecurringEntryGenerator.call(today: Date.current + 2.months)
+    expect(entry.transactions.count).to eq(3)
+
+    # ...but not a 4th, past end_date.
+    RecurringEntryGenerator.call(today: Date.current + 3.months)
+    expect(entry.transactions.count).to eq(3)
   end
 
   it "creates a fixed income recurring entry and generates this month's transaction immediately" do

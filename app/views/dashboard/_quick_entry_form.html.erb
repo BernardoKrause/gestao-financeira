@@ -44,6 +44,11 @@
       <%= number_field_tag :day_of_month, (record.is_a?(RecurringEntry) ? record.day_of_month : nil), min: 1, max: 31, id: "day_of_month_#{kind}" %>
     </div>
 
+    <div class="quick-entry-field quick-entry-field--fixo">
+      <%= label_tag "installments_#{kind}", "Número de parcelas (deixe em branco pra recorrência sem fim)" %>
+      <%= number_field_tag :installments, nil, min: 2, id: "installments_#{kind}" %>
+    </div>
+
     <%= submit_tag label %>
   <% end %>
 </details>
