@@ -58,4 +58,21 @@ RSpec.describe RecurringEntryGenerator do
 
     expect(entry.transactions.count).to eq(2)
   end
+
+  it "clamps a day_of_month past the end of a shorter month to the last day of that month" do
+    entry = create(:recurring_entry, account: account, category: category, day_of_month: 31, start_date: Date.new(2026, 1, 1))
+
+    described_class.call(today: Date.new(2026, 4, 30))
+
+    transaction = entry.transactions.sole
+    expect(transaction.date).to eq(Date.new(2026, 4, 30))
+  end
+
+  it "does not generate the clamped transaction before the last day of a shorter month" do
+    entry = create(:recurring_entry, account: account, category: category, day_of_month: 31, start_date: Date.new(2026, 1, 1))
+
+    described_class.call(today: Date.new(2026, 4, 29))
+
+    expect(entry.transactions).to be_empty
+  end
 end

@@ -17,7 +17,8 @@ class RecurringEntryGenerator
 
   def due_entries
     RecurringEntry.active
-                  .where("day_of_month <= ?", today.day)
+                  .where("day_of_month <= ? OR (? = ? AND day_of_month > ?)",
+                         today.day, today.day, today.end_of_month.day, today.end_of_month.day)
                   .where("start_date <= ?", today)
                   .where("end_date IS NULL OR end_date >= ?", today)
   end
