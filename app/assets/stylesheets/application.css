@@ -1,398 +1,66 @@
 /*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
+ * Styling is Bootstrap 5 (loaded via CDN in the layout). This file only
+ * holds what Bootstrap can't do on its own: the JS-free field toggles
+ * (Avulso/Fixo, Parcelado) built with the CSS :has() selector.
  */
 
-:root {
-  --bg: #f7f8fa;
-  --surface: #ffffff;
-  --text: #1f2937;
-  --text-muted: #6b7280;
-  --border: #e5e7eb;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --success-bg: #ecfdf5;
-  --success-text: #065f46;
-  --success-border: #a7f3d0;
-  --alert-bg: #fef2f2;
-  --alert-text: #991b1b;
-  --alert-border: #fecaca;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-}
-
-h1, h2, h3 {
-  color: var(--text);
-  margin-top: 0;
-}
-
-a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-a:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
-}
-
-/* Layout */
-
-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-
-/* Standalone action links directly under a heading (e.g. "Nova conta", "Voltar") */
-main > a {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--accent);
-  color: #ffffff;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  font-size: 0.9375rem;
-}
-
-main > a:hover {
-  background: var(--accent-hover);
-  color: #ffffff;
-  text-decoration: none;
-}
-
-/* Navigation */
-
-nav {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  max-width: 960px;
-  margin: 0 auto 1.5rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 1rem 1.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-nav a {
-  color: var(--text);
-  font-weight: 500;
-}
-
-nav a:hover {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-nav form {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0 0 0 auto;
-  max-width: none;
-}
-
-nav form input[type="submit"],
-nav form button[type="submit"] {
-  background: none;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-nav form input[type="submit"]:hover,
-nav form button[type="submit"]:hover {
-  background: var(--bg);
-  color: var(--accent);
-}
-
-/* Flash messages */
-
-.flash {
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid transparent;
-  margin-bottom: 1.5rem;
-}
-
-.flash.notice {
-  background: var(--success-bg);
-  color: var(--success-text);
-  border-color: var(--success-border);
-}
-
-.flash.alert {
-  background: var(--alert-bg);
-  color: var(--alert-text);
-  border-color: var(--alert-border);
-}
-
-/* Forms */
-
-form {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  max-width: 480px;
-}
-
-form div {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
-}
-
-form div:has(input[type="checkbox"]) {
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-form label {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: var(--text-muted);
-}
-
-form input[type="text"],
-form input[type="email"],
-form input[type="password"],
-form input[type="number"],
-form input[type="date"],
-form select {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  color: var(--text);
-  background: var(--bg);
-}
-
-form input:focus,
-form select:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-form input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
-}
-
-input[type="submit"],
-button[type="submit"] {
-  background: var(--accent);
-  color: #ffffff;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.625rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-input[type="submit"]:hover,
-button[type="submit"]:hover {
-  background: var(--accent-hover);
-}
-
-.error-messages {
-  background: var(--alert-bg);
-  border: 1px solid var(--alert-border);
-  color: var(--alert-text);
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-}
-
-.error-messages ul {
-  margin: 0;
-  padding-left: 1.25rem;
-}
-
-/* Lists (index pages) */
-
-ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-ul li {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 0.875rem 1rem;
-  margin-bottom: 0.5rem;
-}
-
-/* Tables (dashboard) */
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
-}
-
-thead {
-  background: var(--bg);
-}
-
-th, td {
-  text-align: left;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-tfoot td {
-  font-weight: 700;
-  border-bottom: none;
-  border-top: 2px solid var(--border);
-}
-
-.transaction-row td:last-child {
-  font-weight: 600;
-}
-
-.transaction-row--expense td:last-child {
-  color: #dc2626;
-}
-
-.transaction-row--income td:last-child {
-  color: #16a34a;
-}
-
-/* Setting edit */
-
-.setting-edit {
-  margin-bottom: 1.5rem;
-}
-
-.setting-edit summary {
-  cursor: pointer;
-  color: var(--accent);
-  font-weight: 600;
-  font-size: 0.9375rem;
-  list-style: none;
-}
-
-.setting-edit summary::-webkit-details-marker {
-  display: none;
-}
-
-.setting-edit form {
-  margin-top: 0.75rem;
-}
-
-/* Quick entries */
-
-.quick-entries {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.quick-entry {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  flex: 1;
-  min-width: 260px;
-}
-
-.quick-entry summary {
-  cursor: pointer;
-  padding: 0.875rem 1rem;
-  font-weight: 700;
-  color: #ffffff;
-  border-radius: 0.5rem;
-  list-style: none;
-}
-
-.quick-entry summary::-webkit-details-marker {
-  display: none;
-}
-
-.quick-entry--expense summary {
-  background: #dc2626;
-}
-
-.quick-entry--income summary {
-  background: #16a34a;
-}
-
-.quick-entry form {
-  border: none;
-  border-radius: 0;
-  max-width: none;
-  margin-bottom: 0;
-  background: none;
-}
+/* Quick entry: Avulso vs Fixo */
 
 .quick-entry-field--fixo {
   display: none;
 }
 
 .quick-entry:has(.fixed-toggle:checked) .quick-entry-field--fixo {
-  display: flex;
+  display: block;
 }
 
 .quick-entry:has(.fixed-toggle:checked) .quick-entry-field--avulso {
   display: none;
 }
 
-/* Higher specificity than `form div:has(input[type="checkbox"])` (which
-   this wrapper would otherwise match too, since the parcelado checkbox is
-   nested inside it) — without overriding both properties, the block either
-   lays out as a row, or (align-items: center leaking through) its fields
-   sit centered instead of stretched to the left like every other field. */
-.quick-entry .quick-entry-recurring-options {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
-}
+/* Quick entry: Parcelado vs sem parcelas, nested inside the Fixo block above */
 
 .quick-entry-subfield--parcelado {
   display: none;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .quick-entry:has(.parcelado-toggle:checked) .quick-entry-subfield--parcelado {
-  display: flex;
+  display: block;
 }
 
 .quick-entry:has(.parcelado-toggle:checked) .quick-entry-subfield--sem-parcelas {
   display: none;
+}
+
+/* Quick entry cards: red for Gasto, green for Receita */
+
+.quick-entry--expense .quick-entry-summary {
+  background-color: var(--bs-danger);
+  color: #fff;
+}
+
+.quick-entry--income .quick-entry-summary {
+  background-color: var(--bs-success);
+  color: #fff;
+}
+
+.quick-entry-summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.quick-entry-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* History table: color the amount by kind */
+
+.transaction-row--expense td:last-child {
+  color: var(--bs-danger);
+  font-weight: 600;
+}
+
+.transaction-row--income td:last-child {
+  color: var(--bs-success);
+  font-weight: 600;
 }

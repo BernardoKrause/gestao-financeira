@@ -1,58 +1,62 @@
-<h1>Painel</h1>
+<h1 class="mb-4">Painel</h1>
 
-<h2>Saldo</h2>
-<table>
+<h2 class="h4">Saldo</h2>
+<table class="table table-bordered bg-white">
   <tbody>
     <tr>
       <td>Saldo atual</td>
-      <td><%= number_to_currency(@current_balance, unit: "R$ ") %></td>
+      <td class="fw-semibold"><%= number_to_currency(@current_balance, unit: "R$ ") %></td>
     </tr>
     <tr>
       <td>Previsto até o fim do mês</td>
-      <td><%= number_to_currency(@projected_balance, unit: "R$ ") %></td>
+      <td class="fw-semibold"><%= number_to_currency(@projected_balance, unit: "R$ ") %></td>
     </tr>
   </tbody>
 </table>
 
-<details<%= " open" if @setting&.errors&.any? %> class="setting-edit">
-  <summary>Editar saldo inicial</summary>
+<details<%= " open" if @setting&.errors&.any? %> class="mb-4">
+  <summary class="text-primary" style="cursor: pointer;">Editar saldo inicial</summary>
 
-  <%= form_with model: @setting, url: setting_path, method: :patch do |f| %>
+  <%= form_with model: @setting, url: setting_path, method: :patch, html: { class: "row g-2 align-items-end mt-2" } do |f| %>
     <% if @setting.errors.any? %>
-      <div class="error-messages">
-        <ul>
-          <% @setting.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
+      <div class="col-12">
+        <div class="alert alert-danger error-messages">
+          <ul class="mb-0">
+            <% @setting.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
       </div>
     <% end %>
 
-    <div>
-      <%= f.label :initial_balance, "Saldo inicial" %>
-      <%= f.number_field :initial_balance, step: 0.01 %>
+    <div class="col-auto">
+      <%= f.label :initial_balance, "Saldo inicial", class: "form-label" %>
+      <%= f.number_field :initial_balance, step: 0.01, class: "form-control" %>
     </div>
 
-    <%= f.submit "Salvar" %>
+    <div class="col-auto">
+      <%= f.submit "Salvar", class: "btn btn-primary" %>
+    </div>
   <% end %>
 </details>
 
-<h2>Resumo do mês</h2>
-<table>
+<h2 class="h4">Resumo do mês</h2>
+<table class="table table-bordered bg-white">
   <tbody>
     <tr>
       <td>Receitas do mês</td>
-      <td><%= number_to_currency(@month_income_total, unit: "R$ ") %></td>
+      <td class="fw-semibold text-success"><%= number_to_currency(@month_income_total, unit: "R$ ") %></td>
     </tr>
     <tr>
       <td>Gastos do mês</td>
-      <td><%= number_to_currency(@month_expense_total, unit: "R$ ") %></td>
+      <td class="fw-semibold text-danger"><%= number_to_currency(@month_expense_total, unit: "R$ ") %></td>
     </tr>
   </tbody>
 </table>
 
-<h2>Lançar</h2>
-<div class="quick-entries">
+<h2 class="h4">Lançar</h2>
+<div class="row g-3 mb-4">
   <%= render "dashboard/quick_entry_form", kind: "expense", label: "Gasto",
         categories: Category.expense.order(:name),
         record: (@quick_entry_kind == "expense" ? @quick_entry_record : nil) %>
@@ -62,8 +66,8 @@
         record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
 </div>
 
-<h2>Histórico</h2>
-<table>
+<h2 class="h4">Histórico</h2>
+<table class="table table-striped bg-white">
   <thead>
     <tr>
       <th>Data</th>

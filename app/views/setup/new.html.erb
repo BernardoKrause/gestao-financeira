@@ -1,9 +1,9 @@
-<h1>Criar conta</h1>
+<h1 class="mb-3">Criar conta</h1>
 
 <%= form_with model: @user, url: setup_path do |f| %>
   <% if @user.errors.any? %>
-    <div class="error-messages">
-      <ul>
+    <div class="alert alert-danger error-messages">
+      <ul class="mb-0">
         <% @user.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -11,20 +11,20 @@
     </div>
   <% end %>
 
-  <div>
-    <%= f.label :email %>
-    <%= f.email_field :email, autofocus: true %>
+  <div class="mb-3">
+    <%= f.label :email, class: "form-label" %>
+    <%= f.email_field :email, autofocus: true, class: "form-control" %>
   </div>
 
-  <div>
-    <%= f.label :password %>
-    <%= f.password_field :password %>
+  <div class="mb-3">
+    <%= f.label :password, class: "form-label" %>
+    <%= f.password_field :password, class: "form-control" %>
   </div>
 
-  <div>
-    <%= f.label :password_confirmation, "Confirmação de senha" %>
-    <%= f.password_field :password_confirmation %>
+  <div class="mb-3">
+    <%= f.label :password_confirmation, "Confirmação de senha", class: "form-label" %>
+    <%= f.password_field :password_confirmation, class: "form-control" %>
   </div>
 
-  <%= f.submit "Criar conta" %>
+  <%= f.submit "Criar conta", class: "btn btn-primary" %>
 <% end %>
