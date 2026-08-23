@@ -40,6 +40,17 @@
 </div>
 
 <h2 class="h4">Histórico</h2>
+
+<%= form_with url: root_path, method: :get, html: { class: "row g-2 align-items-end mb-3" } do %>
+  <div class="col-auto">
+    <%= label_tag :month, "Mês", class: "form-label" %>
+    <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "form-select" %>
+  </div>
+  <div class="col-auto">
+    <%= submit_tag "Filtrar", class: "btn btn-outline-primary" %>
+  </div>
+<% end %>
+
 <table class="table table-striped bg-white">
   <thead>
     <tr>
