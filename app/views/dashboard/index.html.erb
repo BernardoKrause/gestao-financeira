@@ -14,33 +14,6 @@
   </tbody>
 </table>
 
-<details<%= " open" if @setting&.errors&.any? %> class="mb-4">
-  <summary class="text-primary" style="cursor: pointer;">Editar saldo inicial</summary>
-
-  <%= form_with model: @setting, url: setting_path, method: :patch, html: { class: "row g-2 align-items-end mt-2" } do |f| %>
-    <% if @setting.errors.any? %>
-      <div class="col-12">
-        <div class="alert alert-danger error-messages">
-          <ul class="mb-0">
-            <% @setting.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      </div>
-    <% end %>
-
-    <div class="col-auto">
-      <%= f.label :initial_balance, "Saldo inicial", class: "form-label" %>
-      <%= f.number_field :initial_balance, step: 0.01, class: "form-control" %>
-    </div>
-
-    <div class="col-auto">
-      <%= f.submit "Salvar", class: "btn btn-primary" %>
-    </div>
-  <% end %>
-</details>
-
 <h2 class="h4">Resumo do mês</h2>
 <table class="table table-bordered bg-white">
   <tbody>

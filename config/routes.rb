@@ -8,7 +8,6 @@ Rails.application.routes.draw do
   resources :transactions
   resources :recurring_entries
   post "quick_entries", to: "quick_entries#create", as: :quick_entries
-  resource :setting, only: %i[update]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
