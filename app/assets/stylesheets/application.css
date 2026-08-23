@@ -374,9 +374,12 @@ tfoot td {
 
 /* Higher specificity than `form div:has(input[type="checkbox"])` (which
    this wrapper would otherwise match too, since the parcelado checkbox is
-   nested inside it) — without this, the whole block lays out as a row. */
+   nested inside it) — without overriding both properties, the block either
+   lays out as a row, or (align-items: center leaking through) its fields
+   sit centered instead of stretched to the left like every other field. */
 .quick-entry .quick-entry-recurring-options {
   flex-direction: column;
+  align-items: stretch;
   gap: 0.75rem;
 }
 
