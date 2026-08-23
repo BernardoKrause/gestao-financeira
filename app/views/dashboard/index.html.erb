@@ -1,5 +1,16 @@
 <h1 class="mb-4">Painel</h1>
 
+<h2 class="h4">Lançar</h2>
+<div class="row g-3 mb-4">
+  <%= render "dashboard/quick_entry_form", kind: "expense", label: "Gasto",
+        categories: Category.expense.order(:name),
+        record: (@quick_entry_kind == "expense" ? @quick_entry_record : nil) %>
+
+  <%= render "dashboard/quick_entry_form", kind: "income", label: "Receita",
+        categories: Category.income.order(:name),
+        record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
+</div>
+
 <h2 class="h4">Saldo</h2>
 <table class="table table-bordered bg-white">
   <tbody>
@@ -37,17 +48,6 @@
     </tr>
   </tbody>
 </table>
-
-<h2 class="h4">Lançar</h2>
-<div class="row g-3 mb-4">
-  <%= render "dashboard/quick_entry_form", kind: "expense", label: "Gasto",
-        categories: Category.expense.order(:name),
-        record: (@quick_entry_kind == "expense" ? @quick_entry_record : nil) %>
-
-  <%= render "dashboard/quick_entry_form", kind: "income", label: "Receita",
-        categories: Category.income.order(:name),
-        record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
-</div>
 
 <h2 class="h4">Histórico — <%= @selected_month_label %></h2>
 <table class="table table-striped bg-white">
