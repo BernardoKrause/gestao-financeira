@@ -31,6 +31,10 @@
     <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "form-select" %>
   </div>
   <div class="col-auto">
+    <%= label_tag :category_id, "Categoria", class: "form-label" %>
+    <%= select_tag :category_id, options_for_select([ [ "Todas as categorias", "" ] ] + @category_options, @selected_category_id), class: "form-select" %>
+  </div>
+  <div class="col-auto">
     <%= submit_tag "Filtrar", class: "btn btn-outline-primary" %>
   </div>
 <% end %>

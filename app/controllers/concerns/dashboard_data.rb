@@ -15,7 +15,10 @@ module DashboardData
     @month_options = build_month_options
     @selected_month_label = @month_options.find { |_label, value| value == @selected_month }&.first
 
-    # Resumo and Histórico both reflect the same selected period.
+    @selected_category_id = params[:category_id].presence
+    @category_options = Category.order(:name).pluck(:name, :id)
+
+    # Resumo and Histórico both reflect the same selected period and category.
     @transactions = filtered_transactions
     @month_income_total = @transactions.select(&:income?).sum(&:amount)
     @month_expense_total = @transactions.select(&:expense?).sum(&:amount)
@@ -40,7 +43,9 @@ module DashboardData
   def filtered_transactions
     scope = Transaction.includes(:category).order(date: :desc)
     range = selected_month_range
-    range ? scope.where(date: range) : scope
+    scope = scope.where(date: range) if range
+    scope = scope.where(category_id: @selected_category_id) if @selected_category_id
+    scope
   end
 
   def selected_month_range
