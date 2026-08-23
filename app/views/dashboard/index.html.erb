@@ -62,7 +62,7 @@
   <tbody>
     <% @transactions.each do |transaction| %>
       <tr class="transaction-row transaction-row--<%= transaction.kind %>">
-        <td><%= transaction.date %></td>
+        <td><%= transaction.date.strftime("%d/%m/%Y") %></td>
         <td><%= transaction.description %></td>
         <td><%= transaction.category.name %></td>
         <td><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>

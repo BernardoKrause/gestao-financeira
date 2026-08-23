@@ -33,7 +33,7 @@
             <%= entry.active? ? "Ativa" : "Inativa" %>
           </span>
         </td>
-        <td><%= entry.end_date || "Sem fim" %></td>
+        <td><%= entry.end_date ? entry.end_date.strftime("%d/%m/%Y") : "Sem fim" %></td>
         <td class="text-end">
           <%= link_to "Editar", edit_recurring_entry_path(entry), class: "btn btn-sm btn-outline-secondary" %>
           <%= link_to "Remover", recurring_entry_path(entry), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "btn btn-sm btn-outline-danger" %>
