@@ -14,15 +14,25 @@
   </tbody>
 </table>
 
-<h2 class="h4">Resumo do mês</h2>
+<%= form_with url: root_path, method: :get, html: { class: "row g-2 align-items-end mb-4" } do %>
+  <div class="col-auto">
+    <%= label_tag :month, "Período (Resumo e Histórico)", class: "form-label" %>
+    <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "form-select" %>
+  </div>
+  <div class="col-auto">
+    <%= submit_tag "Filtrar", class: "btn btn-outline-primary" %>
+  </div>
+<% end %>
+
+<h2 class="h4">Resumo — <%= @selected_month_label %></h2>
 <table class="table table-bordered bg-white">
   <tbody>
     <tr>
-      <td>Receitas do mês</td>
+      <td>Receitas</td>
       <td class="fw-semibold text-success"><%= number_to_currency(@month_income_total, unit: "R$ ") %></td>
     </tr>
     <tr>
-      <td>Gastos do mês</td>
+      <td>Gastos</td>
       <td class="fw-semibold text-danger"><%= number_to_currency(@month_expense_total, unit: "R$ ") %></td>
     </tr>
   </tbody>
@@ -39,18 +49,7 @@
         record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
 </div>
 
-<h2 class="h4">Histórico</h2>
-
-<%= form_with url: root_path, method: :get, html: { class: "row g-2 align-items-end mb-3" } do %>
-  <div class="col-auto">
-    <%= label_tag :month, "Mês", class: "form-label" %>
-    <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "form-select" %>
-  </div>
-  <div class="col-auto">
-    <%= submit_tag "Filtrar", class: "btn btn-outline-primary" %>
-  </div>
-<% end %>
-
+<h2 class="h4">Histórico — <%= @selected_month_label %></h2>
 <table class="table table-striped bg-white">
   <thead>
     <tr>

@@ -11,13 +11,14 @@ module DashboardData
     @current_balance = @setting.current_balance(as_of: @today)
     @projected_balance = @setting.projected_month_end_balance(as_of: @today)
 
-    month_transactions = Transaction.where(date: @today.beginning_of_month..@today.end_of_month)
-    @month_income_total = month_transactions.select(&:income?).sum(&:amount)
-    @month_expense_total = month_transactions.select(&:expense?).sum(&:amount)
-
     @selected_month = params[:month].presence || current_month_value
     @month_options = build_month_options
+    @selected_month_label = @month_options.find { |_label, value| value == @selected_month }&.first
+
+    # Resumo and Histórico both reflect the same selected period.
     @transactions = filtered_transactions
+    @month_income_total = @transactions.select(&:income?).sum(&:amount)
+    @month_expense_total = @transactions.select(&:expense?).sum(&:amount)
   end
 
   def current_month_value

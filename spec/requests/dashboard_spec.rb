@@ -57,7 +57,7 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include(recurring_entries_path)
   end
 
-  it "shows the month's income and expense totals regardless of the history filter" do
+  it "shows the selected period's income and expense totals" do
     # Two transactions per kind, no single one equal to the total, so the
     # assertions below can only pass if a *summed* total is rendered
     # somewhere — not just each transaction's own line in the list below.
@@ -72,5 +72,17 @@ RSpec.describe "Dashboard", type: :request do
 
     expect(response.body).to include(ActionController::Base.helpers.number_to_currency(100, unit: "R$ "))
     expect(response.body).to include(ActionController::Base.helpers.number_to_currency(350, unit: "R$ "))
+  end
+
+  it "changes the totals when a different month is selected" do
+    category = create(:category, kind: :expense)
+    older_month = 2.months.ago.to_date
+    create(:transaction, category: category, kind: :expense, amount: 999, date: Date.current)
+    create(:transaction, category: category, kind: :expense, amount: 77, date: older_month)
+
+    get root_path, params: { month: older_month.strftime("%Y-%m") }
+
+    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(77, unit: "R$ "))
+    expect(response.body).not_to include(ActionController::Base.helpers.number_to_currency(999, unit: "R$ "))
   end
 end
