@@ -1,2 +1,13 @@
 #!/usr/bin/env ruby
-exec "./bin/rails", "server", *ARGV
+# Runs the Rails server together with the Solid Queue supervisor, so
+# scheduled jobs (config/recurring.yml) actually execute while developing.
+pids = [
+  Process.spawn("./bin/jobs"),
+  Process.spawn("./bin/rails", "server", *ARGV)
+]
+
+at_exit do
+  pids.each { |pid| Process.kill("TERM", pid) rescue nil }
+end
+
+pids.each { |pid| Process.waitpid(pid) rescue nil }
