@@ -124,5 +124,25 @@ RSpec.describe Setting, type: :model do
 
       expect(setting.financial_health_status(as_of: Date.new(2026, 3, 10))).to eq(:healthy)
     end
+
+    it "is :warning for a structurally deficit month even after every recurring entry has already fired" do
+      setting = create(:setting, initial_balance: 10_000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 5000, day_of_month: 5, start_date: Date.new(2026, 1, 1))
+      create(:recurring_entry, category: category, kind: :income, amount: 1000, day_of_month: 20, start_date: Date.new(2026, 1, 1))
+
+      # Both entries' fire days have already passed this month, so nothing
+      # is "pending" — under the old rule this collapsed to :healthy.
+      expect(setting.financial_health_status(as_of: Date.new(2026, 3, 25))).to eq(:warning)
+    end
+
+    it "is :healthy for a structurally balanced month even after every recurring entry has already fired" do
+      setting = create(:setting, initial_balance: 10_000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 500, day_of_month: 5, start_date: Date.new(2026, 1, 1))
+      create(:recurring_entry, category: category, kind: :income, amount: 1000, day_of_month: 20, start_date: Date.new(2026, 1, 1))
+
+      expect(setting.financial_health_status(as_of: Date.new(2026, 3, 25))).to eq(:healthy)
+    end
   end
 end
