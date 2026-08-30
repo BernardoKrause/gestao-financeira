@@ -24,4 +24,21 @@ RSpec.describe Transaction, type: :model do
       expect(transaction.signed_amount).to eq(100)
     end
   end
+
+  describe "#future?" do
+    it "is true for a transaction dated after today" do
+      transaction = build(:transaction, date: Date.current + 5.days)
+      expect(transaction.future?).to eq(true)
+    end
+
+    it "is false for a transaction dated today" do
+      transaction = build(:transaction, date: Date.current)
+      expect(transaction.future?).to eq(false)
+    end
+
+    it "is false for a transaction dated in the past" do
+      transaction = build(:transaction, date: Date.current - 5.days)
+      expect(transaction.future?).to eq(false)
+    end
+  end
 end
