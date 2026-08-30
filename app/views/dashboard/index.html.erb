@@ -1,7 +1,7 @@
-<h1 class="mb-4">Painel</h1>
+<h1 class="mb-4 text-2xl font-bold">Painel</h1>
 
-<h2 class="h4">Lançar</h2>
-<div class="row g-3 mb-4">
+<h2 class="mb-2 mt-2 text-xl font-semibold">Lançar</h2>
+<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
   <%= render "dashboard/quick_entry_form", kind: "expense", label: "Gasto",
         categories: Category.expense.order(:name),
         record: (@quick_entry_kind == "expense" ? @quick_entry_record : nil) %>
@@ -11,65 +11,65 @@
         record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
 </div>
 
-<h2 class="h4">Saldo</h2>
-<table class="table table-bordered bg-white">
+<h2 class="mb-2 mt-2 text-xl font-semibold">Saldo</h2>
+<table class="mb-6 w-full bg-white text-sm">
   <tbody>
     <tr>
-      <td>Saldo atual</td>
-      <td class="fw-semibold"><%= number_to_currency(@current_balance, unit: "R$ ") %></td>
+      <td class="border px-3 py-2">Saldo atual</td>
+      <td class="border px-3 py-2 font-semibold"><%= number_to_currency(@current_balance, unit: "R$ ") %></td>
     </tr>
     <tr>
-      <td>Previsto até o fim do mês</td>
-      <td class="fw-semibold"><%= number_to_currency(@projected_balance, unit: "R$ ") %></td>
+      <td class="border px-3 py-2">Previsto até o fim do mês</td>
+      <td class="border px-3 py-2 font-semibold"><%= number_to_currency(@projected_balance, unit: "R$ ") %></td>
     </tr>
   </tbody>
 </table>
 
-<%= form_with url: root_path, method: :get, html: { class: "row g-2 align-items-end mb-4" } do %>
-  <div class="col-auto">
-    <%= label_tag :month, "Período (Resumo e Histórico)", class: "form-label" %>
-    <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "form-select" %>
+<%= form_with url: root_path, method: :get, html: { class: "mb-6 flex flex-wrap items-end gap-3" } do %>
+  <div>
+    <%= label_tag :month, "Período (Resumo e Histórico)", class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
-  <div class="col-auto">
-    <%= label_tag :category_id, "Categoria", class: "form-label" %>
-    <%= select_tag :category_id, options_for_select([ [ "Todas as categorias", "" ] ] + @category_options, @selected_category_id), class: "form-select" %>
+  <div>
+    <%= label_tag :category_id, "Categoria", class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= select_tag :category_id, options_for_select([ [ "Todas as categorias", "" ] ] + @category_options, @selected_category_id), class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
-  <div class="col-auto">
-    <%= submit_tag "Filtrar", class: "btn btn-outline-primary" %>
+  <div>
+    <%= submit_tag "Filtrar", class: "rounded border border-blue-600 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50" %>
   </div>
 <% end %>
 
-<h2 class="h4">Resumo — <%= @selected_month_label %></h2>
-<table class="table table-bordered bg-white">
+<h2 class="mb-2 mt-2 text-xl font-semibold">Resumo — <%= @selected_month_label %></h2>
+<table class="mb-6 w-full bg-white text-sm">
   <tbody>
     <tr>
-      <td>Receitas</td>
-      <td class="fw-semibold text-success"><%= number_to_currency(@month_income_total, unit: "R$ ") %></td>
+      <td class="border px-3 py-2">Receitas</td>
+      <td class="border px-3 py-2 font-semibold text-green-600"><%= number_to_currency(@month_income_total, unit: "R$ ") %></td>
     </tr>
     <tr>
-      <td>Gastos</td>
-      <td class="fw-semibold text-danger"><%= number_to_currency(@month_expense_total, unit: "R$ ") %></td>
+      <td class="border px-3 py-2">Gastos</td>
+      <td class="border px-3 py-2 font-semibold text-red-600"><%= number_to_currency(@month_expense_total, unit: "R$ ") %></td>
     </tr>
   </tbody>
 </table>
 
-<h2 class="h4">Histórico — <%= @selected_month_label %></h2>
-<table class="table table-striped bg-white">
+<h2 class="mb-2 mt-2 text-xl font-semibold">Histórico — <%= @selected_month_label %></h2>
+<table class="w-full bg-white text-sm">
   <thead>
     <tr>
-      <th>Data</th>
-      <th>Descrição</th>
-      <th>Categoria</th>
-      <th>Valor</th>
+      <th class="border px-3 py-2 text-left">Data</th>
+      <th class="border px-3 py-2 text-left">Descrição</th>
+      <th class="border px-3 py-2 text-left">Categoria</th>
+      <th class="border px-3 py-2 text-left">Valor</th>
     </tr>
   </thead>
   <tbody>
     <% @transactions.each do |transaction| %>
       <tr class="transaction-row transaction-row--<%= transaction.kind %>">
-        <td><%= transaction.date.strftime("%d/%m/%Y") %></td>
-        <td><%= transaction.description %></td>
-        <td><%= transaction.category.name %></td>
-        <td><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
+        <td class="border px-3 py-2"><%= transaction.date.strftime("%d/%m/%Y") %></td>
+        <td class="border px-3 py-2"><%= transaction.description %></td>
+        <td class="border px-3 py-2"><%= transaction.category.name %></td>
+        <td class="border px-3 py-2"><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
       </tr>
     <% end %>
   </tbody>
