@@ -85,4 +85,22 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include(ActionController::Base.helpers.number_to_currency(77, unit: "R$ "))
     expect(response.body).not_to include(ActionController::Base.helpers.number_to_currency(999, unit: "R$ "))
   end
+
+  it "shows the financial health KPI card with the income/expense breakdown and a status badge" do
+    Setting.instance.update!(initial_balance: 1000)
+    category = create(:category)
+    create(:recurring_entry, category: category, kind: :expense, amount: 100, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+    create(:recurring_entry, category: category, kind: :income, amount: 300, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+
+    travel_to Date.new(2026, 3, 10) do
+      get root_path
+    end
+
+    expect(response.body).to include("Previsão fim do mês")
+    expect(response.body).to include("Saudável")
+    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(1000, unit: "R$ ")) # saldo atual
+    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(300, unit: "R$ "))  # receita prevista
+    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(100, unit: "R$ "))  # despesa prevista
+    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(1200, unit: "R$ ")) # saldo projetado
+  end
 end
