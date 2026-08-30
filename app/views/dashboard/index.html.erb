@@ -11,19 +11,7 @@
         record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
 </div>
 
-<h2 class="mb-2 mt-2 text-xl font-semibold">Saldo</h2>
-<table class="mb-6 w-full bg-white text-sm">
-  <tbody>
-    <tr>
-      <td class="border px-3 py-2">Saldo atual</td>
-      <td class="border px-3 py-2 font-semibold"><%= number_to_currency(@current_balance, unit: "R$ ") %></td>
-    </tr>
-    <tr>
-      <td class="border px-3 py-2">Previsto até o fim do mês</td>
-      <td class="border px-3 py-2 font-semibold"><%= number_to_currency(@projected_balance, unit: "R$ ") %></td>
-    </tr>
-  </tbody>
-</table>
+<%= render "dashboard/financial_health_kpi" %>
 
 <%= form_with url: root_path, method: :get, html: { class: "mb-6 flex flex-wrap items-end gap-3" } do %>
   <div>

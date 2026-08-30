@@ -1,0 +1,38 @@
+<% badge = {
+     healthy: { label: "Saudável", classes: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+     warning: { label: "Atenção", classes: "bg-amber-500/20 text-amber-300 border-amber-500/30" },
+     critical: { label: "Crítico", classes: "bg-rose-500/20 text-rose-300 border-rose-500/30" }
+   }.fetch(@financial_health_status) %>
+
+<div class="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-lg">
+  <div class="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-emerald-500/10 blur-2xl"></div>
+
+  <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <div>
+      <div class="mb-1 flex items-center gap-2">
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Previsão fim do mês</span>
+        <span class="rounded-full border px-2.5 py-0.5 text-xs font-medium <%= badge[:classes] %>">
+          ● <%= badge[:label] %>
+        </span>
+      </div>
+      <h2 class="text-3xl font-extrabold tracking-tight text-white">
+        <%= number_to_currency(@projected_balance, unit: "R$ ") %>
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3 rounded-xl border border-slate-700/50 bg-slate-800/80 p-3 text-xs">
+      <div>
+        <p class="text-slate-400">Saldo atual</p>
+        <p class="font-bold text-slate-200"><%= number_to_currency(@current_balance, unit: "R$ ") %></p>
+      </div>
+      <div class="border-l border-slate-700/60 pl-3">
+        <p class="text-emerald-400">+ Entradas pend.</p>
+        <p class="font-bold text-emerald-300"><%= number_to_currency(@receita_prevista, unit: "R$ ") %></p>
+      </div>
+      <div class="border-l border-slate-700/60 pl-3">
+        <p class="text-rose-400">- Saídas pend.</p>
+        <p class="font-bold text-rose-300"><%= number_to_currency(@despesa_prevista, unit: "R$ ") %></p>
+      </div>
+    </div>
+  </div>
+</div>

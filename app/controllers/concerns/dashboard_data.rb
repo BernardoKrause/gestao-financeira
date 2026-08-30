@@ -9,7 +9,10 @@ module DashboardData
     @today = Date.current
     @setting = Setting.instance
     @current_balance = @setting.current_balance(as_of: @today)
+    @receita_prevista = @setting.pending_recurring_income_total(as_of: @today)
+    @despesa_prevista = @setting.pending_recurring_expense_total(as_of: @today)
     @projected_balance = @setting.projected_month_end_balance(as_of: @today)
+    @financial_health_status = @setting.financial_health_status(as_of: @today)
 
     @selected_month = params[:month].presence || current_month_value
     @month_options = build_month_options
