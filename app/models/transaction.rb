@@ -11,4 +11,8 @@ class Transaction < ApplicationRecord
   def signed_amount
     income? ? amount : -amount
   end
+
+  def future?
+    date.present? && date > Date.current
+  end
 end

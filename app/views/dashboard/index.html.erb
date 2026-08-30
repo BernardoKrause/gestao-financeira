@@ -45,19 +45,30 @@
 <table class="w-full bg-white text-sm">
   <thead>
     <tr>
-      <th class="border px-3 py-2 text-left">Data</th>
-      <th class="border px-3 py-2 text-left">Descrição</th>
-      <th class="border px-3 py-2 text-left">Categoria</th>
-      <th class="border px-3 py-2 text-left">Valor</th>
+      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Data</th>
+      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Descrição</th>
+      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Categoria</th>
+      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Status</th>
+      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Valor</th>
     </tr>
   </thead>
   <tbody>
     <% @transactions.each do |transaction| %>
-      <tr class="transaction-row transaction-row--<%= transaction.kind %>">
-        <td class="border px-3 py-2"><%= transaction.date.strftime("%d/%m/%Y") %></td>
-        <td class="border px-3 py-2"><%= transaction.description %></td>
-        <td class="border px-3 py-2"><%= transaction.category.name %></td>
-        <td class="border px-3 py-2"><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
+      <% is_future = transaction.future? %>
+      <% row_bg = is_future ? "bg-slate-50/70 opacity-80" : "bg-white" %>
+      <% cell_border = is_future ? "border border-dashed border-slate-300" : "border border-slate-200" %>
+      <tr class="transaction-row transaction-row--<%= transaction.kind %> <%= row_bg %>">
+        <td class="<%= cell_border %> px-3 py-2"><%= transaction.date.strftime("%d/%m/%Y") %></td>
+        <td class="<%= cell_border %> px-3 py-2"><%= transaction.description %></td>
+        <td class="<%= cell_border %> px-3 py-2"><%= transaction.category.name %></td>
+        <td class="<%= cell_border %> px-3 py-2">
+          <% if is_future %>
+            <span class="rounded-full border border-dashed border-slate-300 bg-slate-50 px-2 py-0.5 text-xs italic text-slate-500">Previsto</span>
+          <% else %>
+            <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">Confirmado</span>
+          <% end %>
+        </td>
+        <td class="<%= cell_border %> px-3 py-2"><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
       </tr>
     <% end %>
   </tbody>

@@ -103,4 +103,19 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include(ActionController::Base.helpers.number_to_currency(100, unit: "R$ "))  # despesa prevista
     expect(response.body).to include(ActionController::Base.helpers.number_to_currency(1200, unit: "R$ ")) # saldo projetado
   end
+
+  it "marks a future-dated transaction as Previsto and a past one as Confirmado" do
+    category = create(:category)
+    create(:transaction, category: category, description: "Salário", amount: 3000, kind: :income, date: Date.current + 5.days)
+    create(:transaction, category: category, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+
+    get root_path, params: { month: "all" }
+
+    doc = Nokogiri::HTML(response.body)
+    salario_row = doc.css("tr").find { |tr| tr.text.include?("Salário") }
+    mercado_row = doc.css("tr").find { |tr| tr.text.include?("Mercado") }
+
+    expect(salario_row.text).to include("Previsto")
+    expect(mercado_row.text).to include("Confirmado")
+  end
 end
