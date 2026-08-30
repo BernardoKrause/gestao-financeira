@@ -66,4 +66,63 @@ RSpec.describe Setting, type: :model do
       expect(setting.projected_month_end_balance(as_of: Date.new(2026, 4, 30))).to eq(700)
     end
   end
+
+  describe "#pending_recurring_income_total" do
+    it "sums only pending income entries" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:recurring_entry, category: category, kind: :income, amount: 500, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+
+      expect(setting.pending_recurring_income_total(as_of: Date.new(2026, 3, 10))).to eq(500)
+    end
+  end
+
+  describe "#pending_recurring_expense_total" do
+    it "sums only pending expense entries" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:recurring_entry, category: category, kind: :income, amount: 500, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+
+      expect(setting.pending_recurring_expense_total(as_of: Date.new(2026, 3, 10))).to eq(300)
+    end
+  end
+
+  describe "#financial_health_status" do
+    it "is :critical when the projected balance is negative" do
+      setting = create(:setting, initial_balance: 100)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 500, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+
+      expect(setting.financial_health_status(as_of: Date.new(2026, 3, 10))).to eq(:critical)
+    end
+
+    it "is :warning when the projected balance is non-negative but lower than the current balance" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:recurring_entry, category: category, kind: :income, amount: 100, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+
+      expect(setting.financial_health_status(as_of: Date.new(2026, 3, 10))).to eq(:warning)
+    end
+
+    it "is :healthy when the projected balance is at or above the current balance" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 100, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:recurring_entry, category: category, kind: :income, amount: 300, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+
+      expect(setting.financial_health_status(as_of: Date.new(2026, 3, 10))).to eq(:healthy)
+    end
+
+    it "is :healthy at the boundary where projected equals current (flat month)" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 200, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:recurring_entry, category: category, kind: :income, amount: 200, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+
+      expect(setting.financial_health_status(as_of: Date.new(2026, 3, 10))).to eq(:healthy)
+    end
+  end
 end

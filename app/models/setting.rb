@@ -10,16 +10,33 @@ class Setting < ApplicationRecord
   end
 
   def projected_month_end_balance(as_of: Date.current)
-    current_balance(as_of: as_of) + pending_recurring_signed_total(as_of: as_of)
+    current_balance(as_of: as_of) +
+      pending_recurring_income_total(as_of: as_of) -
+      pending_recurring_expense_total(as_of: as_of)
+  end
+
+  def pending_recurring_income_total(as_of: Date.current)
+    pending_recurring_entries(as_of: as_of).select(&:income?).sum(&:amount)
+  end
+
+  def pending_recurring_expense_total(as_of: Date.current)
+    pending_recurring_entries(as_of: as_of).select(&:expense?).sum(&:amount)
+  end
+
+  def financial_health_status(as_of: Date.current)
+    projected = projected_month_end_balance(as_of: as_of)
+    return :critical if projected.negative?
+    return :warning if projected < current_balance(as_of: as_of)
+
+    :healthy
   end
 
   private
 
-  def pending_recurring_signed_total(as_of:)
-    return 0 if as_of.day == as_of.end_of_month.day
+  def pending_recurring_entries(as_of:)
+    return [] if as_of.day == as_of.end_of_month.day
 
     RecurringEntry.active.select { |entry| pending?(entry, as_of) }
-                  .sum { |entry| entry.income? ? entry.amount : -entry.amount }
   end
 
   def pending?(entry, as_of)
