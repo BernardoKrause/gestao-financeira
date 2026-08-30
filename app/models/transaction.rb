@@ -13,6 +13,6 @@ class Transaction < ApplicationRecord
   end
 
   def future?
-    date > Date.current
+    date.present? && date > Date.current
   end
 end

@@ -40,5 +40,10 @@ RSpec.describe Transaction, type: :model do
       transaction = build(:transaction, date: Date.current - 5.days)
       expect(transaction.future?).to eq(false)
     end
+
+    it "is false for a transaction with no date" do
+      transaction = build(:transaction, date: nil)
+      expect(transaction.future?).to eq(false)
+    end
   end
 end

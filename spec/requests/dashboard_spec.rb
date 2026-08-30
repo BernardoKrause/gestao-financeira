@@ -111,7 +111,11 @@ RSpec.describe "Dashboard", type: :request do
 
     get root_path, params: { month: "all" }
 
-    expect(response.body).to include("Previsto")
-    expect(response.body).to include("Confirmado")
+    doc = Nokogiri::HTML(response.body)
+    salario_row = doc.css("tr").find { |tr| tr.text.include?("Salário") }
+    mercado_row = doc.css("tr").find { |tr| tr.text.include?("Mercado") }
+
+    expect(salario_row.text).to include("Previsto")
+    expect(mercado_row.text).to include("Confirmado")
   end
 end
