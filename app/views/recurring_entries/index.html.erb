@@ -1,42 +1,42 @@
-<h1 class="mb-3">Gastos e receitas fixas</h1>
-<%= link_to "Nova recorrência", new_recurring_entry_path, class: "btn btn-primary mb-3" %>
+<h1 class="mb-4 text-2xl font-bold">Gastos e receitas fixas</h1>
+<%= link_to "Nova recorrência", new_recurring_entry_path, class: "mb-4 inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
 
-<table class="table table-striped bg-white align-middle">
+<table class="w-full bg-white text-sm">
   <thead>
     <tr>
-      <th>Descrição</th>
-      <th>Dia</th>
-      <th>Tipo</th>
-      <th>Valor</th>
-      <th>Categoria</th>
-      <th>Status</th>
-      <th>Até</th>
-      <th></th>
+      <th class="border px-3 py-2 text-left">Descrição</th>
+      <th class="border px-3 py-2 text-left">Dia</th>
+      <th class="border px-3 py-2 text-left">Tipo</th>
+      <th class="border px-3 py-2 text-left">Valor</th>
+      <th class="border px-3 py-2 text-left">Categoria</th>
+      <th class="border px-3 py-2 text-left">Status</th>
+      <th class="border px-3 py-2 text-left">Até</th>
+      <th class="border px-3 py-2 text-left"></th>
     </tr>
   </thead>
   <tbody>
     <% @recurring_entries.each do |entry| %>
       <tr>
-        <td><%= entry.description %></td>
-        <td><%= entry.day_of_month %></td>
-        <td>
-          <span class="badge <%= entry.expense? ? 'bg-danger' : 'bg-success' %>">
+        <td class="border px-3 py-2"><%= entry.description %></td>
+        <td class="border px-3 py-2"><%= entry.day_of_month %></td>
+        <td class="border px-3 py-2">
+          <span class="rounded-full px-2 py-1 text-xs font-medium text-white <%= entry.expense? ? 'bg-red-600' : 'bg-green-600' %>">
             <%= entry.expense? ? "Gasto" : "Receita" %>
           </span>
         </td>
-        <td class="<%= entry.expense? ? 'text-danger' : 'text-success' %> fw-semibold">
+        <td class="border px-3 py-2 font-semibold <%= entry.expense? ? 'text-red-600' : 'text-green-600' %>">
           <%= number_to_currency(entry.amount, unit: "R$ ") %>
         </td>
-        <td><%= entry.category.name %></td>
-        <td>
-          <span class="badge <%= entry.active? ? 'bg-success' : 'bg-secondary' %>">
+        <td class="border px-3 py-2"><%= entry.category.name %></td>
+        <td class="border px-3 py-2">
+          <span class="rounded-full px-2 py-1 text-xs font-medium text-white <%= entry.active? ? 'bg-green-600' : 'bg-gray-500' %>">
             <%= entry.active? ? "Ativa" : "Inativa" %>
           </span>
         </td>
-        <td><%= entry.end_date ? entry.end_date.strftime("%d/%m/%Y") : "Sem fim" %></td>
-        <td class="text-end">
-          <%= link_to "Editar", edit_recurring_entry_path(entry), class: "btn btn-sm btn-outline-secondary" %>
-          <%= link_to "Remover", recurring_entry_path(entry), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "btn btn-sm btn-outline-danger" %>
+        <td class="border px-3 py-2"><%= entry.end_date ? entry.end_date.strftime("%d/%m/%Y") : "Sem fim" %></td>
+        <td class="border px-3 py-2 text-right">
+          <%= link_to "Editar", edit_recurring_entry_path(entry), class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Remover", recurring_entry_path(entry), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" %>
         </td>
       </tr>
     <% end %>

@@ -1,7 +1,6 @@
 /*
- * Styling is Bootstrap 5 (loaded via CDN in the layout). This file only
- * holds what Bootstrap can't do on its own: the JS-free field toggles
- * (Avulso/Fixo, Parcelado) built with the CSS :has() selector.
+ * Local styles Tailwind's utility classes can't express: the JS-free field
+ * toggles (Avulso/Fixo, Parcelado) built with the CSS :has() selector.
  */
 
 /* Quick entry: Avulso vs Fixo */
@@ -35,12 +34,12 @@
 /* Quick entry cards: red for Gasto, green for Receita */
 
 .quick-entry--expense .quick-entry-summary {
-  background-color: var(--bs-danger);
+  background-color: #dc2626;
   color: #fff;
 }
 
 .quick-entry--income .quick-entry-summary {
-  background-color: var(--bs-success);
+  background-color: #16a34a;
   color: #fff;
 }
 
@@ -56,11 +55,18 @@
 /* History table: color the amount by kind */
 
 .transaction-row--expense td:last-child {
-  color: var(--bs-danger);
+  color: #dc2626;
   font-weight: 600;
 }
 
 .transaction-row--income td:last-child {
-  color: var(--bs-success);
+  color: #16a34a;
   font-weight: 600;
+}
+
+/* Links without an explicit color/class need one — Tailwind's Preflight
+   resets <a> to inherit color and drop the underline. */
+a:not([class]) {
+  color: #2563eb;
+  text-decoration: underline;
 }

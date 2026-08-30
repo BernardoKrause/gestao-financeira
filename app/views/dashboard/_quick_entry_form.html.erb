@@ -1,74 +1,72 @@
 <% is_recurring = record.is_a?(RecurringEntry)
    is_parcelado = is_recurring && record.installments.present? %>
 
-<div class="col-md-6">
-  <details<%= " open" if record&.errors&.any? %> class="quick-entry quick-entry--<%= kind %> card">
-    <summary class="quick-entry-summary card-header fw-bold fs-5"><%= label %></summary>
+<details<%= " open" if record&.errors&.any? %> class="quick-entry quick-entry--<%= kind %> rounded border border-gray-200">
+  <summary class="quick-entry-summary rounded-t px-4 py-2 text-lg font-bold"><%= label %></summary>
 
-    <div class="card-body">
-      <%= form_with url: quick_entries_path, method: :post do %>
-        <% if record&.errors&.any? %>
-          <div class="alert alert-danger error-messages">
-            <ul class="mb-0">
-              <% record.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
-
-        <%= hidden_field_tag :kind, kind, id: "kind_#{kind}" %>
-
-        <div class="mb-3">
-          <%= label_tag "description_#{kind}", "Descrição", class: "form-label" %>
-          <%= text_field_tag :description, record&.description, id: "description_#{kind}", class: "form-control" %>
+  <div class="px-4 py-4">
+    <%= form_with url: quick_entries_path, method: :post do %>
+      <% if record&.errors&.any? %>
+        <div class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 error-messages">
+          <ul>
+            <% record.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
         </div>
-
-        <div class="mb-3">
-          <%= label_tag "amount_#{kind}", "Valor", class: "form-label" %>
-          <%= number_field_tag :amount, record&.amount, step: 0.01, id: "amount_#{kind}", class: "form-control" %>
-        </div>
-
-        <div class="mb-3">
-          <%= label_tag "category_id_#{kind}", "Categoria", class: "form-label" %>
-          <%= select_tag :category_id, options_from_collection_for_select(categories, :id, :name, record&.category_id), id: "category_id_#{kind}", class: "form-select" %>
-        </div>
-
-        <div class="form-check mb-3">
-          <%= check_box_tag :fixed, "1", record.is_a?(RecurringEntry), class: "form-check-input fixed-toggle", id: "fixed_#{kind}" %>
-          <%= label_tag "fixed_#{kind}", "Fixo (recorrente)", class: "form-check-label" %>
-        </div>
-
-        <div class="mb-3 quick-entry-field quick-entry-field--avulso">
-          <%= label_tag "date_#{kind}", "Data", class: "form-label" %>
-          <%= date_field_tag :date, (record.is_a?(Transaction) ? record.date : Date.current), id: "date_#{kind}", class: "form-control" %>
-        </div>
-
-        <div class="quick-entry-field quick-entry-field--fixo">
-          <div class="form-check mb-3">
-            <%= check_box_tag :parcelado, "1", is_parcelado, class: "form-check-input parcelado-toggle", id: "parcelado_#{kind}" %>
-            <%= label_tag "parcelado_#{kind}", "Parcelado?", class: "form-check-label" %>
-          </div>
-
-          <div class="mb-3 quick-entry-subfield quick-entry-subfield--sem-parcelas">
-            <%= label_tag "day_of_month_#{kind}", "Dia do mês", class: "form-label" %>
-            <%= number_field_tag :day_of_month, (is_recurring && !is_parcelado ? record.day_of_month : nil), min: 1, max: 31, id: "day_of_month_#{kind}", class: "form-control" %>
-          </div>
-
-          <div class="quick-entry-subfield quick-entry-subfield--parcelado">
-            <div class="mb-3">
-              <%= label_tag "start_date_#{kind}", "Data de início", class: "form-label" %>
-              <%= date_field_tag :start_date, (is_parcelado ? record.start_date : Date.current), id: "start_date_#{kind}", class: "form-control" %>
-            </div>
-            <div class="mb-3">
-              <%= label_tag "installments_#{kind}", "Número de parcelas", class: "form-label" %>
-              <%= number_field_tag :installments, (is_parcelado ? record.installments : nil), min: 1, id: "installments_#{kind}", class: "form-control" %>
-            </div>
-          </div>
-        </div>
-
-        <%= submit_tag label, class: "btn #{kind == 'expense' ? 'btn-danger' : 'btn-success'}" %>
       <% end %>
-    </div>
-  </details>
-</div>
+
+      <%= hidden_field_tag :kind, kind, id: "kind_#{kind}" %>
+
+      <div class="mb-4">
+        <%= label_tag "description_#{kind}", "Descrição", class: "mb-1 block text-sm font-medium text-gray-700" %>
+        <%= text_field_tag :description, record&.description, id: "description_#{kind}", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+      </div>
+
+      <div class="mb-4">
+        <%= label_tag "amount_#{kind}", "Valor", class: "mb-1 block text-sm font-medium text-gray-700" %>
+        <%= number_field_tag :amount, record&.amount, step: 0.01, id: "amount_#{kind}", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+      </div>
+
+      <div class="mb-4">
+        <%= label_tag "category_id_#{kind}", "Categoria", class: "mb-1 block text-sm font-medium text-gray-700" %>
+        <%= select_tag :category_id, options_from_collection_for_select(categories, :id, :name, record&.category_id), id: "category_id_#{kind}", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+      </div>
+
+      <div class="mb-4 flex items-center gap-2">
+        <%= check_box_tag :fixed, "1", record.is_a?(RecurringEntry), class: "h-4 w-4 rounded border-gray-300 fixed-toggle", id: "fixed_#{kind}" %>
+        <%= label_tag "fixed_#{kind}", "Fixo (recorrente)", class: "text-sm text-gray-700" %>
+      </div>
+
+      <div class="mb-4 quick-entry-field quick-entry-field--avulso">
+        <%= label_tag "date_#{kind}", "Data", class: "mb-1 block text-sm font-medium text-gray-700" %>
+        <%= date_field_tag :date, (record.is_a?(Transaction) ? record.date : Date.current), id: "date_#{kind}", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+      </div>
+
+      <div class="quick-entry-field quick-entry-field--fixo">
+        <div class="mb-4 flex items-center gap-2">
+          <%= check_box_tag :parcelado, "1", is_parcelado, class: "h-4 w-4 rounded border-gray-300 parcelado-toggle", id: "parcelado_#{kind}" %>
+          <%= label_tag "parcelado_#{kind}", "Parcelado?", class: "text-sm text-gray-700" %>
+        </div>
+
+        <div class="mb-4 quick-entry-subfield quick-entry-subfield--sem-parcelas">
+          <%= label_tag "day_of_month_#{kind}", "Dia do mês", class: "mb-1 block text-sm font-medium text-gray-700" %>
+          <%= number_field_tag :day_of_month, (is_recurring && !is_parcelado ? record.day_of_month : nil), min: 1, max: 31, id: "day_of_month_#{kind}", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+        </div>
+
+        <div class="quick-entry-subfield quick-entry-subfield--parcelado">
+          <div class="mb-4">
+            <%= label_tag "start_date_#{kind}", "Data de início", class: "mb-1 block text-sm font-medium text-gray-700" %>
+            <%= date_field_tag :start_date, (is_parcelado ? record.start_date : Date.current), id: "start_date_#{kind}", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+          </div>
+          <div class="mb-4">
+            <%= label_tag "installments_#{kind}", "Número de parcelas", class: "mb-1 block text-sm font-medium text-gray-700" %>
+            <%= number_field_tag :installments, (is_parcelado ? record.installments : nil), min: 1, id: "installments_#{kind}", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+          </div>
+        </div>
+      </div>
+
+      <%= submit_tag label, class: "rounded px-4 py-2 text-sm font-medium text-white #{kind == 'expense' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}" %>
+    <% end %>
+  </div>
+</details>
