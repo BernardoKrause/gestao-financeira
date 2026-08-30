@@ -36,6 +36,11 @@ module GestaoFinanceiraMvp
     config.time_zone = "America/Sao_Paulo"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # The app doesn't attach or process any files yet. Rails 8.1's default
+    # (:vips) requires the ruby-vips gem and the libvips system library,
+    # neither of which is installed, which crashes boot entirely.
+    config.active_storage.variant_processor = :disabled
+
     # Don't generate system test files.
     config.generators.system_tests = nil
   end
