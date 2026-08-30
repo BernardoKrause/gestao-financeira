@@ -1,11 +1,11 @@
 <%= form_with model: category do |f| %>
-  <div class="mb-3">
-    <%= f.label :name, class: "form-label" %>
-    <%= f.text_field :name, class: "form-control" %>
+  <div class="mb-4">
+    <%= f.label :name, class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= f.text_field :name, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
-  <div class="mb-3">
-    <%= f.label :kind, class: "form-label" %>
-    <%= f.select :kind, Category.kinds.keys, {}, class: "form-select" %>
+  <div class="mb-4">
+    <%= f.label :kind, class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= f.select :kind, Category.kinds.keys, {}, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
-  <%= f.submit class: "btn btn-primary" %>
+  <%= f.submit class: "rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
 <% end %>
