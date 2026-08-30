@@ -63,3 +63,10 @@
   color: #16a34a;
   font-weight: 600;
 }
+
+/* Links without an explicit color/class need one — Tailwind's Preflight
+   resets <a> to inherit color and drop the underline. */
+a:not([class]) {
+  color: #2563eb;
+  text-decoration: underline;
+}
