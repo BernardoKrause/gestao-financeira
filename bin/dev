@@ -3,6 +3,7 @@
 # scheduled jobs (config/recurring.yml) actually execute while developing.
 pids = [
   Process.spawn("./bin/jobs"),
+  Process.spawn("./bin/rails", "tailwindcss:watch"),
   Process.spawn("./bin/rails", "server", *ARGV)
 ]
 
