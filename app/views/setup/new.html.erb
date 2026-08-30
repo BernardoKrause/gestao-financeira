@@ -1,9 +1,9 @@
-<h1 class="mb-3">Criar conta</h1>
+<h1 class="mb-4 text-2xl font-bold">Criar conta</h1>
 
 <%= form_with model: @user, url: setup_path do |f| %>
   <% if @user.errors.any? %>
-    <div class="alert alert-danger error-messages">
-      <ul class="mb-0">
+    <div class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 error-messages">
+      <ul>
         <% @user.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -11,20 +11,20 @@
     </div>
   <% end %>
 
-  <div class="mb-3">
-    <%= f.label :email, class: "form-label" %>
-    <%= f.email_field :email, autofocus: true, class: "form-control" %>
+  <div class="mb-4">
+    <%= f.label :email, class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= f.email_field :email, autofocus: true, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :password, class: "form-label" %>
-    <%= f.password_field :password, class: "form-control" %>
+  <div class="mb-4">
+    <%= f.label :password, class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= f.password_field :password, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :password_confirmation, "Confirmação de senha", class: "form-label" %>
-    <%= f.password_field :password_confirmation, class: "form-control" %>
+  <div class="mb-4">
+    <%= f.label :password_confirmation, "Confirmação de senha", class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= f.password_field :password_confirmation, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
 
-  <%= f.submit "Criar conta", class: "btn btn-primary" %>
+  <%= f.submit "Criar conta", class: "rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
 <% end %>
