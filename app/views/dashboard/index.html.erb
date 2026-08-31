@@ -13,6 +13,8 @@
 
 <%= render "dashboard/financial_health_kpi" %>
 
+<%= render "dashboard/revenue_progress" %>
+
 <%= form_with url: root_path, method: :get, html: { class: "mb-6 flex flex-wrap items-end gap-3" } do %>
   <div>
     <%= label_tag :month, "Período (Resumo e Histórico)", class: "mb-1 block text-sm font-medium text-gray-700" %>

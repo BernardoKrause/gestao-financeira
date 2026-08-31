@@ -14,6 +14,12 @@ module DashboardData
     @projected_balance = @setting.projected_month_end_balance(as_of: @today)
     @financial_health_status = @setting.financial_health_status(as_of: @today)
 
+    @receita_confirmada_mes = current_month_confirmed_income
+    @receita_pendente_mes = @receita_prevista
+    @receita_total_esperada_mes = @receita_confirmada_mes + @receita_pendente_mes
+    @pct_receita_confirmada = revenue_percentage(@receita_confirmada_mes)
+    @pct_receita_pendente = revenue_percentage(@receita_pendente_mes)
+
     @selected_month = params[:month].presence || current_month_value
     @month_options = build_month_options
     @selected_month_label = @month_options.find { |_label, value| value == @selected_month }&.first
@@ -58,5 +64,15 @@ module DashboardData
     month.beginning_of_month..month.end_of_month
   rescue ArgumentError, TypeError
     @today.beginning_of_month..@today.end_of_month
+  end
+
+  def current_month_confirmed_income
+    Transaction.income.where(date: @today.beginning_of_month..@today).sum(:amount)
+  end
+
+  def revenue_percentage(part)
+    return 0 if @receita_total_esperada_mes.to_f.zero?
+
+    (part.to_f / @receita_total_esperada_mes * 100).round(1)
   end
 end
