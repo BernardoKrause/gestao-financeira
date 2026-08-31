@@ -167,6 +167,22 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).not_to include(ActionController::Base.helpers.number_to_currency(5400, unit: "R$ "))
   end
 
+  it "renders the cash flow chart canvas with the current month's series data" do
+    Setting.instance.update!(initial_balance: 1000)
+    category = create(:category)
+    create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+
+    travel_to Date.new(2026, 3, 10) do
+      get root_path
+    end
+
+    expect(response.body).to include('data-controller="chart"')
+    expect(response.body).to include("data-chart-labels-value")
+    expect(response.body).to include("data-chart-historical-value")
+    expect(response.body).to include("data-chart-projected-value")
+    expect(response.body).to include("700.0") # projected balance on day 25 shows up in the projected series JSON
+  end
+
   describe "GET /dashboard_confidence" do
     it "returns a turbo stream replacing the KPI card with the confirmed-only balance" do
       Setting.instance.update!(initial_balance: 1000)

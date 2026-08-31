@@ -19,6 +19,8 @@ module DashboardData
     @receita_total_esperada_mes = @receita_confirmada_mes + @receita_pendente_mes
     @pct_receita_confirmada = revenue_percentage(@receita_confirmada_mes)
     @pct_receita_pendente = revenue_percentage(@receita_pendente_mes)
+    @cash_flow_series = @setting.cash_flow_series(month: @today, as_of: @today)
+    @current_month_label = month_label(current_month_value)
 
     @selected_month = params[:month].presence || current_month_value
     @month_options = build_month_options
