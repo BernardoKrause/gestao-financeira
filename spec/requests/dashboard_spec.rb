@@ -182,14 +182,38 @@ RSpec.describe "Dashboard", type: :request do
       expect(response.body).to include('turbo-stream action="replace" target="financial_health_kpi"')
       expect(response.body).to include(ActionController::Base.helpers.number_to_currency(1000, unit: "R$ "))
       expect(response.body).not_to include(ActionController::Base.helpers.number_to_currency(700, unit: "R$ "))
+      # The breakdown sub-figures must also reconcile with the confirmed-only
+      # headline — the 300 pending recurring expense must not still show.
+      expect(response.body).not_to include(ActionController::Base.helpers.number_to_currency(300, unit: "R$ "))
+    end
+
+    it "returns a turbo stream reflecting future one-off transactions for the all level" do
+      Setting.instance.update!(initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: category, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
+
+      travel_to Date.new(2026, 3, 10) do
+        get dashboard_confidence_path, params: { confidence: "all" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      end
+
+      expect(response).to have_http_status(:ok)
+      # 1000 (current_balance) - 300 (pending recurring expense) + 200 (future one-off income) = 900
+      expect(response.body).to include(ActionController::Base.helpers.number_to_currency(900, unit: "R$ "))
     end
 
     it "falls back to the recurring level for an unrecognized confidence param" do
       Setting.instance.update!(initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
 
-      get dashboard_confidence_path, params: { confidence: "bogus" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      travel_to Date.new(2026, 3, 10) do
+        get dashboard_confidence_path, params: { confidence: "bogus" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      end
 
       expect(response).to have_http_status(:ok)
+      # recurring level: 1000 - 300 pending recurring expense = 700
+      expect(response.body).to include(ActionController::Base.helpers.number_to_currency(700, unit: "R$ "))
     end
   end
 end

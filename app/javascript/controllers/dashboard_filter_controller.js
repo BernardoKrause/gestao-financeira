@@ -19,5 +19,6 @@ export default class extends Controller {
     })
       .then((response) => response.text())
       .then((html) => Turbo.renderStreamMessage(html))
+      .catch((error) => console.error("dashboard-filter: failed to update KPI card", error))
   }
 }

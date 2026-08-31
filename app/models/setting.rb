@@ -96,6 +96,6 @@ class Setting < ApplicationRecord
   end
 
   def pending_one_off_transactions(as_of:)
-    Transaction.where(date: (as_of + 1)..as_of.end_of_month)
+    Transaction.where(date: (as_of + 1)..as_of.end_of_month, recurring_entry_id: nil)
   end
 end

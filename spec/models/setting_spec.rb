@@ -192,6 +192,7 @@ RSpec.describe Setting, type: :model do
 
       expect(setting.financial_health_status_for(confidence: :confirmed, as_of: Date.new(2026, 3, 10))).to eq(:warning)
       expect(setting.financial_health_status_for(confidence: :recurring, as_of: Date.new(2026, 3, 10))).to eq(:critical)
+      expect(setting.financial_health_status_for(confidence: :all, as_of: Date.new(2026, 3, 10))).to eq(:critical)
     end
 
     it "returns :healthy for :confirmed when the month has no recurring deficit at all" do

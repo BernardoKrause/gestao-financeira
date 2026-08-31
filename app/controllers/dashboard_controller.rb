@@ -13,6 +13,15 @@ class DashboardController < ApplicationController
     @projected_balance = @setting.projected_balance_for(confidence: @confidence, as_of: @today)
     @financial_health_status = @setting.financial_health_status_for(confidence: @confidence, as_of: @today)
 
+    case @confidence
+    when :confirmed
+      @receita_prevista = 0
+      @despesa_prevista = 0
+    when :all
+      @receita_prevista += @setting.pending_one_off_income_total(as_of: @today)
+      @despesa_prevista += @setting.pending_one_off_expense_total(as_of: @today)
+    end
+
     respond_to(&:turbo_stream)
   end
 end
