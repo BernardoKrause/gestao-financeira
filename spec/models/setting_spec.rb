@@ -129,6 +129,18 @@ RSpec.describe Setting, type: :model do
       expect(series[:labels].size).to eq(30)
       expect(series[:projected][29]).to eq(700) # April 30 — clamped fire day for day_of_month 31
     end
+
+    it "ends the projected series at the same value as the KPI card's projected month-end balance" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 31, start_date: Date.new(2026, 1, 1))
+      create(:recurring_entry, category: category, kind: :income, amount: 500, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+
+      as_of = Date.new(2026, 4, 10)
+      series = setting.cash_flow_series(month: as_of, as_of: as_of)
+
+      expect(series[:projected].last).to eq(setting.projected_month_end_balance(as_of: as_of))
+    end
   end
 
   describe "#financial_health_status" do

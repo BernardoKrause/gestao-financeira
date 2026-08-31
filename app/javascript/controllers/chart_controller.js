@@ -1,10 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
-import Chart from "chart.js"
 
 export default class extends Controller {
   static values = { labels: Array, historical: Array, projected: Array }
 
-  connect() {
+  async connect() {
+    const { default: Chart } = await import("chart.js")
+    if (!this.element.isConnected) return
+
     this.chart = new Chart(this.element, {
       type: "line",
       data: {
