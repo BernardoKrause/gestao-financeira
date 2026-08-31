@@ -11,6 +11,7 @@ export default class extends Controller {
       button.classList.toggle("bg-slate-900", active)
       button.classList.toggle("text-white", active)
       button.classList.toggle("text-slate-600", !active)
+      button.classList.toggle("hover:bg-slate-100", !active)
     })
 
     fetch(`/dashboard_confidence?confidence=${level}`, {
