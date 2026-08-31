@@ -121,7 +121,6 @@ RSpec.describe "Dashboard", type: :request do
 
   it "shows this month's revenue progress split between confirmed and pending, ignoring the month filter" do
     income_category = create(:category, kind: :income)
-    expense_category = create(:category, kind: :expense)
 
     travel_to Date.new(2026, 3, 10) do
       create(:transaction, category: income_category, kind: :income, amount: 400, date: Date.new(2026, 3, 5))
@@ -132,10 +131,26 @@ RSpec.describe "Dashboard", type: :request do
       get root_path, params: { month: "all" }
     end
 
-    expect(response.body).to include("Progresso de Arrecadação")
-    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(400, unit: "R$ "))  # confirmada
-    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(600, unit: "R$ "))  # pendente
-    expect(response.body).to include(ActionController::Base.helpers.number_to_currency(1000, unit: "R$ ")) # total esperado
+    doc = Nokogiri::HTML(response.body)
+    card = doc.css("div").find { |d| d.text.include?("Progresso de Arrecadação") }
+
+    expect(card.text).to include("Recebido: #{ActionController::Base.helpers.number_to_currency(400, unit: "R$ ")}")
+    expect(card.text).to include("A Receber: #{ActionController::Base.helpers.number_to_currency(600, unit: "R$ ")}")
+    expect(card.text).to include("Total esperado: #{ActionController::Base.helpers.number_to_currency(1000, unit: "R$ ")}")
+    expect(card.to_html).to include("width: 40.0%").and include("width: 60.0%")
+  end
+
+  it "shows a zero-width revenue progress bar when there is no expected income this month" do
+    create(:category, kind: :income)
+
+    travel_to Date.new(2026, 3, 10) do
+      get root_path, params: { month: "all" }
+    end
+
+    doc = Nokogiri::HTML(response.body)
+    card = doc.css("div").find { |d| d.text.include?("Progresso de Arrecadação") }
+
+    expect(card.to_html.scan("width: 0%").size).to eq(2)
   end
 
   it "excludes expense transactions from the revenue progress totals" do
