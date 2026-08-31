@@ -1,4 +1,6 @@
 class Setting < ApplicationRecord
+  CONFIDENCE_LEVELS = %i[confirmed recurring all].freeze
+
   validates :initial_balance, numericality: true
 
   def self.instance
@@ -15,6 +17,33 @@ class Setting < ApplicationRecord
       pending_recurring_expense_total(as_of: as_of)
   end
 
+  def projected_balance_for(confidence:, as_of: Date.current)
+    case confidence.to_sym
+    when :confirmed
+      current_balance(as_of: as_of)
+    when :recurring
+      projected_month_end_balance(as_of: as_of)
+    when :all
+      projected_month_end_balance(as_of: as_of) +
+        pending_one_off_income_total(as_of: as_of) -
+        pending_one_off_expense_total(as_of: as_of)
+    else
+      raise ArgumentError, "unknown confidence level: #{confidence.inspect}"
+    end
+  end
+
+  def financial_health_status(as_of: Date.current)
+    financial_health_status_for(confidence: :recurring, as_of: as_of)
+  end
+
+  def financial_health_status_for(confidence:, as_of: Date.current)
+    projected = projected_balance_for(confidence: confidence, as_of: as_of)
+    return :critical if projected.negative?
+    return :warning if monthly_recurring_expense_total(as_of: as_of) > monthly_recurring_income_total(as_of: as_of)
+
+    :healthy
+  end
+
   def pending_recurring_income_total(as_of: Date.current)
     pending_recurring_entries(as_of: as_of).select(&:income?).sum(&:amount)
   end
@@ -23,12 +52,12 @@ class Setting < ApplicationRecord
     pending_recurring_entries(as_of: as_of).select(&:expense?).sum(&:amount)
   end
 
-  def financial_health_status(as_of: Date.current)
-    projected = projected_month_end_balance(as_of: as_of)
-    return :critical if projected.negative?
-    return :warning if monthly_recurring_expense_total(as_of: as_of) > monthly_recurring_income_total(as_of: as_of)
+  def pending_one_off_income_total(as_of: Date.current)
+    pending_one_off_transactions(as_of: as_of).select(&:income?).sum(&:amount)
+  end
 
-    :healthy
+  def pending_one_off_expense_total(as_of: Date.current)
+    pending_one_off_transactions(as_of: as_of).select(&:expense?).sum(&:amount)
   end
 
   private
@@ -45,9 +74,10 @@ class Setting < ApplicationRecord
 
   # Counts an entry whether or not its day_of_month has already passed this
   # month — answers "is this a structurally deficit month", not "what's
-  # left to happen". financial_health_status uses this (not
-  # pending_recurring_*) so the :warning badge doesn't collapse to :healthy
-  # the moment every recurring entry for the month has already fired.
+  # left to happen". financial_health_status_for uses this (not
+  # pending_recurring_*) for every confidence level, so :warning doesn't
+  # collapse to :healthy the moment every recurring entry for the month has
+  # already fired, and doesn't vary with which balance view is selected.
   def monthly_recurring_income_total(as_of:)
     monthly_recurring_entries(as_of: as_of).select(&:income?).sum(&:amount)
   end
@@ -63,5 +93,9 @@ class Setting < ApplicationRecord
   def fires_within_month?(entry, as_of)
     fire_date = Date.new(as_of.year, as_of.month, [ entry.day_of_month, as_of.end_of_month.day ].min)
     entry.start_date <= fire_date && (entry.end_date.nil? || entry.end_date >= fire_date)
+  end
+
+  def pending_one_off_transactions(as_of:)
+    Transaction.where(date: (as_of + 1)..as_of.end_of_month, recurring_entry_id: nil)
   end
 end

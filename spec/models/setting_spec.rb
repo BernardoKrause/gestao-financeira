@@ -145,4 +145,60 @@ RSpec.describe Setting, type: :model do
       expect(setting.financial_health_status(as_of: Date.new(2026, 3, 25))).to eq(:healthy)
     end
   end
+
+  describe "#projected_balance_for" do
+    it "returns only the current balance for :confirmed" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :income, amount: 500, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: category, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
+
+      expect(setting.projected_balance_for(confidence: :confirmed, as_of: Date.new(2026, 3, 10))).to eq(1000)
+    end
+
+    it "matches projected_month_end_balance for :recurring" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :income, amount: 500, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: category, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
+
+      expect(setting.projected_balance_for(confidence: :recurring, as_of: Date.new(2026, 3, 10)))
+        .to eq(setting.projected_month_end_balance(as_of: Date.new(2026, 3, 10)))
+    end
+
+    it "also counts future one-off transactions this month for :all" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :income, amount: 500, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: category, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
+      create(:transaction, category: category, kind: :expense, amount: 50, date: Date.new(2026, 3, 20))
+      # Outside this month — must not be counted even for :all.
+      create(:transaction, category: category, kind: :income, amount: 9999, date: Date.new(2026, 4, 5))
+
+      expect(setting.projected_balance_for(confidence: :all, as_of: Date.new(2026, 3, 10))).to eq(1650) # 1000 + 500 + 200 - 50
+    end
+
+    it "raises for an unknown confidence level" do
+      setting = create(:setting)
+      expect { setting.projected_balance_for(confidence: :optimistic) }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe "#financial_health_status_for" do
+    it "flags :warning for every confidence level when the month structurally runs a recurring deficit, even though :confirmed's own balance is currently positive" do
+      setting = create(:setting, initial_balance: 100)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 500, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+
+      expect(setting.financial_health_status_for(confidence: :confirmed, as_of: Date.new(2026, 3, 10))).to eq(:warning)
+      expect(setting.financial_health_status_for(confidence: :recurring, as_of: Date.new(2026, 3, 10))).to eq(:critical)
+      expect(setting.financial_health_status_for(confidence: :all, as_of: Date.new(2026, 3, 10))).to eq(:critical)
+    end
+
+    it "returns :healthy for :confirmed when the month has no recurring deficit at all" do
+      setting = create(:setting, initial_balance: 100)
+
+      expect(setting.financial_health_status_for(confidence: :confirmed, as_of: Date.new(2026, 3, 10))).to eq(:healthy)
+    end
+  end
 end
