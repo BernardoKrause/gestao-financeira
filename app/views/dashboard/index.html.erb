@@ -11,6 +11,24 @@
         record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
 </div>
 
+<div data-controller="dashboard-filter" class="mb-2 flex justify-end gap-1">
+  <button type="button" data-dashboard-filter-target="button" data-dashboard-filter-level-param="confirmed"
+          data-action="click->dashboard-filter#filter"
+          class="rounded-full px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100">
+    Somente confirmado
+  </button>
+  <button type="button" data-dashboard-filter-target="button" data-dashboard-filter-level-param="recurring"
+          data-action="click->dashboard-filter#filter"
+          class="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white">
+    Recorrências
+  </button>
+  <button type="button" data-dashboard-filter-target="button" data-dashboard-filter-level-param="all"
+          data-action="click->dashboard-filter#filter"
+          class="rounded-full px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100">
+    Tudo
+  </button>
+</div>
+
 <%= render "dashboard/financial_health_kpi" %>
 
 <%= render "dashboard/revenue_progress" %>
