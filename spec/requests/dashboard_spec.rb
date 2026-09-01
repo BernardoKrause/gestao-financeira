@@ -231,5 +231,32 @@ RSpec.describe "Dashboard", type: :request do
       # recurring level: 1000 - 300 pending recurring expense = 700
       expect(response.body).to include(ActionController::Base.helpers.number_to_currency(700, unit: "R$ "))
     end
+
+    it "also replaces the cash flow chart with a confidence-specific projected series" do
+      Setting.instance.update!(initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+
+      travel_to Date.new(2026, 3, 10) do
+        get dashboard_confidence_path, params: { confidence: "confirmed" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      end
+
+      expect(response.body).to include('turbo-stream action="replace" target="cash_flow_chart"')
+      expect(response.body).not_to include("700.0") # recurring expense ignored under :confirmed
+    end
+
+    it "reflects future one-off transactions in the chart's projected series for the all level" do
+      Setting.instance.update!(initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: category, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
+
+      travel_to Date.new(2026, 3, 10) do
+        get dashboard_confidence_path, params: { confidence: "all" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      end
+
+      expect(response.body).to include('turbo-stream action="replace" target="cash_flow_chart"')
+      expect(response.body).to include("900.0") # last projected value under :all (see Setting spec for the same arithmetic)
+    end
   end
 end

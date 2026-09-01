@@ -39,7 +39,7 @@ module DashboardData
   end
 
   def cash_flow_series
-    @cash_flow_series ||= @setting.cash_flow_series(month: @today, as_of: @today)
+    @cash_flow_series ||= @setting.cash_flow_series(month: @today, as_of: @today, confidence: @confidence || :recurring)
   end
 
   def current_month_value
