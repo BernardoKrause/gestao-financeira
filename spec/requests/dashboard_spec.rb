@@ -183,6 +183,33 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include("700.0") # projected balance on day 25 shows up in the projected series JSON
   end
 
+  it "keeps the month/category filter form and Resumo/Histórico inside the same turbo frame" do
+    get root_path
+
+    doc = Nokogiri::HTML(response.body)
+    frame = doc.at_css("turbo-frame#resumo_historico")
+
+    expect(frame).not_to be_nil
+    expect(frame.at_css("form")).not_to be_nil
+    expect(frame.text).to include("Resumo").and include("Histórico")
+  end
+
+  it "returns only the resumo_historico frame content when the filter form is submitted as a frame request" do
+    category = create(:category)
+    target_month = 2.months.ago.to_date
+    create(:transaction, category: category, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+    create(:transaction, category: category, description: "Conserto do carro", amount: 300, kind: :expense, date: target_month)
+
+    get root_path, params: { month: target_month.strftime("%Y-%m") }, headers: { "Turbo-Frame" => "resumo_historico" }
+
+    expect(response).to have_http_status(:ok)
+    doc = Nokogiri::HTML(response.body)
+    frame = doc.at_css("turbo-frame#resumo_historico")
+
+    expect(frame.text).to include("Conserto do carro")
+    expect(frame.text).not_to include("Mercado")
+  end
+
   describe "GET /dashboard_confidence" do
     it "returns a turbo stream replacing the KPI card with the confirmed-only balance" do
       Setting.instance.update!(initial_balance: 1000)
