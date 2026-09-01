@@ -141,6 +141,42 @@ RSpec.describe Setting, type: :model do
 
       expect(series[:projected].last).to eq(setting.projected_month_end_balance(as_of: as_of))
     end
+
+    it "keeps the projected series flat at the current balance under :confirmed confidence" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+
+      as_of = Date.new(2026, 3, 10)
+      series = setting.cash_flow_series(month: Date.new(2026, 3, 1), as_of: as_of, confidence: :confirmed)
+
+      expect(series[:projected][9]).to eq(1000)   # day 10 == as_of
+      expect(series[:projected][24]).to eq(1000)  # day 25 — recurring expense ignored under :confirmed
+      expect(series[:projected].last).to eq(setting.projected_balance_for(confidence: :confirmed, as_of: as_of))
+    end
+
+    it "adds future one-off transactions on the day they occur under :all confidence" do
+      setting = create(:setting, initial_balance: 1000)
+      category = create(:category)
+      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: category, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
+
+      as_of = Date.new(2026, 3, 10)
+      series = setting.cash_flow_series(month: Date.new(2026, 3, 1), as_of: as_of, confidence: :all)
+
+      expect(series[:projected][13]).to eq(1000)   # day 14, before the one-off income
+      expect(series[:projected][14]).to eq(1200)   # day 15, one-off income applied
+      expect(series[:projected][24]).to eq(900)    # day 25, recurring expense also applied on top
+      expect(series[:projected].last).to eq(setting.projected_balance_for(confidence: :all, as_of: as_of))
+    end
+
+    it "raises for an unrecognized confidence level" do
+      setting = create(:setting, initial_balance: 1000)
+
+      expect {
+        setting.cash_flow_series(month: Date.new(2026, 3, 1), as_of: Date.new(2026, 3, 10), confidence: :bogus)
+      }.to raise_error(ArgumentError, /unknown confidence level/)
+    end
   end
 
   describe "#financial_health_status" do

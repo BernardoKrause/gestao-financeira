@@ -60,13 +60,13 @@ class Setting < ApplicationRecord
     pending_one_off_transactions(as_of: as_of).select(&:expense?).sum(&:amount)
   end
 
-  def cash_flow_series(month: Date.current, as_of: Date.current)
+  def cash_flow_series(month: Date.current, as_of: Date.current, confidence: :recurring)
     days = (month.beginning_of_month..month.end_of_month).to_a
 
     {
       labels: days.map(&:day),
       historical: days.map { |day| day <= as_of ? current_balance(as_of: day) : nil },
-      projected: days.map { |day| day < as_of ? nil : projected_balance_on(day, as_of: as_of) }
+      projected: days.map { |day| day < as_of ? nil : projected_balance_on(day, as_of: as_of, confidence: confidence) }
     }
   end
 
@@ -109,16 +109,29 @@ class Setting < ApplicationRecord
     Transaction.where(date: (as_of + 1)..as_of.end_of_month, recurring_entry_id: nil)
   end
 
-  def projected_balance_on(day, as_of:)
+  def projected_balance_on(day, as_of:, confidence:)
     return current_balance(as_of: as_of) if day == as_of
 
-    current_balance(as_of: as_of) + recurring_net_between(as_of + 1, day)
+    case confidence.to_sym
+    when :confirmed
+      current_balance(as_of: as_of)
+    when :recurring
+      current_balance(as_of: as_of) + recurring_net_between(as_of + 1, day)
+    when :all
+      current_balance(as_of: as_of) + recurring_net_between(as_of + 1, day) + one_off_net_between(as_of + 1, day)
+    else
+      raise ArgumentError, "unknown confidence level: #{confidence.inspect}"
+    end
   end
 
   def recurring_net_between(from, to)
     RecurringEntry.active.sum do |entry|
       (from..to).sum { |date| fires_on?(entry, date) ? entry_signed_amount(entry) : 0 }
     end
+  end
+
+  def one_off_net_between(from, to)
+    Transaction.where(date: from..to, recurring_entry_id: nil).sum(&:signed_amount)
   end
 
   def fires_on?(entry, date)
