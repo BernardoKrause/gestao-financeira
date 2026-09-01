@@ -35,63 +35,65 @@
 
 <%= render "dashboard/cash_flow_chart" %>
 
-<%= form_with url: root_path, method: :get, html: { class: "mb-6 flex flex-wrap items-end gap-3" } do %>
-  <div>
-    <%= label_tag :month, "Período (Resumo e Histórico)", class: "mb-1 block text-sm font-medium text-gray-700" %>
-    <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
-  </div>
-  <div>
-    <%= label_tag :category_id, "Categoria", class: "mb-1 block text-sm font-medium text-gray-700" %>
-    <%= select_tag :category_id, options_for_select([ [ "Todas as categorias", "" ] ] + @category_options, @selected_category_id), class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
-  </div>
-  <div>
-    <%= submit_tag "Filtrar", class: "rounded border border-blue-600 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50" %>
-  </div>
-<% end %>
+<%= turbo_frame_tag "resumo_historico" do %>
+  <%= form_with url: root_path, method: :get, html: { class: "mb-6 flex flex-wrap items-end gap-3" } do %>
+    <div>
+      <%= label_tag :month, "Período (Resumo e Histórico)", class: "mb-1 block text-sm font-medium text-gray-700" %>
+      <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
+    </div>
+    <div>
+      <%= label_tag :category_id, "Categoria", class: "mb-1 block text-sm font-medium text-gray-700" %>
+      <%= select_tag :category_id, options_for_select([ [ "Todas as categorias", "" ] ] + @category_options, @selected_category_id), class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
+    </div>
+    <div>
+      <%= submit_tag "Filtrar", class: "rounded border border-blue-600 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50" %>
+    </div>
+  <% end %>
 
-<h2 class="mb-2 mt-2 text-xl font-semibold">Resumo — <%= @selected_month_label %></h2>
-<table class="mb-6 w-full bg-white text-sm">
-  <tbody>
-    <tr>
-      <td class="border px-3 py-2">Receitas</td>
-      <td class="border px-3 py-2 font-semibold text-green-600"><%= number_to_currency(@month_income_total, unit: "R$ ") %></td>
-    </tr>
-    <tr>
-      <td class="border px-3 py-2">Gastos</td>
-      <td class="border px-3 py-2 font-semibold text-red-600"><%= number_to_currency(@month_expense_total, unit: "R$ ") %></td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 class="mb-2 mt-2 text-xl font-semibold">Histórico — <%= @selected_month_label %></h2>
-<table class="w-full bg-white text-sm">
-  <thead>
-    <tr>
-      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Data</th>
-      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Descrição</th>
-      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Categoria</th>
-      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Status</th>
-      <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Valor</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @transactions.each do |transaction| %>
-      <% is_future = transaction.future? %>
-      <% row_bg = is_future ? "bg-slate-50/70 opacity-80" : "bg-white" %>
-      <% cell_border = is_future ? "border border-dashed border-slate-300" : "border border-slate-200" %>
-      <tr class="transaction-row transaction-row--<%= transaction.kind %> <%= row_bg %>">
-        <td class="<%= cell_border %> px-3 py-2"><%= transaction.date.strftime("%d/%m/%Y") %></td>
-        <td class="<%= cell_border %> px-3 py-2"><%= transaction.description %></td>
-        <td class="<%= cell_border %> px-3 py-2"><%= transaction.category.name %></td>
-        <td class="<%= cell_border %> px-3 py-2">
-          <% if is_future %>
-            <span class="rounded-full border border-dashed border-slate-300 bg-slate-50 px-2 py-0.5 text-xs italic text-slate-500">Previsto</span>
-          <% else %>
-            <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">Confirmado</span>
-          <% end %>
-        </td>
-        <td class="<%= cell_border %> px-3 py-2"><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
+  <h2 class="mb-2 mt-2 text-xl font-semibold">Resumo — <%= @selected_month_label %></h2>
+  <table class="mb-6 w-full bg-white text-sm">
+    <tbody>
+      <tr>
+        <td class="border px-3 py-2">Receitas</td>
+        <td class="border px-3 py-2 font-semibold text-green-600"><%= number_to_currency(@month_income_total, unit: "R$ ") %></td>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+      <tr>
+        <td class="border px-3 py-2">Gastos</td>
+        <td class="border px-3 py-2 font-semibold text-red-600"><%= number_to_currency(@month_expense_total, unit: "R$ ") %></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="mb-2 mt-2 text-xl font-semibold">Histórico — <%= @selected_month_label %></h2>
+  <table class="w-full bg-white text-sm">
+    <thead>
+      <tr>
+        <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Data</th>
+        <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Descrição</th>
+        <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Categoria</th>
+        <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Status</th>
+        <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Valor</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @transactions.each do |transaction| %>
+        <% is_future = transaction.future? %>
+        <% row_bg = is_future ? "bg-slate-50/70 opacity-80" : "bg-white" %>
+        <% cell_border = is_future ? "border border-dashed border-slate-300" : "border border-slate-200" %>
+        <tr class="transaction-row transaction-row--<%= transaction.kind %> <%= row_bg %>">
+          <td class="<%= cell_border %> px-3 py-2"><%= transaction.date.strftime("%d/%m/%Y") %></td>
+          <td class="<%= cell_border %> px-3 py-2"><%= transaction.description %></td>
+          <td class="<%= cell_border %> px-3 py-2"><%= transaction.category.name %></td>
+          <td class="<%= cell_border %> px-3 py-2">
+            <% if is_future %>
+              <span class="rounded-full border border-dashed border-slate-300 bg-slate-50 px-2 py-0.5 text-xs italic text-slate-500">Previsto</span>
+            <% else %>
+              <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">Confirmado</span>
+            <% end %>
+          </td>
+          <td class="<%= cell_border %> px-3 py-2"><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
