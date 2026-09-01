@@ -3,6 +3,10 @@ module DashboardData
 
   PT_MONTHS = %w[janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro].freeze
 
+  included do
+    helper_method :cash_flow_series
+  end
+
   private
 
   def load_dashboard_data
@@ -19,6 +23,7 @@ module DashboardData
     @receita_total_esperada_mes = @receita_confirmada_mes + @receita_pendente_mes
     @pct_receita_confirmada = revenue_percentage(@receita_confirmada_mes)
     @pct_receita_pendente = revenue_percentage(@receita_pendente_mes)
+    @current_month_label = month_label(current_month_value)
 
     @selected_month = params[:month].presence || current_month_value
     @month_options = build_month_options
@@ -31,6 +36,10 @@ module DashboardData
     @transactions = filtered_transactions
     @month_income_total = @transactions.select(&:income?).sum(&:amount)
     @month_expense_total = @transactions.select(&:expense?).sum(&:amount)
+  end
+
+  def cash_flow_series
+    @cash_flow_series ||= @setting.cash_flow_series(month: @today, as_of: @today)
   end
 
   def current_month_value

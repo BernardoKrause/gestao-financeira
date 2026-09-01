@@ -1,0 +1,9 @@
+<div class="mb-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+  <h2 class="mb-1 text-sm font-semibold text-slate-700">Fluxo de caixa — <%= @current_month_label %></h2>
+  <p class="mb-4 -mt-2 text-xs text-slate-500">Projeção considera apenas recorrências ativas</p>
+  <canvas data-controller="chart"
+          data-chart-labels-value="<%= cash_flow_series[:labels].to_json %>"
+          data-chart-historical-value="<%= cash_flow_series[:historical].to_json %>"
+          data-chart-projected-value="<%= cash_flow_series[:projected].to_json %>"
+          height="220"></canvas>
+</div>
