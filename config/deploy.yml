@@ -2,7 +2,7 @@
 service: gestao_financeira_mvp
 
 # Name of the container image (use your-user/app-name on external registries).
-image: gestao_financeira_mvp
+image: bernardokrause/gestao_financeira_mvp
 
 # Deploy to these servers.
 servers:
