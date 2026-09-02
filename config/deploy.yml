@@ -20,9 +20,11 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
+# TEMP: domain not purchased yet — testing via raw IP over plain HTTP.
+# Re-enable ssl: true + host: blocksgate.dev once blocksgate.dev's DNS
+# points at this VPS, then redeploy (bin/kamal deploy) to pick up TLS.
 proxy:
-  ssl: true
-  host: blocksgate.dev
+  ssl: false
 
 # Where you keep your container images.
 registry:
