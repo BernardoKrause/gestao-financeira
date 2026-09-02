@@ -95,6 +95,7 @@ production:
     database: gestao_financeira_mvp_production
     username: gestao_financeira_mvp
     password: <%= ENV["GESTAO_FINANCEIRA_MVP_DATABASE_PASSWORD"] %>
+    host: <%= ENV["DB_HOST"] %>
   cache:
     <<: *primary_production
     database: gestao_financeira_mvp_production_cache
