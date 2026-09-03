@@ -6,10 +6,10 @@ RSpec.describe "Dashboard", type: :request do
   before { sign_in user }
 
   it "shows the current balance and, by default, only this month's history" do
-    Setting.instance.update!(initial_balance: 1000)
-    category = create(:category)
-    create(:transaction, category: category, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
-    create(:transaction, category: category, description: "Aluguel atrasado", amount: 50, kind: :expense, date: 3.months.ago.to_date)
+    create(:setting, user: user, initial_balance: 1000)
+    category = create(:category, user: user)
+    create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+    create(:transaction, category: category, user: user, description: "Aluguel atrasado", amount: 50, kind: :expense, date: 3.months.ago.to_date)
 
     get root_path
 
@@ -21,9 +21,10 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "shows the full history when the 'all months' filter is selected" do
-    category = create(:category)
-    create(:transaction, category: category, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
-    create(:transaction, category: category, description: "Aluguel atrasado", amount: 50, kind: :expense, date: 3.months.ago.to_date)
+    create(:setting, user: user)
+    category = create(:category, user: user)
+    create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+    create(:transaction, category: category, user: user, description: "Aluguel atrasado", amount: 50, kind: :expense, date: 3.months.ago.to_date)
 
     get root_path, params: { month: "all" }
 
@@ -32,10 +33,11 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "shows only the selected month's history" do
-    category = create(:category)
+    create(:setting, user: user)
+    category = create(:category, user: user)
     target_month = 2.months.ago.to_date
-    create(:transaction, category: category, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
-    create(:transaction, category: category, description: "Conserto do carro", amount: 300, kind: :expense, date: target_month)
+    create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+    create(:transaction, category: category, user: user, description: "Conserto do carro", amount: 300, kind: :expense, date: target_month)
 
     get root_path, params: { month: target_month.strftime("%Y-%m") }
 
@@ -50,6 +52,8 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "shows navigation links" do
+    create(:setting, user: user)
+
     get root_path
 
     expect(response.body).to include(categories_path)
@@ -58,15 +62,16 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "shows the selected period's income and expense totals" do
+    create(:setting, user: user)
     # Two transactions per kind, no single one equal to the total, so the
     # assertions below can only pass if a *summed* total is rendered
     # somewhere — not just each transaction's own line in the list below.
-    expense_category = create(:category, kind: :expense)
-    income_category = create(:category, kind: :income)
-    create(:transaction, category: expense_category, kind: :expense, amount: 40, date: Date.current)
-    create(:transaction, category: expense_category, kind: :expense, amount: 60, date: Date.current)
-    create(:transaction, category: income_category, kind: :income, amount: 150, date: Date.current)
-    create(:transaction, category: income_category, kind: :income, amount: 200, date: Date.current)
+    expense_category = create(:category, user: user, kind: :expense)
+    income_category = create(:category, user: user, kind: :income)
+    create(:transaction, category: expense_category, user: user, kind: :expense, amount: 40, date: Date.current)
+    create(:transaction, category: expense_category, user: user, kind: :expense, amount: 60, date: Date.current)
+    create(:transaction, category: income_category, user: user, kind: :income, amount: 150, date: Date.current)
+    create(:transaction, category: income_category, user: user, kind: :income, amount: 200, date: Date.current)
 
     get root_path, params: { month: "all" }
 
@@ -75,10 +80,11 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "changes the totals when a different month is selected" do
-    category = create(:category, kind: :expense)
+    create(:setting, user: user)
+    category = create(:category, user: user, kind: :expense)
     older_month = 2.months.ago.to_date
-    create(:transaction, category: category, kind: :expense, amount: 999, date: Date.current)
-    create(:transaction, category: category, kind: :expense, amount: 77, date: older_month)
+    create(:transaction, category: category, user: user, kind: :expense, amount: 999, date: Date.current)
+    create(:transaction, category: category, user: user, kind: :expense, amount: 77, date: older_month)
 
     get root_path, params: { month: older_month.strftime("%Y-%m") }
 
@@ -87,10 +93,10 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "shows the financial health KPI card with the income/expense breakdown and a status badge" do
-    Setting.instance.update!(initial_balance: 1000)
-    category = create(:category)
-    create(:recurring_entry, category: category, kind: :expense, amount: 100, day_of_month: 25, start_date: Date.new(2026, 1, 1))
-    create(:recurring_entry, category: category, kind: :income, amount: 300, day_of_month: 28, start_date: Date.new(2026, 1, 1))
+    create(:setting, user: user, initial_balance: 1000)
+    category = create(:category, user: user)
+    create(:recurring_entry, category: category, user: user, kind: :expense, amount: 100, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+    create(:recurring_entry, category: category, user: user, kind: :income, amount: 300, day_of_month: 28, start_date: Date.new(2026, 1, 1))
 
     travel_to Date.new(2026, 3, 10) do
       get root_path
@@ -105,9 +111,10 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "marks a future-dated transaction as Previsto and a past one as Confirmado" do
-    category = create(:category)
-    create(:transaction, category: category, description: "Salário", amount: 3000, kind: :income, date: Date.current + 5.days)
-    create(:transaction, category: category, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+    create(:setting, user: user)
+    category = create(:category, user: user)
+    create(:transaction, category: category, user: user, description: "Salário", amount: 3000, kind: :income, date: Date.current + 5.days)
+    create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
 
     get root_path, params: { month: "all" }
 
@@ -120,13 +127,14 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "shows this month's revenue progress split between confirmed and pending, ignoring the month filter" do
-    income_category = create(:category, kind: :income)
+    create(:setting, user: user)
+    income_category = create(:category, user: user, kind: :income)
 
     travel_to Date.new(2026, 3, 10) do
-      create(:transaction, category: income_category, kind: :income, amount: 400, date: Date.new(2026, 3, 5))
-      create(:recurring_entry, category: income_category, kind: :income, amount: 600, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: income_category, user: user, kind: :income, amount: 400, date: Date.new(2026, 3, 5))
+      create(:recurring_entry, category: income_category, user: user, kind: :income, amount: 600, day_of_month: 25, start_date: Date.new(2026, 1, 1))
       # Older income, outside March — must not affect the "this month" totals below.
-      create(:transaction, category: income_category, kind: :income, amount: 9999, date: Date.new(2026, 1, 5))
+      create(:transaction, category: income_category, user: user, kind: :income, amount: 9999, date: Date.new(2026, 1, 5))
 
       get root_path, params: { month: "all" }
     end
@@ -141,7 +149,8 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "shows a zero-width revenue progress bar when there is no expected income this month" do
-    create(:category, kind: :income)
+    create(:setting, user: user)
+    create(:category, user: user, kind: :income)
 
     travel_to Date.new(2026, 3, 10) do
       get root_path, params: { month: "all" }
@@ -154,12 +163,13 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "excludes expense transactions from the revenue progress totals" do
-    income_category = create(:category, kind: :income)
-    expense_category = create(:category, kind: :expense)
+    create(:setting, user: user)
+    income_category = create(:category, user: user, kind: :income)
+    expense_category = create(:category, user: user, kind: :expense)
 
     travel_to Date.new(2026, 3, 10) do
-      create(:transaction, category: income_category, kind: :income, amount: 400, date: Date.new(2026, 3, 5))
-      create(:transaction, category: expense_category, kind: :expense, amount: 5000, date: Date.new(2026, 3, 6))
+      create(:transaction, category: income_category, user: user, kind: :income, amount: 400, date: Date.new(2026, 3, 5))
+      create(:transaction, category: expense_category, user: user, kind: :expense, amount: 5000, date: Date.new(2026, 3, 6))
 
       get root_path
     end
@@ -168,9 +178,9 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "renders the cash flow chart canvas with the current month's series data" do
-    Setting.instance.update!(initial_balance: 1000)
-    category = create(:category)
-    create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+    create(:setting, user: user, initial_balance: 1000)
+    category = create(:category, user: user)
+    create(:recurring_entry, category: category, user: user, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
 
     travel_to Date.new(2026, 3, 10) do
       get root_path
@@ -184,6 +194,8 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "keeps the month/category filter form and Resumo/Histórico inside the same turbo frame" do
+    create(:setting, user: user)
+
     get root_path
 
     doc = Nokogiri::HTML(response.body)
@@ -195,10 +207,11 @@ RSpec.describe "Dashboard", type: :request do
   end
 
   it "returns only the resumo_historico frame content when the filter form is submitted as a frame request" do
-    category = create(:category)
+    create(:setting, user: user)
+    category = create(:category, user: user)
     target_month = 2.months.ago.to_date
-    create(:transaction, category: category, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
-    create(:transaction, category: category, description: "Conserto do carro", amount: 300, kind: :expense, date: target_month)
+    create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+    create(:transaction, category: category, user: user, description: "Conserto do carro", amount: 300, kind: :expense, date: target_month)
 
     get root_path, params: { month: target_month.strftime("%Y-%m") }, headers: { "Turbo-Frame" => "resumo_historico" }
 
@@ -210,11 +223,21 @@ RSpec.describe "Dashboard", type: :request do
     expect(frame.text).not_to include("Mercado")
   end
 
+  it "does not leak another user's transactions into the history" do
+    create(:setting, user: user)
+    other_category = create(:category)
+    create(:transaction, category: other_category, user: other_category.user, description: "Segredo de outro usuário", amount: 100, kind: :expense, date: Date.current)
+
+    get root_path, params: { month: "all" }
+
+    expect(response.body).not_to include("Segredo de outro usuário")
+  end
+
   describe "GET /dashboard_confidence" do
     it "returns a turbo stream replacing the KPI card with the confirmed-only balance" do
-      Setting.instance.update!(initial_balance: 1000)
-      category = create(:category)
-      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:setting, user: user, initial_balance: 1000)
+      category = create(:category, user: user)
+      create(:recurring_entry, category: category, user: user, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
 
       travel_to Date.new(2026, 3, 10) do
         get dashboard_confidence_path, params: { confidence: "confirmed" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
@@ -231,10 +254,10 @@ RSpec.describe "Dashboard", type: :request do
     end
 
     it "returns a turbo stream reflecting future one-off transactions for the all level" do
-      Setting.instance.update!(initial_balance: 1000)
-      category = create(:category)
-      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
-      create(:transaction, category: category, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
+      create(:setting, user: user, initial_balance: 1000)
+      category = create(:category, user: user)
+      create(:recurring_entry, category: category, user: user, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: category, user: user, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
 
       travel_to Date.new(2026, 3, 10) do
         get dashboard_confidence_path, params: { confidence: "all" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
@@ -246,9 +269,9 @@ RSpec.describe "Dashboard", type: :request do
     end
 
     it "falls back to the recurring level for an unrecognized confidence param" do
-      Setting.instance.update!(initial_balance: 1000)
-      category = create(:category)
-      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:setting, user: user, initial_balance: 1000)
+      category = create(:category, user: user)
+      create(:recurring_entry, category: category, user: user, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
 
       travel_to Date.new(2026, 3, 10) do
         get dashboard_confidence_path, params: { confidence: "bogus" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
@@ -260,9 +283,9 @@ RSpec.describe "Dashboard", type: :request do
     end
 
     it "also replaces the cash flow chart with a confidence-specific projected series" do
-      Setting.instance.update!(initial_balance: 1000)
-      category = create(:category)
-      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:setting, user: user, initial_balance: 1000)
+      category = create(:category, user: user)
+      create(:recurring_entry, category: category, user: user, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
 
       travel_to Date.new(2026, 3, 10) do
         get dashboard_confidence_path, params: { confidence: "confirmed" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
@@ -273,10 +296,10 @@ RSpec.describe "Dashboard", type: :request do
     end
 
     it "reflects future one-off transactions in the chart's projected series for the all level" do
-      Setting.instance.update!(initial_balance: 1000)
-      category = create(:category)
-      create(:recurring_entry, category: category, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
-      create(:transaction, category: category, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
+      create(:setting, user: user, initial_balance: 1000)
+      category = create(:category, user: user)
+      create(:recurring_entry, category: category, user: user, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
+      create(:transaction, category: category, user: user, kind: :income, amount: 200, date: Date.new(2026, 3, 15))
 
       travel_to Date.new(2026, 3, 10) do
         get dashboard_confidence_path, params: { confidence: "all" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }

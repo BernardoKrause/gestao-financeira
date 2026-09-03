@@ -11,7 +11,7 @@ module DashboardData
 
   def load_dashboard_data
     @today = Date.current
-    @setting = Setting.instance
+    @setting = current_user.setting
     @current_balance = @setting.current_balance(as_of: @today)
     @receita_prevista = @setting.pending_recurring_income_total(as_of: @today)
     @despesa_prevista = @setting.pending_recurring_expense_total(as_of: @today)
@@ -30,7 +30,7 @@ module DashboardData
     @selected_month_label = @month_options.find { |_label, value| value == @selected_month }&.first
 
     @selected_category_id = params[:category_id].presence
-    @category_options = Category.order(:name).pluck(:name, :id)
+    @category_options = current_user.categories.order(:name).pluck(:name, :id)
 
     # Resumo and Histórico both reflect the same selected period and category.
     @transactions = filtered_transactions
@@ -47,7 +47,7 @@ module DashboardData
   end
 
   def build_month_options
-    months_with_data = Transaction.distinct.pluck(:date).map { |date| date.strftime("%Y-%m") }
+    months_with_data = current_user.transactions.distinct.pluck(:date).map { |date| date.strftime("%Y-%m") }
     all_months = (months_with_data + [ current_month_value ]).uniq.sort.reverse
 
     [ [ "Todos os meses", "all" ] ] + all_months.map { |month| [ month_label(month), month ] }
@@ -59,7 +59,7 @@ module DashboardData
   end
 
   def filtered_transactions
-    scope = Transaction.includes(:category).order(date: :desc)
+    scope = current_user.transactions.includes(:category).order(date: :desc)
     range = selected_month_range
     scope = scope.where(date: range) if range
     scope = scope.where(category_id: @selected_category_id) if @selected_category_id
@@ -76,7 +76,7 @@ module DashboardData
   end
 
   def current_month_confirmed_income
-    Transaction.income.where(date: @today.beginning_of_month..@today).sum(:amount)
+    current_user.transactions.income.where(date: @today.beginning_of_month..@today).sum(:amount)
   end
 
   def revenue_percentage(part)
