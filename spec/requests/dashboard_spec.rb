@@ -11,7 +11,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
     create(:transaction, category: category, user: user, description: "Aluguel atrasado", amount: 50, kind: :expense, date: 3.months.ago.to_date)
 
-    get root_path
+    get dashboard_path
 
     expect(response).to have_http_status(:ok)
     # current_balance is accumulated (unaffected by the history filter)
@@ -26,7 +26,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
     create(:transaction, category: category, user: user, description: "Aluguel atrasado", amount: 50, kind: :expense, date: 3.months.ago.to_date)
 
-    get root_path, params: { month: "all" }
+    get dashboard_path, params: { month: "all" }
 
     expect(response.body).to include("Mercado")
     expect(response.body).to include("Aluguel atrasado")
@@ -39,7 +39,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
     create(:transaction, category: category, user: user, description: "Conserto do carro", amount: 300, kind: :expense, date: target_month)
 
-    get root_path, params: { month: target_month.strftime("%Y-%m") }
+    get dashboard_path, params: { month: target_month.strftime("%Y-%m") }
 
     expect(response.body).to include("Conserto do carro")
     expect(response.body).not_to include("Mercado")
@@ -47,18 +47,26 @@ RSpec.describe "Dashboard", type: :request do
 
   it "redirects to sign in when not authenticated" do
     sign_out user
-    get root_path
+    get dashboard_path
     expect(response).to redirect_to(new_user_session_path)
   end
 
   it "shows navigation links" do
     create(:setting, user: user)
 
-    get root_path
+    get dashboard_path
 
     expect(response.body).to include(categories_path)
     expect(response.body).to include(transactions_path)
     expect(response.body).to include(recurring_entries_path)
+  end
+
+  it "shows a link to the account settings screen" do
+    create(:setting, user: user)
+
+    get dashboard_path
+
+    expect(response.body).to include(edit_user_registration_path)
   end
 
   it "shows the selected period's income and expense totals" do
@@ -73,7 +81,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:transaction, category: income_category, user: user, kind: :income, amount: 150, date: Date.current)
     create(:transaction, category: income_category, user: user, kind: :income, amount: 200, date: Date.current)
 
-    get root_path, params: { month: "all" }
+    get dashboard_path, params: { month: "all" }
 
     expect(response.body).to include(ActionController::Base.helpers.number_to_currency(100, unit: "R$ "))
     expect(response.body).to include(ActionController::Base.helpers.number_to_currency(350, unit: "R$ "))
@@ -86,7 +94,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:transaction, category: category, user: user, kind: :expense, amount: 999, date: Date.current)
     create(:transaction, category: category, user: user, kind: :expense, amount: 77, date: older_month)
 
-    get root_path, params: { month: older_month.strftime("%Y-%m") }
+    get dashboard_path, params: { month: older_month.strftime("%Y-%m") }
 
     expect(response.body).to include(ActionController::Base.helpers.number_to_currency(77, unit: "R$ "))
     expect(response.body).not_to include(ActionController::Base.helpers.number_to_currency(999, unit: "R$ "))
@@ -99,7 +107,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:recurring_entry, category: category, user: user, kind: :income, amount: 300, day_of_month: 28, start_date: Date.new(2026, 1, 1))
 
     travel_to Date.new(2026, 3, 10) do
-      get root_path
+      get dashboard_path
     end
 
     expect(response.body).to include("Previsão fim do mês")
@@ -116,7 +124,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:transaction, category: category, user: user, description: "Salário", amount: 3000, kind: :income, date: Date.current + 5.days)
     create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
 
-    get root_path, params: { month: "all" }
+    get dashboard_path, params: { month: "all" }
 
     doc = Nokogiri::HTML(response.body)
     salario_row = doc.css("tr").find { |tr| tr.text.include?("Salário") }
@@ -136,7 +144,7 @@ RSpec.describe "Dashboard", type: :request do
       # Older income, outside March — must not affect the "this month" totals below.
       create(:transaction, category: income_category, user: user, kind: :income, amount: 9999, date: Date.new(2026, 1, 5))
 
-      get root_path, params: { month: "all" }
+      get dashboard_path, params: { month: "all" }
     end
 
     doc = Nokogiri::HTML(response.body)
@@ -153,7 +161,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:category, user: user, kind: :income)
 
     travel_to Date.new(2026, 3, 10) do
-      get root_path, params: { month: "all" }
+      get dashboard_path, params: { month: "all" }
     end
 
     doc = Nokogiri::HTML(response.body)
@@ -171,7 +179,7 @@ RSpec.describe "Dashboard", type: :request do
       create(:transaction, category: income_category, user: user, kind: :income, amount: 400, date: Date.new(2026, 3, 5))
       create(:transaction, category: expense_category, user: user, kind: :expense, amount: 5000, date: Date.new(2026, 3, 6))
 
-      get root_path
+      get dashboard_path
     end
 
     expect(response.body).not_to include(ActionController::Base.helpers.number_to_currency(5400, unit: "R$ "))
@@ -183,7 +191,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:recurring_entry, category: category, user: user, kind: :expense, amount: 300, day_of_month: 25, start_date: Date.new(2026, 1, 1))
 
     travel_to Date.new(2026, 3, 10) do
-      get root_path
+      get dashboard_path
     end
 
     expect(response.body).to include('data-controller="chart"')
@@ -196,7 +204,7 @@ RSpec.describe "Dashboard", type: :request do
   it "keeps the month/category filter form and Resumo/Histórico inside the same turbo frame" do
     create(:setting, user: user)
 
-    get root_path
+    get dashboard_path
 
     doc = Nokogiri::HTML(response.body)
     frame = doc.at_css("turbo-frame#resumo_historico")
@@ -213,7 +221,7 @@ RSpec.describe "Dashboard", type: :request do
     create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
     create(:transaction, category: category, user: user, description: "Conserto do carro", amount: 300, kind: :expense, date: target_month)
 
-    get root_path, params: { month: target_month.strftime("%Y-%m") }, headers: { "Turbo-Frame" => "resumo_historico" }
+    get dashboard_path, params: { month: target_month.strftime("%Y-%m") }, headers: { "Turbo-Frame" => "resumo_historico" }
 
     expect(response).to have_http_status(:ok)
     doc = Nokogiri::HTML(response.body)
@@ -228,7 +236,7 @@ RSpec.describe "Dashboard", type: :request do
     other_category = create(:category)
     create(:transaction, category: other_category, user: other_category.user, description: "Segredo de outro usuário", amount: 100, kind: :expense, date: Date.current)
 
-    get root_path, params: { month: "all" }
+    get dashboard_path, params: { month: "all" }
 
     expect(response.body).not_to include("Segredo de outro usuário")
   end

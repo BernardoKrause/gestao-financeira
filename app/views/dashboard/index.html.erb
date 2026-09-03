@@ -36,7 +36,7 @@
 <%= render "dashboard/cash_flow_chart" %>
 
 <%= turbo_frame_tag "resumo_historico" do %>
-  <%= form_with url: root_path, method: :get, html: { class: "mb-6 flex flex-wrap items-end gap-3" } do %>
+  <%= form_with url: dashboard_path, method: :get, html: { class: "mb-6 flex flex-wrap items-end gap-3" } do %>
     <div>
       <%= label_tag :month, "Período (Resumo e Histórico)", class: "mb-1 block text-sm font-medium text-gray-700" %>
       <%= select_tag :month, options_for_select(@month_options, @selected_month), class: "rounded border border-gray-300 px-3 py-2 text-sm" %>

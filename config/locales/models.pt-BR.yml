@@ -1,0 +1,32 @@
+pt-BR:
+  activerecord:
+    models:
+      category: "Categoria"
+      transaction: "Lançamento"
+      recurring_entry: "Recorrência"
+      setting: "Configuração"
+    attributes:
+      category:
+        name: "Nome"
+        kind: "Tipo"
+        user: "Usuário"
+      transaction:
+        description: "Descrição"
+        amount: "Valor"
+        date: "Data"
+        kind: "Tipo"
+        category: "Categoria"
+        user: "Usuário"
+      recurring_entry:
+        description: "Descrição"
+        amount: "Valor"
+        day_of_month: "Dia do mês"
+        start_date: "Data de início"
+        installments: "Número de parcelas"
+        active: "Ativo"
+        kind: "Tipo"
+        category: "Categoria"
+        user: "Usuário"
+      setting:
+        initial_balance: "Saldo inicial"
+        user: "Usuário"

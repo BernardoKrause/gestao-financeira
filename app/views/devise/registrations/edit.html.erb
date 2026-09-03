@@ -1,0 +1,36 @@
+<% content_for :title, "Minha conta" %>
+
+<p class="mb-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">Gestão Financeira</p>
+<h1 class="mb-6 text-2xl font-bold text-gray-900">Minha conta</h1>
+
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <div class="mb-4">
+    <%= f.label :email, class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+  </div>
+
+  <div class="mb-4">
+    <%= f.label :password, "Nova senha", class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <p class="mb-1 text-xs text-gray-400">Deixe em branco se não quiser alterar</p>
+    <%= f.password_field :password, autocomplete: "new-password", class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+  </div>
+
+  <div class="mb-4">
+    <%= f.label :password_confirmation, "Confirmação da nova senha", class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+  </div>
+
+  <div class="mb-6">
+    <%= f.label :current_password, "Senha atual", class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <p class="mb-1 text-xs text-gray-400">Necessária para confirmar as alterações</p>
+    <%= f.password_field :current_password, autocomplete: "current-password", class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+  </div>
+
+  <%= f.submit "Salvar alterações", class: "w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700" %>
+<% end %>
+
+<div class="mt-6 border-t border-gray-100 pt-4 text-center">
+  <%= button_to "Excluir minha conta", registration_path(resource_name), data: { turbo_confirm: "Tem certeza? Essa ação não pode ser desfeita." }, method: :delete, class: "text-sm text-red-500 hover:text-red-700" %>
+</div>

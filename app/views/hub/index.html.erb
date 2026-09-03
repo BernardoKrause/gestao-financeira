@@ -1,0 +1,23 @@
+<% content_for :title, "Hub" %>
+
+<div class="flex items-center justify-between border-b border-gray-200 py-6">
+  <span class="text-lg font-bold text-gray-900">Hub</span>
+  <% if user_signed_in? %>
+    <%= button_to "Sair", destroy_user_session_path, method: :delete, class: "rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50" %>
+  <% else %>
+    <%= link_to "Entrar", new_user_session_path, class: "text-sm font-medium text-indigo-600 hover:text-indigo-700" %>
+  <% end %>
+</div>
+
+<div class="py-12 text-center">
+  <h1 class="text-3xl font-bold text-gray-900">Seu hub pessoal</h1>
+  <p class="mt-2 text-gray-500">Escolha uma área para gerenciar.</p>
+</div>
+
+<div class="grid gap-6 pb-12 sm:grid-cols-2 lg:grid-cols-3">
+  <%= link_to dashboard_path, class: "group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md" do %>
+    <span class="text-3xl">💰</span>
+    <h2 class="mt-4 text-lg font-semibold text-gray-900 group-hover:text-indigo-600">Gestão Financeira</h2>
+    <p class="mt-1 text-sm text-gray-500">Controle de receitas, despesas, categorias e recorrências.</p>
+  <% end %>
+</div>
