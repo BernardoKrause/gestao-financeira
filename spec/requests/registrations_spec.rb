@@ -35,6 +35,13 @@ RSpec.describe "Registrations", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
+  it "renders validation errors fully in Portuguese, with no leftover English attribute name" do
+    post user_registration_path, params: { user: { email: "novo@example.com", password: "weakpass", password_confirmation: "weakpass" } }
+
+    expect(response.body).to include("Senha")
+    expect(response.body).not_to include("Password")
+  end
+
   it "allows registration even when a user already exists" do
     create(:user)
 

@@ -51,6 +51,13 @@ pt-BR:
       send_instructions: "Você receberá um e-mail com instruções para desbloquear sua conta em alguns minutos."
       send_paranoid_instructions: "Se a sua conta existir, você receberá um e-mail com instruções para desbloqueá-la em alguns minutos."
       unlocked: "Sua conta foi desbloqueada com sucesso. Faça login para continuar."
+  activerecord:
+    attributes:
+      user:
+        email: "E-mail"
+        password: "Senha"
+        password_confirmation: "Confirmação de senha"
+        current_password: "Senha atual"
   errors:
     messages:
       already_confirmed: "já foi confirmado, tente fazer login"
