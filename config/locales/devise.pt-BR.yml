@@ -58,6 +58,7 @@ pt-BR:
         password: "Senha"
         password_confirmation: "Confirmação de senha"
         current_password: "Senha atual"
+        reset_password_token: "Token de redefinição de senha"
   errors:
     messages:
       already_confirmed: "já foi confirmado, tente fazer login"

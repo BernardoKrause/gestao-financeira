@@ -91,6 +91,13 @@ RSpec.describe "QuickEntries", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
+  it "renders the invalid-amount error in Portuguese, not English" do
+    post quick_entries_path, params: { kind: "expense", description: "Mercado", amount: 0, date: Date.current, category_id: expense_category.id }
+
+    expect(response.body).to include("Valor")
+    expect(response.body).not_to include("Amount")
+  end
+
   it "does not create a transaction referencing another user's category" do
     other_category = create(:category)
 

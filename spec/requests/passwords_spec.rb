@@ -43,4 +43,18 @@ RSpec.describe "Passwords", type: :request do
     expect(email.subject).to eq("Instruções para redefinir senha")
     expect(email.body.encoded).to include("Alguém solicitou um link para alterar a senha")
   end
+
+  it "rejects an invalid reset token, in Portuguese" do
+    put user_password_path, params: {
+      user: {
+        reset_password_token: "not-a-real-token",
+        password: "NewStrong#Pass1",
+        password_confirmation: "NewStrong#Pass1"
+      }
+    }
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.body).to include("Token de redefinição de senha")
+    expect(response.body).not_to include("Reset password token")
+  end
 end

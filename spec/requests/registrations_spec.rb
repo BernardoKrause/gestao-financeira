@@ -51,4 +51,20 @@ RSpec.describe "Registrations", type: :request do
 
     expect(response).to redirect_to(dashboard_path)
   end
+
+  it "rejects an account update with the wrong current password, in Portuguese" do
+    user = create(:user)
+    sign_in user
+
+    put user_registration_path, params: {
+      user: {
+        email: "novo-email@example.com",
+        current_password: "WrongPassword#1"
+      }
+    }
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.body).to include("Senha atual")
+    expect(response.body).not_to include("Current password")
+  end
 end

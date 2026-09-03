@@ -61,6 +61,14 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include(recurring_entries_path)
   end
 
+  it "shows a link to the account settings screen" do
+    create(:setting, user: user)
+
+    get dashboard_path
+
+    expect(response.body).to include(edit_user_registration_path)
+  end
+
   it "shows the selected period's income and expense totals" do
     create(:setting, user: user)
     # Two transactions per kind, no single one equal to the total, so the

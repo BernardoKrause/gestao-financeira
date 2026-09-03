@@ -24,7 +24,8 @@ A senha precisa ter ao menos uma letra maiúscula e um caractere especial.
 
     bin/dev
 
-E acessar http://localhost:3000 — vai pedir login com o usuário criado acima.
+E acessar http://localhost:3000 — a raiz é o Hub; clique em "Gestão Financeira" pra
+entrar (vai pedir login com o usuário criado acima).
 
 O PostgreSQL roda em background como serviço do Homebrew (`postgresql@17`) e
 inicia sozinho no login da máquina — não precisa subir nada manualmente. Se
