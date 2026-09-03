@@ -20,6 +20,7 @@ class QuickEntriesController < ApplicationController
 
   def create_transaction
     @transaction = Transaction.new(
+      user: current_user,
       description: params[:description],
       amount: params[:amount],
       kind: @kind,
@@ -46,6 +47,7 @@ class QuickEntriesController < ApplicationController
     end
 
     @recurring_entry = RecurringEntry.new(
+      user: current_user,
       description: params[:description],
       amount: params[:amount],
       kind: @kind,
