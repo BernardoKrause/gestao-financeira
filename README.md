@@ -9,11 +9,10 @@ previsto do mês.
     bundle install
     bin/rails db:create db:migrate
 
-## Criar o usuário (só na primeira vez)
+## Criar o usuário
 
-Suba a aplicação (`bin/dev`) e acesse http://localhost:3000/setup — a tela cria o único
-usuário do sistema. Ela só funciona enquanto não existir nenhum usuário; depois de criar
-sua conta, `/setup` passa a redirecionar para o login automaticamente.
+Suba a aplicação (`bin/dev`) e acesse http://localhost:3000/users/sign_up — o cadastro é
+público e fica sempre disponível (não é mais restrito ao primeiro usuário do sistema).
 
 Alternativa via terminal (útil em deploys automatizados), com o mesmo resultado:
 

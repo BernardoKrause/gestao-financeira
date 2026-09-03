@@ -2,10 +2,13 @@ require "rails_helper"
 
 RSpec.describe "QuickEntries", type: :request do
   let(:user) { create(:user) }
-  let(:expense_category) { create(:category, kind: :expense) }
-  let(:income_category) { create(:category, kind: :income) }
+  let(:expense_category) { create(:category, user: user, kind: :expense) }
+  let(:income_category) { create(:category, user: user, kind: :income) }
 
-  before { sign_in user }
+  before do
+    sign_in user
+    create(:setting, user: user)
+  end
 
   it "creates a one-off expense transaction and redirects to the dashboard" do
     expect {
@@ -16,6 +19,7 @@ RSpec.describe "QuickEntries", type: :request do
     transaction = Transaction.last
     expect(transaction.kind).to eq("expense")
     expect(transaction.description).to eq("Mercado")
+    expect(transaction.user).to eq(user)
   end
 
   it "creates a one-off income transaction" do
@@ -34,6 +38,7 @@ RSpec.describe "QuickEntries", type: :request do
     entry = RecurringEntry.last
     expect(entry.start_date).to eq(Date.current)
     expect(entry.end_date).to be_nil
+    expect(entry.user).to eq(user)
     expect(entry.transactions.count).to eq(1)
     expect(response).to redirect_to(root_path)
   end
@@ -86,9 +91,19 @@ RSpec.describe "QuickEntries", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
+  it "does not create a transaction referencing another user's category" do
+    other_category = create(:category)
+
+    expect {
+      post quick_entries_path, params: { kind: "expense", description: "Mercado", amount: 150, date: Date.current, category_id: other_category.id }
+    }.not_to change(Transaction, :count)
+
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   it "filters categories by kind in each quick entry form" do
-    expense_cat = create(:category, name: "Mercado", kind: :expense)
-    income_cat = create(:category, name: "Salário", kind: :income)
+    expense_cat = create(:category, user: user, name: "Mercado", kind: :expense)
+    income_cat = create(:category, user: user, name: "Salário", kind: :income)
 
     get root_path
 
@@ -103,7 +118,7 @@ RSpec.describe "QuickEntries", type: :request do
   end
 
   it "reopens the expense form with the validation error after an invalid submission" do
-    category = create(:category, kind: :expense)
+    category = create(:category, user: user, kind: :expense)
 
     post quick_entries_path, params: { kind: "expense", description: "Mercado", amount: 0, date: Date.current, category_id: category.id }
 
@@ -115,7 +130,7 @@ RSpec.describe "QuickEntries", type: :request do
   end
 
   it "keeps the expense form closed when an income submission fails validation" do
-    category = create(:category, kind: :income)
+    category = create(:category, user: user, kind: :income)
 
     post quick_entries_path, params: { kind: "income", description: "Salário", amount: 0, date: Date.current, category_id: category.id }
 

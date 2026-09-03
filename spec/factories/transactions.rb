@@ -4,6 +4,7 @@ FactoryBot.define do
     amount { 150.50 }
     kind { :expense }
     date { Date.current }
-    category
+    user
+    category { association :category, user: instance.user }
   end
 end

@@ -20,6 +20,7 @@ class QuickEntriesController < ApplicationController
 
   def create_transaction
     @transaction = Transaction.new(
+      user: current_user,
       description: params[:description],
       amount: params[:amount],
       kind: @kind,
@@ -46,6 +47,7 @@ class QuickEntriesController < ApplicationController
     end
 
     @recurring_entry = RecurringEntry.new(
+      user: current_user,
       description: params[:description],
       amount: params[:amount],
       kind: @kind,
@@ -56,7 +58,7 @@ class QuickEntriesController < ApplicationController
     )
 
     if @recurring_entry.save
-      RecurringEntryGenerator.call
+      RecurringEntryGenerator.call(user: current_user)
       redirect_to root_path, notice: "Recorrência criada."
     else
       render_dashboard_with_error(@recurring_entry)

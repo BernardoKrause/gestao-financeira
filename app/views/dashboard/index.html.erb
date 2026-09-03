@@ -3,11 +3,11 @@
 <h2 class="mb-2 mt-2 text-xl font-semibold">Lançar</h2>
 <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
   <%= render "dashboard/quick_entry_form", kind: "expense", label: "Gasto",
-        categories: Category.expense.order(:name),
+        categories: current_user.categories.expense.order(:name),
         record: (@quick_entry_kind == "expense" ? @quick_entry_record : nil) %>
 
   <%= render "dashboard/quick_entry_form", kind: "income", label: "Receita",
-        categories: Category.income.order(:name),
+        categories: current_user.categories.income.order(:name),
         record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
 </div>
 

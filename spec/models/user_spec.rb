@@ -17,4 +17,14 @@ RSpec.describe User, type: :model do
     expect(user).not_to be_valid
     expect(user.errors[:password]).to be_present
   end
+
+  it "destroys a user's transactions and recurring entries before their categories, so a fully-loaded account can be deleted" do
+    user = create(:user)
+    category = create(:category, user: user)
+    create(:transaction, category: category, user: user)
+    create(:recurring_entry, category: category, user: user)
+
+    expect { user.destroy }.not_to raise_error
+    expect(Category.exists?(category.id)).to be(false)
+  end
 end

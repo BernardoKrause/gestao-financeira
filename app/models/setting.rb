@@ -1,14 +1,12 @@
 class Setting < ApplicationRecord
   CONFIDENCE_LEVELS = %i[confirmed recurring all].freeze
 
+  belongs_to :user
+
   validates :initial_balance, numericality: true
 
-  def self.instance
-    first_or_create!(initial_balance: 0)
-  end
-
   def current_balance(as_of: Date.current)
-    initial_balance + Transaction.where(date: ..as_of).sum(&:signed_amount)
+    initial_balance + user.transactions.where(date: ..as_of).sum(&:signed_amount)
   end
 
   def projected_month_end_balance(as_of: Date.current)
@@ -75,7 +73,7 @@ class Setting < ApplicationRecord
   def pending_recurring_entries(as_of:)
     return [] if as_of.day == as_of.end_of_month.day
 
-    RecurringEntry.active.select { |entry| pending?(entry, as_of) }
+    user.recurring_entries.active.select { |entry| pending?(entry, as_of) }
   end
 
   def pending?(entry, as_of)
@@ -97,7 +95,7 @@ class Setting < ApplicationRecord
   end
 
   def monthly_recurring_entries(as_of:)
-    RecurringEntry.active.select { |entry| fires_within_month?(entry, as_of) }
+    user.recurring_entries.active.select { |entry| fires_within_month?(entry, as_of) }
   end
 
   def fires_within_month?(entry, as_of)
@@ -106,7 +104,7 @@ class Setting < ApplicationRecord
   end
 
   def pending_one_off_transactions(as_of:)
-    Transaction.where(date: (as_of + 1)..as_of.end_of_month, recurring_entry_id: nil)
+    user.transactions.where(date: (as_of + 1)..as_of.end_of_month, recurring_entry_id: nil)
   end
 
   def projected_balance_on(day, as_of:, confidence:)
@@ -125,13 +123,13 @@ class Setting < ApplicationRecord
   end
 
   def recurring_net_between(from, to)
-    RecurringEntry.active.sum do |entry|
+    user.recurring_entries.active.sum do |entry|
       (from..to).sum { |date| fires_on?(entry, date) ? entry_signed_amount(entry) : 0 }
     end
   end
 
   def one_off_net_between(from, to)
-    Transaction.where(date: from..to, recurring_entry_id: nil).sum(&:signed_amount)
+    user.transactions.where(date: from..to, recurring_entry_id: nil).sum(&:signed_amount)
   end
 
   def fires_on?(entry, date)

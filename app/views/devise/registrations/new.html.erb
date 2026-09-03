@@ -1,10 +1,10 @@
 <h1 class="mb-4 text-2xl font-bold">Criar conta</h1>
 
-<%= form_with model: @user, url: setup_path do |f| %>
-  <% if @user.errors.any? %>
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+  <% if resource.errors.any? %>
     <div class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 error-messages">
       <ul>
-        <% @user.errors.full_messages.each do |message| %>
+        <% resource.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
       </ul>
@@ -13,17 +13,17 @@
 
   <div class="mb-4">
     <%= f.label :email, class: "mb-1 block text-sm font-medium text-gray-700" %>
-    <%= f.email_field :email, autofocus: true, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
 
   <div class="mb-4">
     <%= f.label :password, class: "mb-1 block text-sm font-medium text-gray-700" %>
-    <%= f.password_field :password, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+    <%= f.password_field :password, autocomplete: "new-password", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
 
   <div class="mb-4">
     <%= f.label :password_confirmation, "Confirmação de senha", class: "mb-1 block text-sm font-medium text-gray-700" %>
-    <%= f.password_field :password_confirmation, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+    <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
   </div>
 
   <%= f.submit "Criar conta", class: "rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>

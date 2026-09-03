@@ -1,5 +1,10 @@
 class User < ApplicationRecord
-  devise :database_authenticatable, :recoverable, :validatable
+  devise :database_authenticatable, :recoverable, :registerable, :validatable
+
+  has_many :transactions, dependent: :destroy
+  has_many :recurring_entries, dependent: :destroy
+  has_many :categories, dependent: :destroy
+  has_one :setting, dependent: :destroy
 
   validate :password_complexity
 

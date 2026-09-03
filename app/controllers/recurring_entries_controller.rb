@@ -2,21 +2,21 @@ class RecurringEntriesController < ApplicationController
   before_action :set_recurring_entry, only: %i[show edit update destroy]
 
   def index
-    @recurring_entries = RecurringEntry.includes(:category).order(:description)
+    @recurring_entries = current_user.recurring_entries.includes(:category).order(:description)
   end
 
   def show; end
 
   def new
-    @recurring_entry = RecurringEntry.new(start_date: Date.current)
+    @recurring_entry = current_user.recurring_entries.new(start_date: Date.current)
   end
 
   def edit; end
 
   def create
-    @recurring_entry = RecurringEntry.new(recurring_entry_params)
+    @recurring_entry = current_user.recurring_entries.new(recurring_entry_params)
     if @recurring_entry.save
-      RecurringEntryGenerator.call
+      RecurringEntryGenerator.call(user: current_user)
       redirect_to recurring_entries_path, notice: "Recorrência criada com sucesso."
     else
       render :new, status: :unprocessable_entity
@@ -25,7 +25,7 @@ class RecurringEntriesController < ApplicationController
 
   def update
     if @recurring_entry.update(recurring_entry_params)
-      RecurringEntryGenerator.call
+      RecurringEntryGenerator.call(user: current_user)
       redirect_to recurring_entries_path, notice: "Recorrência atualizada com sucesso."
     else
       render :edit, status: :unprocessable_entity
@@ -40,7 +40,7 @@ class RecurringEntriesController < ApplicationController
   private
 
   def set_recurring_entry
-    @recurring_entry = RecurringEntry.find(params[:id])
+    @recurring_entry = current_user.recurring_entries.find(params[:id])
   end
 
   def recurring_entry_params

@@ -7,6 +7,7 @@ FactoryBot.define do
     active { true }
     start_date { Date.current.beginning_of_month }
     installments { nil }
-    category
+    user
+    category { association :category, user: instance.user }
   end
 end

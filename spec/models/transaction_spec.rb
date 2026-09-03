@@ -5,6 +5,17 @@ RSpec.describe Transaction, type: :model do
     expect(build(:transaction)).to be_valid
   end
 
+  it "is invalid when the category belongs to a different user" do
+    user = create(:user)
+    other_user = create(:user)
+    category = create(:category, user: other_user)
+
+    transaction = build(:transaction, user: user, category: category)
+
+    expect(transaction).not_to be_valid
+    expect(transaction.errors[:category]).to be_present
+  end
+
   it "is invalid without a description" do
     expect(build(:transaction, description: nil)).not_to be_valid
   end
