@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Gestão Financeira" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Gestao Financeira Mvp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="flex min-h-screen items-center justify-center bg-gray-50 px-4 text-gray-900">
+    <div class="w-full max-w-sm">
+      <%= link_to "← Hub", root_path, class: "mb-4 inline-block text-sm text-gray-500 hover:text-indigo-600" %>
+
+      <div class="rounded-2xl border border-gray-100 bg-white p-8 shadow-lg">
+        <%= render "shared/flash" %>
+
+        <%= yield %>
+      </div>
+    </div>
+  </body>
+</html>

@@ -24,9 +24,10 @@
   </head>
 
   <body class="bg-gray-50 text-gray-900">
-    <% if user_signed_in? %>
+    <% if user_signed_in? && controller_name != "hub" %>
       <nav class="mb-6 bg-gray-900 text-white">
         <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-4 px-4 py-3">
+          <%= link_to "← Hub", root_path, class: "text-xs text-gray-400 hover:text-white" %>
           <%= link_to "Gestão Financeira", dashboard_path, class: "text-lg font-bold text-white" %>
           <div class="flex flex-1 flex-wrap gap-3">
             <%= link_to "Painel", dashboard_path, class: "text-sm text-gray-200 hover:text-white" %>
@@ -40,11 +41,7 @@
     <% end %>
 
     <main class="mx-auto max-w-5xl px-4 pb-12">
-      <% flash.each do |type, message| %>
-        <div class="mb-4 rounded border px-4 py-3 text-sm <%= type == "alert" ? "border-red-300 bg-red-50 text-red-700" : "border-green-300 bg-green-50 text-green-700" %>" role="alert">
-          <%= message %>
-        </div>
-      <% end %>
+      <%= render "shared/flash" %>
 
       <%= yield %>
     </main>

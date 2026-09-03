@@ -17,4 +17,13 @@ RSpec.describe "Hub", type: :request do
 
     expect(response).to redirect_to(dashboard_path)
   end
+
+  it "does not show the Gestão Financeira nav bar, even when signed in" do
+    user = create(:user)
+    sign_in user
+
+    get root_path
+
+    expect(response.body).not_to include("Painel")
+  end
 end

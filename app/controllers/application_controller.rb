@@ -6,10 +6,17 @@ class ApplicationController < ActionController::Base
   stale_when_importmap_changes
 
   before_action :authenticate_user!
+  layout :layout_by_resource
 
   protected
 
   def after_sign_in_path_for(resource)
     stored_location_for(resource) || dashboard_path
+  end
+
+  private
+
+  def layout_by_resource
+    devise_controller? ? "auth" : "application"
   end
 end
