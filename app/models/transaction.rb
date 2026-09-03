@@ -1,6 +1,9 @@
 class Transaction < ApplicationRecord
+  include CategoryOwnership
+
   enum :kind, { expense: 0, income: 1 }
 
+  belongs_to :user
   belongs_to :category
   belongs_to :recurring_entry, optional: true
 

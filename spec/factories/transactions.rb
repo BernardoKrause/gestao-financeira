@@ -5,5 +5,6 @@ FactoryBot.define do
     kind { :expense }
     date { Date.current }
     category
+    user
   end
 end

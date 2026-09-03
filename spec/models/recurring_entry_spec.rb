@@ -5,6 +5,17 @@ RSpec.describe RecurringEntry, type: :model do
     expect(build(:recurring_entry)).to be_valid
   end
 
+  it "is invalid when the category belongs to a different user" do
+    user = create(:user)
+    other_user = create(:user)
+    category = create(:category, user: other_user)
+
+    entry = build(:recurring_entry, user: user, category: category)
+
+    expect(entry).not_to be_valid
+    expect(entry.errors[:category]).to be_present
+  end
+
   it "is invalid without a day_of_month" do
     expect(build(:recurring_entry, day_of_month: nil)).not_to be_valid
   end
@@ -36,8 +47,10 @@ RSpec.describe RecurringEntry, type: :model do
 
   describe ".active" do
     it "returns only active entries" do
-      active_entry = create(:recurring_entry, active: true)
-      create(:recurring_entry, active: false)
+      user = create(:user)
+      category = create(:category, user: user)
+      active_entry = create(:recurring_entry, active: true, user: user, category: category)
+      create(:recurring_entry, active: false, user: user, category: category)
       expect(RecurringEntry.active).to contain_exactly(active_entry)
     end
   end

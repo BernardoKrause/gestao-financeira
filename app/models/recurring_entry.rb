@@ -1,6 +1,9 @@
 class RecurringEntry < ApplicationRecord
+  include CategoryOwnership
+
   enum :kind, { expense: 0, income: 1 }
 
+  belongs_to :user
   belongs_to :category
   has_many :transactions, dependent: :nullify
 

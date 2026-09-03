@@ -8,5 +8,6 @@ FactoryBot.define do
     start_date { Date.current.beginning_of_month }
     installments { nil }
     category
+    user
   end
 end
