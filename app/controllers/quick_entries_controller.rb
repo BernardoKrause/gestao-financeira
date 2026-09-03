@@ -58,7 +58,7 @@ class QuickEntriesController < ApplicationController
     )
 
     if @recurring_entry.save
-      RecurringEntryGenerator.call
+      RecurringEntryGenerator.call(user: current_user)
       redirect_to root_path, notice: "Recorrência criada."
     else
       render_dashboard_with_error(@recurring_entry)

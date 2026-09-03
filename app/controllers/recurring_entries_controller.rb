@@ -16,7 +16,7 @@ class RecurringEntriesController < ApplicationController
   def create
     @recurring_entry = current_user.recurring_entries.new(recurring_entry_params)
     if @recurring_entry.save
-      RecurringEntryGenerator.call
+      RecurringEntryGenerator.call(user: current_user)
       redirect_to recurring_entries_path, notice: "Recorrência criada com sucesso."
     else
       render :new, status: :unprocessable_entity
@@ -25,7 +25,7 @@ class RecurringEntriesController < ApplicationController
 
   def update
     if @recurring_entry.update(recurring_entry_params)
-      RecurringEntryGenerator.call
+      RecurringEntryGenerator.call(user: current_user)
       redirect_to recurring_entries_path, notice: "Recorrência atualizada com sucesso."
     else
       render :edit, status: :unprocessable_entity

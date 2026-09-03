@@ -71,6 +71,16 @@ RSpec.describe "RecurringEntries", type: :request do
     expect(response).to have_http_status(:not_found)
   end
 
+  it "does not generate transactions for another user's due recurring entries" do
+    other_user = create(:user)
+    other_category = create(:category, user: other_user)
+    other_entry = create(:recurring_entry, category: other_category, user: other_user, day_of_month: Date.current.day, start_date: Date.current.beginning_of_month)
+
+    post recurring_entries_path, params: { recurring_entry: { description: "Aluguel", amount: 1500, kind: "expense", day_of_month: Date.current.day, active: true, start_date: Date.current, category_id: category.id } }
+
+    expect(other_entry.transactions).to be_empty
+  end
+
   it "only lists the current user's categories in the new recurring entry form" do
     create(:category, name: "Categoria de outro usuário")
 

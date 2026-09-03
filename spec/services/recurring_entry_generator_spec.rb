@@ -88,6 +88,18 @@ RSpec.describe RecurringEntryGenerator do
     expect(entry.transactions).to be_empty
   end
 
+  it "only processes the given user's entries when scoped to a user" do
+    other_user = create(:user)
+    other_category = create(:category, user: other_user)
+    entry = create(:recurring_entry, category: category, user: user, day_of_month: 10, start_date: Date.new(2026, 1, 1))
+    other_entry = create(:recurring_entry, category: other_category, user: other_user, day_of_month: 10, start_date: Date.new(2026, 1, 1))
+
+    described_class.call(today: Date.new(2026, 3, 10), user: user)
+
+    expect(entry.transactions.count).to eq(1)
+    expect(other_entry.transactions).to be_empty
+  end
+
   it "generates transactions for multiple users' entries independently" do
     other_user = create(:user)
     other_category = create(:category, user: other_user)
