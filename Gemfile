@@ -44,6 +44,7 @@ gem "image_processing", "~> 2.0"
 
 # Flexible authentication solution for Rails [https://github.com/heartcombo/devise]
 gem "devise"
+gem "rails-i18n"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

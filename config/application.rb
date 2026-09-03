@@ -34,6 +34,7 @@ module GestaoFinanceiraMvp
     # in config/environments, which are processed later.
     #
     config.time_zone = "America/Sao_Paulo"
+    config.i18n.default_locale = :"pt-BR"
     # config.eager_load_paths << Rails.root.join("extras")
 
     # The app doesn't attach or process any files yet. Rails 8.1's default

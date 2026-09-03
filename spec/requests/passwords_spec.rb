@@ -33,4 +33,14 @@ RSpec.describe "Passwords", type: :request do
     expect(response).to redirect_to(dashboard_path)
     expect(user.reload.valid_password?("NewStrong#Pass1")).to be(true)
   end
+
+  it "sends the reset instructions email in Portuguese" do
+    user = create(:user)
+
+    post user_password_path, params: { user: { email: user.email } }
+
+    email = ActionMailer::Base.deliveries.last
+    expect(email.subject).to eq("Instruções para redefinir senha")
+    expect(email.body.encoded).to include("Alguém solicitou um link para alterar a senha")
+  end
 end
