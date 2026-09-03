@@ -1,9 +1,7 @@
 Rails.application.routes.draw do
   root "dashboard#index"
 
-  devise_for :users
-  get "setup", to: "setup#new"
-  resource :setup, only: %i[new create], controller: "setup"
+  devise_for :users, controllers: { registrations: "users/registrations" }
   resources :categories
   resources :transactions
   resources :recurring_entries
@@ -16,7 +14,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest_path
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")

@@ -18,6 +18,4 @@
 
 <%= render "devise/shared/links" %>
 
-<% if User.count.zero? %>
-  <p><%= link_to "Criar conta", new_setup_path %></p>
-<% end %>
+<p><%= link_to "Criar conta", new_user_registration_path %></p>
