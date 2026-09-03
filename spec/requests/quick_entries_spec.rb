@@ -15,7 +15,7 @@ RSpec.describe "QuickEntries", type: :request do
       post quick_entries_path, params: { kind: "expense", description: "Mercado", amount: 150, date: Date.current, category_id: expense_category.id }
     }.to change(Transaction, :count).by(1)
 
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(dashboard_path)
     transaction = Transaction.last
     expect(transaction.kind).to eq("expense")
     expect(transaction.description).to eq("Mercado")
@@ -40,7 +40,7 @@ RSpec.describe "QuickEntries", type: :request do
     expect(entry.end_date).to be_nil
     expect(entry.user).to eq(user)
     expect(entry.transactions.count).to eq(1)
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(dashboard_path)
   end
 
   it "creates an installment purchase with a computed end_date, stopping after the last installment" do
@@ -80,7 +80,7 @@ RSpec.describe "QuickEntries", type: :request do
     entry = RecurringEntry.last
     expect(entry.kind).to eq("income")
     expect(entry.transactions.count).to eq(1)
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(dashboard_path)
   end
 
   it "does not create anything with an invalid amount, and re-renders the dashboard" do
@@ -105,7 +105,7 @@ RSpec.describe "QuickEntries", type: :request do
     expense_cat = create(:category, user: user, name: "Mercado", kind: :expense)
     income_cat = create(:category, user: user, name: "Salário", kind: :income)
 
-    get root_path
+    get dashboard_path
 
     body = response.body
     expense_form = body[/<details[^>]*quick-entry--expense.*?<\/details>/m]

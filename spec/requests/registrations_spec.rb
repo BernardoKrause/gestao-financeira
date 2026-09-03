@@ -12,7 +12,7 @@ RSpec.describe "Registrations", type: :request do
       post user_registration_path, params: { user: { email: "novo@example.com", password: "Strong#Pass1", password_confirmation: "Strong#Pass1" } }
     }.to change(User, :count).by(1)
 
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(dashboard_path)
 
     user = User.last
     expect(user.setting).to be_present
@@ -42,6 +42,6 @@ RSpec.describe "Registrations", type: :request do
       post user_registration_path, params: { user: { email: "outro@example.com", password: "Strong#Pass1", password_confirmation: "Strong#Pass1" } }
     }.to change(User, :count).by(1)
 
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(dashboard_path)
   end
 end

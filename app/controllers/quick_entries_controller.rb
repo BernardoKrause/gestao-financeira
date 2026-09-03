@@ -29,7 +29,7 @@ class QuickEntriesController < ApplicationController
     )
 
     if @transaction.save
-      redirect_to root_path, notice: "Lançamento registrado."
+      redirect_to dashboard_path, notice: "Lançamento registrado."
     else
       render_dashboard_with_error(@transaction)
     end
@@ -59,7 +59,7 @@ class QuickEntriesController < ApplicationController
 
     if @recurring_entry.save
       RecurringEntryGenerator.call(user: current_user)
-      redirect_to root_path, notice: "Recorrência criada."
+      redirect_to dashboard_path, notice: "Recorrência criada."
     else
       render_dashboard_with_error(@recurring_entry)
     end
