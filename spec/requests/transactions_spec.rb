@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Transactions", type: :request do
   let(:user) { create(:user) }
-  let(:category) { create(:category) }
+  let(:category) { create(:category, user: user) }
 
   before { sign_in user }
 
@@ -11,6 +11,7 @@ RSpec.describe "Transactions", type: :request do
       post transactions_path, params: { transaction: { description: "Mercado", amount: 100, kind: "expense", date: Date.current, category_id: category.id } }
     }.to change(Transaction, :count).by(1)
     expect(response).to redirect_to(transactions_path)
+    expect(Transaction.last.user).to eq(user)
   end
 
   it "does not create a transaction with a zero amount" do
@@ -20,14 +21,50 @@ RSpec.describe "Transactions", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
+  it "does not create a transaction referencing another user's category" do
+    other_category = create(:category)
+
+    expect {
+      post transactions_path, params: { transaction: { description: "Mercado", amount: 100, kind: "expense", date: Date.current, category_id: other_category.id } }
+    }.not_to change(Transaction, :count)
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   it "updates a transaction" do
-    transaction = create(:transaction, category: category)
+    transaction = create(:transaction, category: category, user: user)
     patch transaction_path(transaction), params: { transaction: { description: "Novo nome" } }
     expect(transaction.reload.description).to eq("Novo nome")
   end
 
   it "destroys a transaction" do
-    transaction = create(:transaction, category: category)
+    transaction = create(:transaction, category: category, user: user)
     expect { delete transaction_path(transaction) }.to change(Transaction, :count).by(-1)
+  end
+
+  it "returns 404 when trying to view another user's transaction" do
+    other_transaction = create(:transaction)
+    get transaction_path(other_transaction)
+    expect(response).to have_http_status(:not_found)
+  end
+
+  it "returns 404 when trying to update another user's transaction" do
+    other_transaction = create(:transaction, description: "Original")
+    patch transaction_path(other_transaction), params: { transaction: { description: "Hackeado" } }
+    expect(response).to have_http_status(:not_found)
+    expect(other_transaction.reload.description).to eq("Original")
+  end
+
+  it "returns 404 when trying to destroy another user's transaction" do
+    other_transaction = create(:transaction)
+    expect { delete transaction_path(other_transaction) }.not_to change(Transaction, :count)
+    expect(response).to have_http_status(:not_found)
+  end
+
+  it "only lists the current user's categories in the new transaction form" do
+    create(:category, name: "Categoria de outro usuário")
+
+    get new_transaction_path
+
+    expect(response.body).not_to include("Categoria de outro usuário")
   end
 end

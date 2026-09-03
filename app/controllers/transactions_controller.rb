@@ -2,19 +2,19 @@ class TransactionsController < ApplicationController
   before_action :set_transaction, only: %i[show edit update destroy]
 
   def index
-    @transactions = Transaction.includes(:category).order(date: :desc)
+    @transactions = current_user.transactions.includes(:category).order(date: :desc)
   end
 
   def show; end
 
   def new
-    @transaction = Transaction.new(date: Date.current)
+    @transaction = current_user.transactions.new(date: Date.current)
   end
 
   def edit; end
 
   def create
-    @transaction = Transaction.new(transaction_params)
+    @transaction = current_user.transactions.new(transaction_params)
     if @transaction.save
       redirect_to transactions_path, notice: "Lançamento criado com sucesso."
     else
@@ -38,7 +38,7 @@ class TransactionsController < ApplicationController
   private
 
   def set_transaction
-    @transaction = Transaction.find(params[:id])
+    @transaction = current_user.transactions.find(params[:id])
   end
 
   def transaction_params
