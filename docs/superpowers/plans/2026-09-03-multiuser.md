@@ -105,6 +105,7 @@ git commit -m "feat: add user_id to categories, transactions, recurring_entries 
 ## Task 2: Model associations, per-user `Setting` math, and cross-user category guard
 
 **Files:**
+- Create: `app/models/concerns/category_ownership.rb`
 - Modify: `app/models/user.rb`
 - Modify: `app/models/category.rb`
 - Modify: `app/models/transaction.rb`
@@ -115,8 +116,32 @@ git commit -m "feat: add user_id to categories, transactions, recurring_entries 
 - Modify (full rewrite): `spec/models/setting_spec.rb`
 
 **Interfaces:**
-- Produces: `user.categories`, `user.transactions`, `user.recurring_entries`, `user.setting` (all standard AR associations, `dependent: :destroy`); `Setting#current_balance`/`#pending_recurring_entries`/etc. now read through `user.transactions`/`user.recurring_entries` instead of the bare classes. `Setting.instance` no longer exists — callers must use `current_user.setting` (wired in later tasks).
+- Produces: `user.categories`, `user.transactions`, `user.recurring_entries`, `user.setting` (all standard AR associations, `dependent: :destroy`); `Setting#current_balance`/`#pending_recurring_entries`/etc. now read through `user.transactions`/`user.recurring_entries` instead of the bare classes. `Setting.instance` no longer exists — callers must use `current_user.setting` (wired in later tasks). `CategoryOwnership` — an `ActiveSupport::Concern` included by both `Transaction` and `RecurringEntry` — adds the `category_belongs_to_user` validation once instead of duplicating it in each model.
 - Consumes: nothing from earlier tasks beyond the `user_id` columns from Task 1.
+
+- [ ] **Step 0: Write the shared `CategoryOwnership` concern**
+
+`Transaction` and `RecurringEntry` both need the same "category must belong to the same user as the record" guard. Rather than duplicating that validation method in both models, extract it once:
+
+`app/models/concerns/category_ownership.rb`:
+
+```ruby
+module CategoryOwnership
+  extend ActiveSupport::Concern
+
+  included do
+    validate :category_belongs_to_user
+  end
+
+  private
+
+  def category_belongs_to_user
+    return if category.nil? || user.nil? || category.user_id == user_id
+
+    errors.add(:category, "deve pertencer ao mesmo usuário")
+  end
+end
+```
 
 - [ ] **Step 1: Add associations to `User`**
 
@@ -168,6 +193,8 @@ end
 
 ```ruby
 class Transaction < ApplicationRecord
+  include CategoryOwnership
+
   enum :kind, { expense: 0, income: 1 }
 
   belongs_to :user
@@ -177,7 +204,6 @@ class Transaction < ApplicationRecord
   validates :description, presence: true
   validates :amount, numericality: { greater_than: 0 }
   validates :date, presence: true
-  validate :category_belongs_to_user
 
   def signed_amount
     income? ? amount : -amount
@@ -185,14 +211,6 @@ class Transaction < ApplicationRecord
 
   def future?
     date.present? && date > Date.current
-  end
-
-  private
-
-  def category_belongs_to_user
-    return if category.nil? || user.nil? || category.user_id == user_id
-
-    errors.add(:category, "deve pertencer ao mesmo usuário")
   end
 end
 ```
@@ -203,6 +221,8 @@ end
 
 ```ruby
 class RecurringEntry < ApplicationRecord
+  include CategoryOwnership
+
   enum :kind, { expense: 0, income: 1 }
 
   belongs_to :user
@@ -214,7 +234,6 @@ class RecurringEntry < ApplicationRecord
   validates :day_of_month, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 31 }
   validates :start_date, presence: true
   validates :installments, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
-  validate :category_belongs_to_user
 
   scope :active, -> { where(active: true) }
 
@@ -229,14 +248,6 @@ class RecurringEntry < ApplicationRecord
     last_month = start_date.beginning_of_month + (installments - 1).months
     day = [ day_of_month, last_month.end_of_month.day ].min
     Date.new(last_month.year, last_month.month, day)
-  end
-
-  private
-
-  def category_belongs_to_user
-    return if category.nil? || user.nil? || category.user_id == user_id
-
-    errors.add(:category, "deve pertencer ao mesmo usuário")
   end
 end
 ```
