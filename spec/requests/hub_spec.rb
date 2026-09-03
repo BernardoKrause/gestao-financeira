@@ -26,4 +26,21 @@ RSpec.describe "Hub", type: :request do
 
     expect(response.body).not_to include("Painel")
   end
+
+  it "shows a card linking to the Gestão Financeira dashboard" do
+    get root_path
+
+    expect(response.body).to include("Gestão Financeira")
+    expect(response.body).to include(%(href="#{dashboard_path}"))
+  end
+
+  it "shows an Entrar link when signed out and a Sair button when signed in" do
+    get root_path
+    expect(response.body).to include("Entrar")
+
+    user = create(:user)
+    sign_in user
+    get root_path
+    expect(response.body).to include("Sair")
+  end
 end
