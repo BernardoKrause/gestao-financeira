@@ -1,21 +1,20 @@
-<h2 class="mb-4 text-xl font-semibold">Log in</h2>
+<% content_for :title, "Entrar" %>
+
+<p class="mb-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">Gestão Financeira</p>
+<h1 class="mb-6 text-2xl font-bold text-gray-900">Entrar</h1>
 
 <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
   <div class="mb-4">
     <%= f.label :email, class: "mb-1 block text-sm font-medium text-gray-700" %>
-    <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
   </div>
 
-  <div class="mb-4">
+  <div class="mb-6">
     <%= f.label :password, class: "mb-1 block text-sm font-medium text-gray-700" %>
-    <%= f.password_field :password, autocomplete: "current-password", class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+    <%= f.password_field :password, autocomplete: "current-password", class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
   </div>
 
-  <div class="mb-4">
-    <%= f.submit "Log in", class: "rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
-  </div>
+  <%= f.submit "Entrar", class: "w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700" %>
 <% end %>
 
 <%= render "devise/shared/links" %>
-
-<p><%= link_to "Criar conta", new_user_registration_path %></p>
