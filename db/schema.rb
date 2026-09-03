@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_223429) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_03_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,6 +19,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_223429) do
     t.integer "kind", default: 0, null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_categories_on_user_id"
   end
 
   create_table "recurring_entries", force: :cascade do |t|
@@ -32,13 +34,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_223429) do
     t.integer "kind", default: 0, null: false
     t.date "start_date", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["category_id"], name: "index_recurring_entries_on_category_id"
+    t.index ["user_id"], name: "index_recurring_entries_on_user_id"
   end
 
   create_table "settings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.decimal "initial_balance", precision: 12, scale: 2, default: "0.0", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_settings_on_user_id", unique: true
   end
 
   create_table "transactions", force: :cascade do |t|
@@ -50,8 +56,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_223429) do
     t.integer "kind", default: 0, null: false
     t.bigint "recurring_entry_id"
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["recurring_entry_id"], name: "index_transactions_on_recurring_entry_id"
+    t.index ["user_id"], name: "index_transactions_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -66,7 +74,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_223429) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "categories", "users"
   add_foreign_key "recurring_entries", "categories"
+  add_foreign_key "recurring_entries", "users"
+  add_foreign_key "settings", "users"
   add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "recurring_entries"
+  add_foreign_key "transactions", "users"
 end
