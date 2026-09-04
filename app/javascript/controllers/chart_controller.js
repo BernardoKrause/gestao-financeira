@@ -34,6 +34,7 @@ export default class extends Controller {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: true } }
       }
     })
