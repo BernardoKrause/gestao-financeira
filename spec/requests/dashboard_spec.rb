@@ -69,6 +69,14 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include(edit_user_registration_path)
   end
 
+  it "points the confidence filter buttons at the scoped dashboard_confidence path" do
+    create(:setting, user: user)
+
+    get dashboard_path
+
+    expect(response.body).to include(%(data-dashboard-filter-url-value="#{dashboard_confidence_path}"))
+  end
+
   it "shows the selected period's income and expense totals" do
     create(:setting, user: user)
     # Two transactions per kind, no single one equal to the total, so the

@@ -11,7 +11,7 @@
         record: (@quick_entry_kind == "income" ? @quick_entry_record : nil) %>
 </div>
 
-<div data-controller="dashboard-filter" class="mb-2 flex justify-end gap-1">
+<div data-controller="dashboard-filter" data-dashboard-filter-url-value="<%= dashboard_confidence_path %>" class="mb-2 flex justify-end gap-1">
   <button type="button" data-dashboard-filter-target="button" data-dashboard-filter-level-param="confirmed"
           data-action="click->dashboard-filter#filter"
           class="rounded-full px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100">
