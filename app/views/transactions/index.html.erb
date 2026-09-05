@@ -1,7 +1,13 @@
 <h1 class="mb-4 text-2xl font-bold">Lançamentos</h1>
 <%= link_to "Novo lançamento", new_transaction_path, class: "mb-4 inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
 
-<table class="w-full bg-white text-sm">
+<div class="grid gap-3 md:hidden" data-testid="transactions-cards">
+  <% @transactions.each do |transaction| %>
+    <%= render "transaction_row", transaction: transaction, format: :card %>
+  <% end %>
+</div>
+
+<table class="hidden w-full bg-white text-sm md:table" data-testid="transactions-table">
   <thead>
     <tr>
       <th class="border px-3 py-2 text-left">Data</th>
@@ -14,23 +20,7 @@
   </thead>
   <tbody>
     <% @transactions.each do |transaction| %>
-      <tr>
-        <td class="border px-3 py-2"><%= transaction.date.strftime("%d/%m/%Y") %></td>
-        <td class="border px-3 py-2"><%= transaction.description %></td>
-        <td class="border px-3 py-2">
-          <span class="rounded-full px-2 py-1 text-xs font-medium text-white <%= transaction.expense? ? 'bg-red-600' : 'bg-green-600' %>">
-            <%= transaction.expense? ? "Gasto" : "Receita" %>
-          </span>
-        </td>
-        <td class="border px-3 py-2 font-semibold <%= transaction.expense? ? 'text-red-600' : 'text-green-600' %>">
-          <%= number_to_currency(transaction.amount, unit: "R$ ") %>
-        </td>
-        <td class="border px-3 py-2"><%= transaction.category.name %></td>
-        <td class="border px-3 py-2 text-right">
-          <%= link_to "Editar", edit_transaction_path(transaction), class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
-          <%= link_to "Remover", transaction_path(transaction), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" %>
-        </td>
-      </tr>
+      <%= render "transaction_row", transaction: transaction, format: :table %>
     <% end %>
   </tbody>
 </table>
