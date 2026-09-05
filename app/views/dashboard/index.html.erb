@@ -65,7 +65,14 @@
   </table>
 
   <h2 class="mb-2 mt-2 text-xl font-semibold">Histórico — <%= @selected_month_label %></h2>
-  <table class="w-full bg-white text-sm">
+
+  <div class="grid gap-3 md:hidden" data-testid="history-cards">
+    <% @transactions.each do |transaction| %>
+      <%= render "history_row", transaction: transaction, format: :card %>
+    <% end %>
+  </div>
+
+  <table class="hidden w-full bg-white text-sm md:table" data-testid="history-table">
     <thead>
       <tr>
         <th scope="col" class="border border-slate-200 px-3 py-2 text-left">Data</th>
@@ -77,22 +84,7 @@
     </thead>
     <tbody>
       <% @transactions.each do |transaction| %>
-        <% is_future = transaction.future? %>
-        <% row_bg = is_future ? "bg-slate-50/70 opacity-80" : "bg-white" %>
-        <% cell_border = is_future ? "border border-dashed border-slate-300" : "border border-slate-200" %>
-        <tr class="transaction-row transaction-row--<%= transaction.kind %> <%= row_bg %>">
-          <td class="<%= cell_border %> px-3 py-2"><%= transaction.date.strftime("%d/%m/%Y") %></td>
-          <td class="<%= cell_border %> px-3 py-2"><%= transaction.description %></td>
-          <td class="<%= cell_border %> px-3 py-2"><%= transaction.category.name %></td>
-          <td class="<%= cell_border %> px-3 py-2">
-            <% if is_future %>
-              <span class="rounded-full border border-dashed border-slate-300 bg-slate-50 px-2 py-0.5 text-xs italic text-slate-500">Previsto</span>
-            <% else %>
-              <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">Confirmado</span>
-            <% end %>
-          </td>
-          <td class="<%= cell_border %> px-3 py-2"><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
-        </tr>
+        <%= render "history_row", transaction: transaction, format: :table %>
       <% end %>
     </tbody>
   </table>

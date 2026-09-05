@@ -81,3 +81,10 @@ a:not([class]) {
     font-size: 16px;
   }
 }
+
+/* The hamburger label is nested inside a sibling div of the checkbox, not
+   a direct sibling, so Tailwind's peer-focus-visible:* utilities can't
+   reach it — plain CSS can express the sibling's-descendant relationship. */
+#nav-menu-toggle:focus-visible ~ div label[for="nav-menu-toggle"] {
+  box-shadow: 0 0 0 2px #fff;
+}

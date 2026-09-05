@@ -60,6 +60,31 @@ RSpec.describe "Transactions", type: :request do
     expect(response).to have_http_status(:not_found)
   end
 
+  it "renders both a desktop table and a mobile card list for the same transactions" do
+    create(:transaction, category: category, user: user, description: "Mercado")
+
+    get transactions_path
+
+    expect(response.body).to include('data-testid="transactions-table"')
+    expect(response.body).to include('data-testid="transactions-cards"')
+    expect(response.body.scan("Mercado").count).to eq(2)
+  end
+
+  it "omits the visible type badge and category from the mobile card, keeping only date, description and amount (with a screen-reader-only type label)" do
+    transaction = create(:transaction, category: category, user: user, description: "Mercado", kind: :expense, amount: 42)
+
+    get transactions_path
+
+    doc = Nokogiri::HTML(response.body)
+    cards = doc.at_css('[data-testid="transactions-cards"]')
+
+    expect(cards.text).to include("Mercado")
+    expect(cards.text).to include(ActionController::Base.helpers.number_to_currency(42, unit: "R$ "))
+    expect(cards.css("span.rounded-full")).to be_empty
+    expect(cards.at_css("span.sr-only").text).to eq("Gasto")
+    expect(cards.text).not_to include(category.name)
+  end
+
   it "only lists the current user's categories in the new transaction form" do
     create(:category, name: "Categoria de outro usuário")
 

@@ -1,0 +1,28 @@
+<% is_future = transaction.future? %>
+<% if format == :table %>
+  <% cell_border = is_future ? "border border-dashed border-slate-300" : "border border-slate-200" %>
+  <tr class="transaction-row transaction-row--<%= transaction.kind %> <%= is_future ? "bg-slate-50/70 opacity-80" : "bg-white" %>">
+    <td class="<%= cell_border %> px-3 py-2"><%= transaction.date.strftime("%d/%m/%Y") %></td>
+    <td class="<%= cell_border %> px-3 py-2"><%= transaction.description %></td>
+    <td class="<%= cell_border %> px-3 py-2"><%= transaction.category.name %></td>
+    <td class="<%= cell_border %> px-3 py-2">
+      <% if is_future %>
+        <span class="rounded-full border border-dashed border-slate-300 bg-slate-50 px-2 py-0.5 text-xs italic text-slate-500">Previsto</span>
+      <% else %>
+        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">Confirmado</span>
+      <% end %>
+    </td>
+    <td class="<%= cell_border %> px-3 py-2"><%= number_to_currency(transaction.amount, unit: "R$ ") %></td>
+  </tr>
+<% else %>
+  <div class="rounded-lg border p-4 text-sm <%= is_future ? "border-dashed border-slate-300 bg-slate-50/70 opacity-80" : "border-slate-200 bg-white" %>">
+    <div class="flex items-center justify-between gap-2">
+      <span class="font-semibold text-gray-900"><%= transaction.date.strftime("%d/%m/%Y") %></span>
+      <span class="font-semibold <%= transaction.expense? ? 'text-red-600' : 'text-green-600' %>">
+        <%= number_to_currency(transaction.amount, unit: "R$ ") %>
+        <span class="sr-only"><%= is_future ? "Previsto" : "Confirmado" %></span>
+      </span>
+    </div>
+    <p class="mt-1 text-gray-700"><%= transaction.description %></p>
+  </div>
+<% end %>

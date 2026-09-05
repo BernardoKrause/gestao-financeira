@@ -61,6 +61,16 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include(recurring_entries_path)
   end
 
+  it "includes a mobile nav toggle that reveals the navigation links below the md breakpoint" do
+    create(:setting, user: user)
+
+    get dashboard_path
+
+    expect(response.body).to include('id="nav-menu-toggle"')
+    expect(response.body).to include('for="nav-menu-toggle"')
+    expect(response.body).to include('aria-label="Abrir menu"')
+  end
+
   it "shows a link to the account settings screen" do
     create(:setting, user: user)
 
@@ -237,6 +247,50 @@ RSpec.describe "Dashboard", type: :request do
 
     expect(frame.text).to include("Conserto do carro")
     expect(frame.text).not_to include("Mercado")
+  end
+
+  it "renders both a desktop table and a mobile card list for the Histórico transactions" do
+    create(:setting, user: user)
+    category = create(:category, user: user)
+    create(:transaction, category: category, user: user, description: "Mercado")
+
+    get dashboard_path
+
+    expect(response.body).to include('data-testid="history-table"')
+    expect(response.body).to include('data-testid="history-cards"')
+    expect(response.body.scan("Mercado").count).to eq(2)
+  end
+
+  it "omits the visible category and status badge from the Histórico mobile card, keeping only date, description and amount (with a screen-reader-only status label)" do
+    create(:setting, user: user)
+    category = create(:category, user: user, name: "Categoria Só Da Tabela")
+    create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+
+    get dashboard_path
+
+    doc = Nokogiri::HTML(response.body)
+    cards = doc.at_css('[data-testid="history-cards"]')
+
+    expect(cards.text).to include("Mercado")
+    expect(cards.text).to include(ActionController::Base.helpers.number_to_currency(100, unit: "R$ "))
+    expect(cards.text).not_to include("Categoria Só Da Tabela")
+    expect(cards.css("span.rounded-full")).to be_empty
+    expect(cards.at_css("span.sr-only").text).to eq("Confirmado")
+    expect(cards.text).not_to include("Previsto")
+  end
+
+  it "keeps the dashed-border styling on a future transaction's mobile card even without the Previsto badge text" do
+    create(:setting, user: user)
+    category = create(:category, user: user)
+    create(:transaction, category: category, user: user, description: "Salário futuro", kind: :income, date: Date.current + 5.days)
+
+    get dashboard_path, params: { month: "all" }
+
+    doc = Nokogiri::HTML(response.body)
+    cards = doc.at_css('[data-testid="history-cards"]')
+    future_card = cards.css("div").find { |d| d.text.include?("Salário futuro") }
+
+    expect(future_card["class"]).to include("border-dashed")
   end
 
   it "does not leak another user's transactions into the history" do

@@ -19,7 +19,7 @@
         <%= category.expense? ? "Gasto" : "Receita" %>
       </span>
     </div>
-    <div class="mt-3 flex gap-2">
+    <div class="mt-3 flex gap-3">
       <%= link_to "Editar", edit_category_path(category), class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
       <%= link_to "Remover", category_path(category), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" %>
     </div>
