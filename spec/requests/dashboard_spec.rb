@@ -61,6 +61,16 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include(recurring_entries_path)
   end
 
+  it "includes a mobile nav toggle that reveals the navigation links below the md breakpoint" do
+    create(:setting, user: user)
+
+    get dashboard_path
+
+    expect(response.body).to include('id="nav-menu-toggle"')
+    expect(response.body).to include('for="nav-menu-toggle"')
+    expect(response.body).to include('aria-label="Abrir menu"')
+  end
+
   it "shows a link to the account settings screen" do
     create(:setting, user: user)
 
