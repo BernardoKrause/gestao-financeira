@@ -249,6 +249,49 @@ RSpec.describe "Dashboard", type: :request do
     expect(frame.text).not_to include("Mercado")
   end
 
+  it "renders both a desktop table and a mobile card list for the Histórico transactions" do
+    create(:setting, user: user)
+    category = create(:category, user: user)
+    create(:transaction, category: category, user: user, description: "Mercado")
+
+    get dashboard_path
+
+    expect(response.body).to include('data-testid="history-table"')
+    expect(response.body).to include('data-testid="history-cards"')
+    expect(response.body.scan("Mercado").count).to eq(2)
+  end
+
+  it "omits the category and status badge from the Histórico mobile card, keeping only date, description and amount" do
+    create(:setting, user: user)
+    category = create(:category, user: user, name: "Categoria Só Da Tabela")
+    create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
+
+    get dashboard_path
+
+    doc = Nokogiri::HTML(response.body)
+    cards = doc.at_css('[data-testid="history-cards"]')
+
+    expect(cards.text).to include("Mercado")
+    expect(cards.text).to include(ActionController::Base.helpers.number_to_currency(100, unit: "R$ "))
+    expect(cards.text).not_to include("Categoria Só Da Tabela")
+    expect(cards.text).not_to include("Confirmado")
+    expect(cards.text).not_to include("Previsto")
+  end
+
+  it "keeps the dashed-border styling on a future transaction's mobile card even without the Previsto badge text" do
+    create(:setting, user: user)
+    category = create(:category, user: user)
+    create(:transaction, category: category, user: user, description: "Salário futuro", kind: :income, date: Date.current + 5.days)
+
+    get dashboard_path, params: { month: "all" }
+
+    doc = Nokogiri::HTML(response.body)
+    cards = doc.at_css('[data-testid="history-cards"]')
+    future_card = cards.css("div").find { |d| d.text.include?("Salário futuro") }
+
+    expect(future_card["class"]).to include("border-dashed")
+  end
+
   it "does not leak another user's transactions into the history" do
     create(:setting, user: user)
     other_category = create(:category)
