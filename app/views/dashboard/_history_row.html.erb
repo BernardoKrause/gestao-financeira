@@ -20,6 +20,7 @@
       <span class="font-semibold text-gray-900"><%= transaction.date.strftime("%d/%m/%Y") %></span>
       <span class="font-semibold <%= transaction.expense? ? 'text-red-600' : 'text-green-600' %>">
         <%= number_to_currency(transaction.amount, unit: "R$ ") %>
+        <span class="sr-only"><%= is_future ? "Previsto" : "Confirmado" %></span>
       </span>
     </div>
     <p class="mt-1 text-gray-700"><%= transaction.description %></p>

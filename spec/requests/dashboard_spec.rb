@@ -261,7 +261,7 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body.scan("Mercado").count).to eq(2)
   end
 
-  it "omits the category and status badge from the Histórico mobile card, keeping only date, description and amount" do
+  it "omits the visible category and status badge from the Histórico mobile card, keeping only date, description and amount (with a screen-reader-only status label)" do
     create(:setting, user: user)
     category = create(:category, user: user, name: "Categoria Só Da Tabela")
     create(:transaction, category: category, user: user, description: "Mercado", amount: 100, kind: :expense, date: Date.current)
@@ -274,7 +274,8 @@ RSpec.describe "Dashboard", type: :request do
     expect(cards.text).to include("Mercado")
     expect(cards.text).to include(ActionController::Base.helpers.number_to_currency(100, unit: "R$ "))
     expect(cards.text).not_to include("Categoria Só Da Tabela")
-    expect(cards.text).not_to include("Confirmado")
+    expect(cards.css("span.rounded-full")).to be_empty
+    expect(cards.at_css("span.sr-only").text).to eq("Confirmado")
     expect(cards.text).not_to include("Previsto")
   end
 

@@ -70,7 +70,7 @@ RSpec.describe "Transactions", type: :request do
     expect(response.body.scan("Mercado").count).to eq(2)
   end
 
-  it "omits the type badge and category from the mobile card, keeping only date, description and amount" do
+  it "omits the visible type badge and category from the mobile card, keeping only date, description and amount (with a screen-reader-only type label)" do
     transaction = create(:transaction, category: category, user: user, description: "Mercado", kind: :expense, amount: 42)
 
     get transactions_path
@@ -80,7 +80,8 @@ RSpec.describe "Transactions", type: :request do
 
     expect(cards.text).to include("Mercado")
     expect(cards.text).to include(ActionController::Base.helpers.number_to_currency(42, unit: "R$ "))
-    expect(cards.text).not_to include("Gasto")
+    expect(cards.css("span.rounded-full")).to be_empty
+    expect(cards.at_css("span.sr-only").text).to eq("Gasto")
     expect(cards.text).not_to include(category.name)
   end
 
