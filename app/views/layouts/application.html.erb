@@ -26,12 +26,12 @@
   <body class="bg-gray-50 text-gray-900">
     <% if user_signed_in? && controller_name != "hub" %>
       <nav class="mb-6 bg-gray-900 text-white">
-        <input type="checkbox" id="nav-menu-toggle" class="peer sr-only">
+        <input type="checkbox" id="nav-menu-toggle" class="peer sr-only md:hidden">
         <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
           <%= link_to "← Hub", root_path, class: "text-xs text-gray-400 hover:text-white" %>
           <%= link_to "Gestão Financeira", dashboard_path, class: "text-lg font-bold text-white" %>
 
-          <label for="nav-menu-toggle" class="ml-auto cursor-pointer rounded border border-gray-600 px-2 py-1 text-sm md:hidden peer-focus-visible:ring-2 peer-focus-visible:ring-white" aria-label="Abrir menu">
+          <label for="nav-menu-toggle" class="ml-auto cursor-pointer rounded border border-gray-600 px-2 py-1 text-sm md:hidden" aria-label="Abrir menu">
             ☰
           </label>
 
@@ -47,7 +47,7 @@
           </div>
         </div>
 
-        <div class="hidden flex-col gap-3 border-t border-gray-800 px-4 py-3 peer-checked:flex md:hidden">
+        <div class="hidden flex-col gap-3 border-t border-gray-800 px-4 py-3 peer-checked:flex md:hidden md:peer-checked:hidden">
           <%= link_to "Painel", dashboard_path, class: "text-sm text-gray-200 hover:text-white" %>
           <%= link_to "Categorias", categories_path, class: "text-sm text-gray-200 hover:text-white" %>
           <%= link_to "Lançamentos", transactions_path, class: "text-sm text-gray-200 hover:text-white" %>
