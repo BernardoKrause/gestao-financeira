@@ -1,7 +1,13 @@
 <h1 class="mb-4 text-2xl font-bold">Categorias</h1>
 <%= link_to "Nova categoria", new_category_path, class: "mb-4 inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
 
-<table class="w-full bg-white text-sm">
+<div class="grid gap-3 md:hidden" data-testid="categories-cards">
+  <% @categories.each do |category| %>
+    <%= render "category_row", category: category, format: :card %>
+  <% end %>
+</div>
+
+<table class="hidden w-full bg-white text-sm md:table" data-testid="categories-table">
   <thead>
     <tr>
       <th class="border px-3 py-2 text-left">Nome</th>
@@ -11,18 +17,7 @@
   </thead>
   <tbody>
     <% @categories.each do |category| %>
-      <tr>
-        <td class="border px-3 py-2"><%= link_to category.name, category_path(category) %></td>
-        <td class="border px-3 py-2">
-          <span class="rounded-full px-2 py-1 text-xs font-medium text-white <%= category.expense? ? 'bg-red-600' : 'bg-green-600' %>">
-            <%= category.expense? ? "Gasto" : "Receita" %>
-          </span>
-        </td>
-        <td class="border px-3 py-2 text-right">
-          <%= link_to "Editar", edit_category_path(category), class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
-          <%= link_to "Remover", category_path(category), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" %>
-        </td>
-      </tr>
+      <%= render "category_row", category: category, format: :table %>
     <% end %>
   </tbody>
 </table>

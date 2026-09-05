@@ -66,4 +66,14 @@ RSpec.describe "Categories", type: :request do
     expect { delete category_path(other_category) }.not_to change(Category, :count)
     expect(response).to have_http_status(:not_found)
   end
+
+  it "renders both a desktop table and a mobile card list for the same categories" do
+    create(:category, user: user, name: "Alimentação")
+
+    get categories_path
+
+    expect(response.body).to include('data-testid="categories-table"')
+    expect(response.body).to include('data-testid="categories-cards"')
+    expect(response.body.scan("Alimentação").count).to eq(2)
+  end
 end

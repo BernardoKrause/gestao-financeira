@@ -70,3 +70,14 @@ a:not([class]) {
   color: #2563eb;
   text-decoration: underline;
 }
+
+/* Mobile: iOS Safari zooms the whole page when a focused input's
+   font-size is below 16px. Tailwind's text-sm utility used across every
+   form in this app is 14px, so force 16px below the md breakpoint. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
