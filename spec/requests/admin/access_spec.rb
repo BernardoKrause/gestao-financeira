@@ -26,4 +26,44 @@ RSpec.describe "Admin access", type: :request do
     follow_redirect!
     expect(response).to have_http_status(:ok)
   end
+
+  it "matches the admin email case-insensitively" do
+    allow(Rails.application.credentials).to receive(:admin_email).and_return("Admin@Example.com")
+
+    sign_in admin
+    get "/admin"
+    follow_redirect!
+
+    expect(response).to have_http_status(:ok)
+  end
+
+  it "404s a non-admin user on /admin/overview, not just /admin" do
+    sign_in other_user
+    get "/admin/overview"
+    expect(response).to have_http_status(:not_found)
+  end
+
+  it "404s a non-admin user on an admin resource page" do
+    sign_in other_user
+    get "/admin/resources/users"
+    expect(response).to have_http_status(:not_found)
+  end
+
+  context "when admin_email is not configured" do
+    before do
+      allow(Rails.application.credentials).to receive(:admin_email).and_return(nil)
+    end
+
+    it "404s everyone, including the intended admin" do
+      sign_in admin
+      get "/admin"
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "404s a regular user too" do
+      sign_in other_user
+      get "/admin"
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 end

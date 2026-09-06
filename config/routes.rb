@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  authenticate :user, ->(user) { user.email == Rails.application.credentials.admin_email } do
+  authenticate :user, ->(user) { (admin_email = Rails.application.credentials.admin_email).present? && user.email.casecmp?(admin_email) } do
     mount_avo do
       get "overview", to: "tools#overview", as: :overview
     end
