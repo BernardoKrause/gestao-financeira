@@ -37,9 +37,11 @@ registry:
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
   secret:
-    # RAILS_MASTER_KEY isn't used — config/master.key doesn't exist. SECRET_KEY_BASE
-    # bypasses credentials.yml.enc entirely; see .env.production.local for context.
+    # SECRET_KEY_BASE still bypasses credentials.yml.enc for boot.
     - SECRET_KEY_BASE
+    # Needed so Rails.application.credentials.admin_email decrypts in production
+    # too (the /admin panel's access gate). See .env.production.local.
+    - RAILS_MASTER_KEY
     - GESTAO_FINANCEIRA_MVP_DATABASE_PASSWORD
   clear:
     # Hostname of the db accessory below, on the Kamal-managed Docker network.
