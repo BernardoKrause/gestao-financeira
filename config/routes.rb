@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   authenticate :user, ->(user) { user.email == Rails.application.credentials.admin_email } do
-    mount_avo
+    mount_avo do
+      get "overview", to: "tools#overview", as: :overview
+    end
   end
 
   root "hub#index"

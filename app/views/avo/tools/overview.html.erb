@@ -1,0 +1,23 @@
+<div class="flex flex-col">
+  <%= render ui.panel(title: "Visão geral") do |panel| %>
+    <% panel.with_body do %>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+        <%= render ui.card(title: "Usuários", padded: true) do %>
+          <p class="text-3xl font-semibold" data-testid="users-count"><%= @users_count %></p>
+        <% end %>
+
+        <%= render ui.card(title: "Categorias", padded: true) do %>
+          <p class="text-3xl font-semibold" data-testid="categories-count"><%= @categories_count %></p>
+        <% end %>
+
+        <%= render ui.card(title: "Transações", padded: true) do %>
+          <p class="text-3xl font-semibold" data-testid="transactions-count"><%= @transactions_count %></p>
+        <% end %>
+
+        <%= render ui.card(title: "Lançamentos recorrentes", padded: true) do %>
+          <p class="text-3xl font-semibold" data-testid="recurring-entries-count"><%= @recurring_entries_count %></p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
