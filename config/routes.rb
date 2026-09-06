@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  authenticate :user, ->(user) { user.email == Rails.application.credentials.admin_email } do
+    mount_avo
+  end
+
   root "hub#index"
 
   devise_for :users, controllers: { registrations: "users/registrations" }
