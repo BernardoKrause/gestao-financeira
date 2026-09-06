@@ -1,18 +1,13 @@
 class Avo::Resources::User < Avo::BaseResource
   self.icon = "tabler/outline/users"
-  # self.avatar = {
-  #   source: :avatar
-  # }
-  # self.includes = []
-  # self.attachments = []
-  # self.search = {
-  #   query: -> { query.ransack(id_eq: q, m: "or").result(distinct: false) }
-  # }
+  self.title = :email
+  self.devise_password_optional = true
 
   def fields
     field :id, as: :id
-    # field :avatar, as: :avatar
     field :email, as: :text
+    field :password, as: :password
+    field :password_confirmation, as: :password
     field :transactions, as: :has_many
     field :recurring_entries, as: :has_many
     field :categories, as: :has_many
