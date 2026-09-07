@@ -1,8 +1,10 @@
 class Users::RegistrationsController < Devise::RegistrationsController
+  def new
+    redirect_to new_user_session_path, alert: "Cadastro desabilitado. Contate o administrador."
+  end
+
   def create
-    super do |resource|
-      UserOnboarding.call(resource) if resource.persisted?
-    end
+    redirect_to new_user_session_path, alert: "Cadastro desabilitado. Contate o administrador."
   end
 
   protected

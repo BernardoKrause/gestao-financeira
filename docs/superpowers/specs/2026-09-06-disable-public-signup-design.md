@@ -22,7 +22,7 @@ Hoje `UserOnboarding` (cria o `Setting` inicial com saldo zero e as categorias p
 
 Solução: mover o disparo do onboarding para um callback `after_create` no model `User`, para cobrir qualquer via de criação (Avo, console, ou uma futura reativação do cadastro público).
 
-Para não quebrar as specs existentes que criam usuários via `create(:user)` e depois um `Setting`/categorias manualmente via factory (há índice único em `settings.user_id`, então um segundo `Setting` para o mesmo usuário falharia), o model ganha um atributo `skip_onboarding` (default `false`):
+Para não quebrar as specs existentes que criam usuários via `create(:user)` e depois um `Setting`/categorias manualmente via factory (há índice único em `settings.user_id`, então um segundo `Setting` para o mesmo usuário falharia), o model ganha um atributo `skip_onboarding` (sem valor padrão explícito — `nil`, que o `unless:` trata como falso):
 
 - `User#after_create :onboard_new_user, unless: :skip_onboarding`
 - `onboard_new_user` chama `UserOnboarding.call(self)`
@@ -44,3 +44,4 @@ Para não quebrar as specs existentes que criam usuários via `create(:user)` e 
 
 - Qualquer mecanismo de feature flag/env var para ligar/desligar o cadastro sem alterar código (YAGNI para o estágio atual, com um único desenvolvedor operando).
 - Alterar o fluxo de criação de usuários no Avo (`app/avo/resources/user.rb`) além do necessário — ele já suporta criar usuário com senha.
+- Autoexclusão de conta (`destroy` em `Users::RegistrationsController`, herdado do Devise, não sobrescrito) continua funcionando; com o cadastro público bloqueado, isso é uma via de mão única — o usuário não pode mais se recadastrar sozinho, só o admin pode recriar a conta pelo Avo (perdendo os dados anteriores). Decisão consciente: manter como está por ora.

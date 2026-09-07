@@ -15,7 +15,10 @@ RSpec.describe "Admin users", type: :request do
       }
     }.to change(User, :count).by(1)
 
-    expect(User.find_by(email: "novo@example.com")).to be_present
+    created = User.find_by(email: "novo@example.com")
+    expect(created).to be_present
+    expect(created.setting).to be_present
+    expect(created.categories.count).to eq(13)
   end
 
   it "updates a user without touching their password" do
