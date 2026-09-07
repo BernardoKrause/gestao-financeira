@@ -27,4 +27,19 @@ RSpec.describe User, type: :model do
     expect { user.destroy }.not_to raise_error
     expect(Category.exists?(category.id)).to be(false)
   end
+
+  it "onboards a new user automatically (setting + default categories) unless skip_onboarding is set" do
+    user = User.create!(email: "auto-onboard@example.com", password: "Strong#Pass1", password_confirmation: "Strong#Pass1")
+
+    expect(user.setting).to be_present
+    expect(user.setting.initial_balance).to eq(0)
+    expect(user.categories.count).to eq(13)
+  end
+
+  it "does not onboard a new user when skip_onboarding is true" do
+    user = User.create!(email: "skip-onboard@example.com", password: "Strong#Pass1", password_confirmation: "Strong#Pass1", skip_onboarding: true)
+
+    expect(user.setting).to be_nil
+    expect(user.categories.count).to eq(0)
+  end
 end
