@@ -1,12 +1,12 @@
 require "rails_helper"
 
 RSpec.describe "Sessions", type: :request do
-  it "always shows a 'Criar conta' link, even when a user already exists" do
+  it "does not show a 'Criar conta' link (signup is disabled)" do
     create(:user)
 
     get new_user_session_path
 
-    expect(response.body).to include("Criar conta")
+    expect(response.body).not_to include("Criar conta")
   end
 
   it "renders inside the auth layout, not the main app layout" do
