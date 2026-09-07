@@ -5,6 +5,7 @@ RSpec.describe "Registrations", type: :request do
     get new_user_registration_path
 
     expect(response).to redirect_to(new_user_session_path)
+    expect(flash[:alert]).to eq("Cadastro desabilitado. Contate o administrador.")
   end
 
   it "does not create a user and redirects to the login page" do
