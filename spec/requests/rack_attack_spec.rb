@@ -57,4 +57,36 @@ RSpec.describe "Rack::Attack", type: :request, rack_attack: true do
       expect(response).to have_http_status(:too_many_requests)
     end
   end
+
+  describe "password reset throttle by IP" do
+    it "allows 5 attempts from the same IP in 20 minutes" do
+      5.times do |n|
+        post user_password_path, params: { user: { email: "attempt#{n}@example.com" } }
+      end
+
+      expect(response).not_to have_http_status(:too_many_requests)
+    end
+
+    it "blocks the 6th attempt from the same IP in 20 minutes" do
+      6.times do |n|
+        post user_password_path, params: { user: { email: "attempt#{n}@example.com" } }
+      end
+
+      expect(response).to have_http_status(:too_many_requests)
+    end
+  end
+
+  describe "password reset throttle by email" do
+    it "blocks the 6th attempt against the same email even from different IPs" do
+      user = create(:user)
+
+      6.times do |n|
+        post user_password_path,
+          params: { user: { email: user.email } },
+          headers: { "REMOTE_ADDR" => "10.0.1.#{n}" }
+      end
+
+      expect(response).to have_http_status(:too_many_requests)
+    end
+  end
 end

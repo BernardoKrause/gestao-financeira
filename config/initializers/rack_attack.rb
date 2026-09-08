@@ -19,4 +19,14 @@ class Rack::Attack
       req.params.dig("user", "email").to_s.downcase.strip.presence
     end
   end
+
+  throttle("password_resets/ip", limit: 5, period: 20.minutes) do |req|
+    req.ip if req.path == "/users/password" && req.post?
+  end
+
+  throttle("password_resets/email", limit: 5, period: 20.minutes) do |req|
+    if req.path == "/users/password" && req.post?
+      req.params.dig("user", "email").to_s.downcase.strip.presence
+    end
+  end
 end
