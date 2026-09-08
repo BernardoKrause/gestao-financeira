@@ -66,7 +66,7 @@ Adicionar ao final de `spec/requests/recurring_entries_spec.rb`, antes do `end` 
 
 - [ ] **Step 2: Rodar os testes e confirmar que falham**
 
-Run: `bin/rspec spec/requests/recurring_entries_spec.rb -e "renders both a desktop table" -e "omits the visible type"`
+Run: `bundle exec rspec spec/requests/recurring_entries_spec.rb -e "renders both a desktop table" -e "omits the visible type"`
 Expected: FAIL — `data-testid="recurring-entries-table"` não existe ainda no HTML atual (é uma `<table>` sem esse atributo), e não há nenhum `span.sr-only` na página.
 
 - [ ] **Step 3: Criar o partial `_recurring_entry_row.html.erb`**
@@ -156,7 +156,7 @@ Substituir todo o conteúdo de `app/views/recurring_entries/index.html.erb` por:
 
 - [ ] **Step 5: Rodar os testes novamente e confirmar que passam, mais o restante do arquivo**
 
-Run: `bin/rspec spec/requests/recurring_entries_spec.rb`
+Run: `bundle exec rspec spec/requests/recurring_entries_spec.rb`
 Expected: PASS em todos os exemplos (os 2 novos + os já existentes, que não devem ter quebrado).
 
 - [ ] **Step 6: Commit**
@@ -202,7 +202,7 @@ end
 
 - [ ] **Step 2: Rodar o teste e confirmar que falha**
 
-Run: `bin/rspec spec/requests/favicon_spec.rb`
+Run: `bundle exec rspec spec/requests/favicon_spec.rb`
 Expected: FAIL — o layout hoje inclui `<link rel="icon" href="/icon.svg" ...>`, então `not_to include("icon.svg")` falha.
 
 - [ ] **Step 3: Processar a imagem fonte com `ffmpeg`, gerando um PNG quadrado com transparência real**
@@ -259,7 +259,7 @@ Em `app/views/layouts/application.html.erb`, remover a linha 18 (`<link rel="ico
 
 - [ ] **Step 7: Rodar o teste e confirmar que passa**
 
-Run: `bin/rspec spec/requests/favicon_spec.rb`
+Run: `bundle exec rspec spec/requests/favicon_spec.rb`
 Expected: PASS
 
 - [ ] **Step 8: Commit**
