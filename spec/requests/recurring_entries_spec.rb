@@ -100,7 +100,7 @@ RSpec.describe "RecurringEntries", type: :request do
   end
 
   it "omits the visible type, category, status and end date badges from the mobile card, keeping only day, description and amount (with screen-reader-only labels for the rest)" do
-    entry = create(:recurring_entry, category: category, user: user, description: "Aluguel", kind: :expense, amount: 1500, day_of_month: 5, active: true)
+    create(:recurring_entry, category: category, user: user, description: "Aluguel", kind: :expense, amount: 1500, day_of_month: 5, active: true)
 
     get recurring_entries_path
 
