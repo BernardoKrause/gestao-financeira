@@ -88,4 +88,34 @@ RSpec.describe "RecurringEntries", type: :request do
 
     expect(response.body).not_to include("Categoria de outro usuário")
   end
+
+  it "renders both a desktop table and a mobile card list for the same recurring entries" do
+    create(:recurring_entry, category: category, user: user, description: "Aluguel")
+
+    get recurring_entries_path
+
+    expect(response.body).to include('data-testid="recurring-entries-table"')
+    expect(response.body).to include('data-testid="recurring-entries-cards"')
+    expect(response.body.scan("Aluguel").count).to eq(2)
+  end
+
+  it "omits the visible type, category, status and end date badges from the mobile card, keeping only day, description and amount (with screen-reader-only labels for the rest)" do
+    entry = create(:recurring_entry, category: category, user: user, description: "Aluguel", kind: :expense, amount: 1500, day_of_month: 5, active: true)
+
+    get recurring_entries_path
+
+    doc = Nokogiri::HTML(response.body)
+    cards = doc.at_css('[data-testid="recurring-entries-cards"]')
+
+    expect(cards.text).to include("Aluguel")
+    expect(cards.text).to include("Dia 5")
+    expect(cards.text).to include(ActionController::Base.helpers.number_to_currency(1500, unit: "R$ "))
+    expect(cards.css("span.rounded-full")).to be_empty
+
+    sr_only_texts = cards.css("span.sr-only").map(&:text)
+    expect(sr_only_texts).to include("Gasto")
+    expect(sr_only_texts).to include("Categoria: #{category.name}")
+    expect(sr_only_texts).to include("Status: Ativa")
+    expect(sr_only_texts).to include("Até: Sem fim")
+  end
 end
