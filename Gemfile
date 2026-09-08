@@ -46,6 +46,7 @@ gem "image_processing", "~> 2.1"
 gem "devise"
 gem "rails-i18n"
 gem "avo", ">= 4.0.0"
+gem "rack-attack"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
