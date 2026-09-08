@@ -6,9 +6,11 @@ RSpec.configure do |config|
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.enabled = true
 
-    example.run
-
-    Rack::Attack.cache.store = original_store
-    Rack::Attack.enabled = original_enabled
+    begin
+      example.run
+    ensure
+      Rack::Attack.cache.store = original_store
+      Rack::Attack.enabled = original_enabled
+    end
   end
 end

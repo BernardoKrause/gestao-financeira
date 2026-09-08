@@ -1,33 +1,40 @@
 class Rack::Attack
+  LOGIN_PATH = %r{\A/users/sign_in(?:\.[a-z0-9]+)?\z}i
+  PASSWORD_RESET_PATH = %r{\A/users/password(?:\.[a-z0-9]+)?\z}i
+
+  TOO_MANY_REQUESTS_BODY = Rails.root.join("public/429.html").read.freeze
+
   self.cache.store = Rails.cache
   self.enabled = Rails.env.production?
+
+  def self.throttled_email(req)
+    req.params.dig("user", "email").to_s.scrub.downcase.strip.first(255).presence
+  rescue ArgumentError
+    nil
+  end
 
   safelist("allow health check") do |req|
     req.path == "/up"
   end
 
   throttle("req/ip", limit: 300, period: 5.minutes) do |req|
-    req.ip unless req.path.start_with?("/assets/")
+    req.ip
   end
 
   throttle("logins/ip", limit: 5, period: 20.seconds) do |req|
-    req.ip if req.path == "/users/sign_in" && req.post?
+    req.ip if LOGIN_PATH.match?(req.path) && req.post?
   end
 
   throttle("logins/email", limit: 5, period: 20.seconds) do |req|
-    if req.path == "/users/sign_in" && req.post?
-      req.params.dig("user", "email").to_s.downcase.strip.presence
-    end
+    throttled_email(req) if LOGIN_PATH.match?(req.path) && req.post?
   end
 
   throttle("password_resets/ip", limit: 5, period: 20.minutes) do |req|
-    req.ip if req.path == "/users/password" && req.post?
+    req.ip if PASSWORD_RESET_PATH.match?(req.path) && req.post?
   end
 
   throttle("password_resets/email", limit: 5, period: 20.minutes) do |req|
-    if req.path == "/users/password" && req.post?
-      req.params.dig("user", "email").to_s.downcase.strip.presence
-    end
+    throttled_email(req) if PASSWORD_RESET_PATH.match?(req.path) && req.post?
   end
 
   self.throttled_responder = lambda do |request|
@@ -35,11 +42,11 @@ class Rack::Attack
     retry_after = match_data[:period] - (match_data[:epoch_time] % match_data[:period])
 
     headers = {
-      "Content-Type" => "text/html",
-      "Retry-After" => retry_after.to_s
+      "content-type" => "text/html; charset=utf-8",
+      "retry-after" => retry_after.to_s
     }
 
-    [ 429, headers, [ File.read(Rails.root.join("public/429.html")) ] ]
+    [ 429, headers, [ TOO_MANY_REQUESTS_BODY ] ]
   end
 end
 
