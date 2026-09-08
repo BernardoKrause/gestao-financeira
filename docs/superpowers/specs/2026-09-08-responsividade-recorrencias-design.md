@@ -1,4 +1,6 @@
-# Responsividade — tabela de Recorrências
+# Responsividade — tabela de Recorrências (+ favicon)
+
+Este documento cobre dois itens sem relação entre si, agrupados a pedido do usuário: responsividade da tabela de Recorrências e troca do favicon da aplicação (seção ao final).
 
 ## Contexto
 
@@ -35,3 +37,38 @@ Ações (Editar/Remover) mantidas nos dois formatos, como em todas as tabelas an
 
 - `_form.html.erb` e `show.html.erb` de Recorrências (itens separados do effort-map, menores)
 - Qualquer mudança de comportamento/dado — é puramente uma mudança de apresentação
+
+---
+
+# Favicon da aplicação
+
+Item não relacionado à responsividade, incluído aqui a pedido do usuário.
+
+## Contexto
+
+A aplicação hoje usa os ícones placeholder padrão gerados pelo `rails new`: `public/icon.png` (o logo genérico do Rails, 512x512) e `public/icon.svg` (um círculo vermelho liso). `app/views/layouts/application.html.erb` referencia os dois via `<link rel="icon">` mais um `<link rel="apple-touch-icon">` apontando para o PNG.
+
+O usuário forneceu uma logo real em `~/Downloads/logo-gestion.jpeg` (apesar do nome mencionado ser `.png`, o arquivo é um `.jpeg`, 2816x1536). É uma marca em cinza-escuro/azulado sobre um fundo xadrez — esse xadrez está **gravado nos pixels do JPEG** (o arquivo não tem canal alfa; provavelmente é um screenshot de uma visualização de PNG transparente), então não pode ser usado diretamente como favicon sem processamento.
+
+## Processamento da imagem
+
+Validado com `ffmpeg` (já disponível no ambiente, sem dependências novas):
+
+1. Gerar uma máscara de transparência por threshold de luminância — pixels escuros (a marca) viram opacos, pixels claros (o xadrez) viram transparentes:
+   `ffmpeg -i logo-gestion.jpeg -vf "format=gray,geq=lum='if(lt(p(X\,Y)\,150)\,255\,0)'" mask.png`
+2. Combinar a máscara com a imagem original via `alphamerge`, produzindo um PNG com transparência real:
+   `ffmpeg -i logo-gestion.jpeg -i mask.png -filter_complex "[0:v][1:v]alphamerge" logo-transparent.png`
+3. Recortar (crop) a região transparente sobrando ao redor da marca e redimensionar para um quadrado 512x512 (o ícone fica dentro de um círculo, então cabe naturalmente num quadrado com pequena margem).
+
+O threshold (150) foi validado visualmente nesta sessão — pixels de fundo caem para alfa 0, o traço escuro da marca fica com alfa 255, sem halo/serrilhado visível.
+
+## Arquivos alterados
+
+- `public/icon.png` — substituído pela logo processada (512x512, com transparência)
+- `public/icon.svg` — removido (não temos versão vetorial real da logo; manter o círculo vermelho placeholder não faz sentido, e gerar um SVG fake a partir de um raster não traz benefício sobre servir só o PNG)
+- `app/views/layouts/application.html.erb` — remove a linha do `<link rel="icon" href="/icon.svg" ...>` (linha 18); mantém o `<link rel="icon" href="/icon.png" ...>` e o `apple-touch-icon"`, ambos já apontando para `/icon.png`
+
+## Fora de escopo
+
+- Qualquer redesenho da logo em si (cores, traço) — só reaproveitamento do arquivo fornecido
+- Favicons em outros tamanhos/formatos (ex: `.ico` multi-resolução, manifest.json de PWA) — o app não tem PWA hoje, YAGNI
