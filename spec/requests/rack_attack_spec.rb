@@ -89,4 +89,22 @@ RSpec.describe "Rack::Attack", type: :request, rack_attack: true do
       expect(response).to have_http_status(:too_many_requests)
     end
   end
+
+  describe "throttled response" do
+    it "returns a Portuguese 429 page with a Retry-After header" do
+      301.times { get root_path }
+
+      expect(response).to have_http_status(:too_many_requests)
+      expect(response.headers["Retry-After"]).to be_present
+      expect(response.body).to include("Muitas requisições")
+    end
+
+    it "logs a warning with the IP and the matched rule" do
+      allow(Rails.logger).to receive(:warn).and_call_original
+
+      301.times { get root_path }
+
+      expect(Rails.logger).to have_received(:warn).with(/rack-attack/i).at_least(:once)
+    end
+  end
 end

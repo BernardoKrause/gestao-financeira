@@ -29,4 +29,25 @@ class Rack::Attack
       req.params.dig("user", "email").to_s.downcase.strip.presence
     end
   end
+
+  self.throttled_responder = lambda do |request|
+    match_data = request.env["rack.attack.match_data"]
+    retry_after = match_data[:period] - (match_data[:epoch_time] % match_data[:period])
+
+    headers = {
+      "Content-Type" => "text/html",
+      "Retry-After" => retry_after.to_s
+    }
+
+    [ 429, headers, [ File.read(Rails.root.join("public/429.html")) ] ]
+  end
+end
+
+ActiveSupport::Notifications.subscribe("throttle.rack_attack") do |_name, _start, _finish, _instrumenter_id, payload|
+  request = payload[:request]
+  match_data = request.env["rack.attack.match_data"]
+
+  Rails.logger.warn(
+    "[rack-attack] blocked ip=#{request.ip} rule=#{request.env['rack.attack.matched']} discriminator=#{match_data[:discriminator]}"
+  )
 end
