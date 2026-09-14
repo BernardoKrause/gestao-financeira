@@ -13,3 +13,4 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 # Re-running `bin/importmap pin chart.js` will silently reintroduce the broken
 # file -- if you do, re-vendor the UMD build instead.
 pin "chart.js", preload: false # @4.5.1
+pin "sortablejs" # @1.15.7

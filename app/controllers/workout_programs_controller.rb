@@ -19,7 +19,9 @@ class WorkoutProgramsController < ApplicationController
     end
   end
 
-  def edit; end
+  def edit
+    @program_days = @workout_program.program_days
+  end
 
   def update
     if @workout_program.update(workout_program_params)

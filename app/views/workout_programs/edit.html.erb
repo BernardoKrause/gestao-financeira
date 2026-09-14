@@ -1,2 +1,12 @@
 <h1 class="mb-4 text-2xl font-bold">Editar Ficha</h1>
 <%= render "form", workout_program: @workout_program %>
+
+<h2 class="mb-3 mt-8 text-lg font-semibold">Dias de treino</h2>
+
+<div class="space-y-6" data-controller="sortable" data-sortable-url-value="<%= reorder_workout_program_program_days_path(@workout_program) %>" data-testid="program-days-list">
+  <% @program_days.each do |day| %>
+    <%= render "program_days/program_day", workout_program: @workout_program, program_day: day %>
+  <% end %>
+</div>
+
+<%= render "program_days/form", workout_program: @workout_program, program_day: @workout_program.program_days.new %>

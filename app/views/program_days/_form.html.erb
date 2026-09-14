@@ -1,0 +1,11 @@
+<%= form_with model: [ workout_program, program_day ], class: "mt-4 flex flex-wrap items-end gap-2" do |f| %>
+  <div>
+    <%= f.label :label, "Letra", class: "mb-1 block text-xs font-medium text-gray-700" %>
+    <%= f.text_field :label, size: 3, class: "rounded border border-gray-300 px-2 py-1 text-sm" %>
+  </div>
+  <div>
+    <%= f.label :title, "Título", class: "mb-1 block text-xs font-medium text-gray-700" %>
+    <%= f.text_field :title, class: "rounded border border-gray-300 px-2 py-1 text-sm" %>
+  </div>
+  <%= f.submit "+ Adicionar Dia", class: "rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700" %>
+<% end %>

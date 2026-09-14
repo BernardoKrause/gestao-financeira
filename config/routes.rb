@@ -26,6 +26,10 @@ Rails.application.routes.draw do
         post :activate
         post :duplicate
       end
+
+      resources :program_days, only: %i[create destroy] do
+        collection { patch :reorder }
+      end
     end
   end
 
