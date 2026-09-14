@@ -1,0 +1,7 @@
+<%= form_with model: workout_program do |f| %>
+  <div class="mb-4">
+    <%= f.label :name, "Nome da ficha", class: "mb-1 block text-sm font-medium text-gray-700" %>
+    <%= f.text_field :name, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>
+  </div>
+  <%= f.submit class: "rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
+<% end %>

@@ -1,0 +1,16 @@
+<h1 class="mb-4 text-2xl font-bold">Fichas de Treino</h1>
+
+<% if @active_workout_program %>
+  <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+    <p class="text-xs font-medium uppercase tracking-wide text-blue-600">Ficha ativa</p>
+    <p class="mt-1 text-lg font-semibold text-gray-900"><%= @active_workout_program.name %></p>
+  </div>
+<% end %>
+
+<%= link_to "+ Nova Ficha", new_workout_program_path, class: "mb-4 inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
+
+<div class="mt-4 space-y-3" data-testid="workout-programs-list">
+  <% @workout_programs.each do |workout_program| %>
+    <%= render "workout_program_row", workout_program: workout_program %>
+  <% end %>
+</div>

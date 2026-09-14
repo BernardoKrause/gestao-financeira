@@ -20,6 +20,13 @@ Rails.application.routes.draw do
 
   scope "/treinos" do
     resources :exercises
+
+    resources :workout_programs do
+      member do
+        post :activate
+        post :duplicate
+      end
+    end
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
