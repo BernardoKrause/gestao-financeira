@@ -7,4 +7,12 @@
     </div>
     <%= link_to "Remover dia", workout_program_program_day_path(workout_program, program_day), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" %>
   </div>
+
+  <div class="mt-3 space-y-2" data-controller="sortable" data-sortable-url-value="<%= reorder_workout_program_program_day_program_exercises_path(workout_program, program_day) %>" data-testid="program-exercises-list-<%= program_day.id %>">
+    <% program_day.program_exercises.each do |program_exercise| %>
+      <%= render "program_exercises/program_exercise_row", workout_program: workout_program, program_day: program_day, program_exercise: program_exercise %>
+    <% end %>
+  </div>
+
+  <%= link_to "+ Adicionar Exercício", exercises_path(workout_program_id: workout_program.id, program_day_id: program_day.id), class: "mt-3 inline-block text-sm font-medium text-blue-600 hover:text-blue-700" %>
 </div>

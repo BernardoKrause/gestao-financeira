@@ -1,10 +1,14 @@
+<% workout_program = local_assigns[:workout_program]
+   program_day = local_assigns[:program_day] %>
 <% if format == :table %>
   <tr>
     <td class="border px-3 py-2"><%= exercise.name %></td>
     <td class="border px-3 py-2"><%= Exercise::MUSCLE_GROUP_LABELS[exercise.muscle_group] %></td>
     <td class="border px-3 py-2"><%= Exercise::KIND_LABELS[exercise.kind] %></td>
     <td class="border px-3 py-2 text-right">
-      <% if exercise.global? %>
+      <% if program_day %>
+        <%= button_to "Adicionar a esta ficha", workout_program_program_day_program_exercises_path(workout_program, program_day, exercise_id: exercise.id), class: "rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700" %>
+      <% elsif exercise.global? %>
         <span class="text-xs text-gray-400">Catálogo</span>
       <% else %>
         <%= link_to "Editar", edit_exercise_path(exercise), class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
@@ -19,11 +23,13 @@
       <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700"><%= Exercise::MUSCLE_GROUP_LABELS[exercise.muscle_group] %></span>
     </div>
     <p class="mt-1 text-xs text-gray-500"><%= Exercise::KIND_LABELS[exercise.kind] %></p>
-    <% unless exercise.global? %>
-      <div class="mt-3 flex gap-3">
+    <div class="mt-3 flex gap-3">
+      <% if program_day %>
+        <%= button_to "Adicionar a esta ficha", workout_program_program_day_program_exercises_path(workout_program, program_day, exercise_id: exercise.id), class: "rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700" %>
+      <% elsif !exercise.global? %>
         <%= link_to "Editar", edit_exercise_path(exercise), class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
         <%= link_to "Remover", exercise_path(exercise), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" %>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
 <% end %>

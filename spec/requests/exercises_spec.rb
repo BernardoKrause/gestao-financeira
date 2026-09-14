@@ -80,4 +80,14 @@ RSpec.describe "Exercises", type: :request do
     expect { delete exercise_path(global) }.not_to change(Exercise, :count)
     expect(response).to have_http_status(:not_found)
   end
+
+  it "shows an 'add to program' action when opened as a picker for a program day" do
+    program = create(:workout_program, user: user)
+    day = create(:program_day, workout_program: program)
+    create(:exercise, name: "Supino Reto")
+
+    get exercises_path(workout_program_id: program.id, program_day_id: day.id)
+
+    expect(response.body).to include("Adicionar a esta ficha")
+  end
 end

@@ -6,6 +6,11 @@ class ExercisesController < ApplicationController
     @exercises = @exercises.where(muscle_group: params[:muscle_group]) if params[:muscle_group].present?
     @exercises = @exercises.where(kind: params[:kind]) if params[:kind].present?
     @exercises = @exercises.where("name ILIKE ?", "%#{params[:query]}%") if params[:query].present?
+
+    if params[:workout_program_id].present?
+      @workout_program = current_user.workout_programs.find(params[:workout_program_id])
+      @program_day = @workout_program.program_days.find(params[:program_day_id])
+    end
   end
 
   def new

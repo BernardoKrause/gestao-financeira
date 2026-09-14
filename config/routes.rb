@@ -29,6 +29,10 @@ Rails.application.routes.draw do
 
       resources :program_days, only: %i[create destroy] do
         collection { patch :reorder }
+
+        resources :program_exercises, only: %i[create update destroy] do
+          collection { patch :reorder }
+        end
       end
     end
   end
