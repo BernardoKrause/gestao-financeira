@@ -3,12 +3,12 @@
 
   <%= form_with model: set_log, url: workout_session_set_log_path(set_log), class: "flex flex-1 flex-wrap items-center gap-2" do |f| %>
     <% if set_log.program_exercise.exercise.strength? %>
-      <%= f.number_field :reps, min: 0, placeholder: "Reps", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+      <%= f.number_field :reps, min: 1, placeholder: "Reps", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
       <span class="text-xs text-gray-500">reps ×</span>
-      <%= f.number_field :weight_kg, min: 0, step: 0.5, placeholder: "kg", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+      <%= f.number_field :weight_kg, min: 0.5, step: 0.5, placeholder: "kg", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
       <span class="text-xs text-gray-500">kg</span>
     <% else %>
-      <%= f.number_field :duration_minutes, min: 0, placeholder: "min", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+      <%= f.number_field :duration_minutes, min: 1, placeholder: "min", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
       <span class="text-xs text-gray-500">min</span>
     <% end %>
 

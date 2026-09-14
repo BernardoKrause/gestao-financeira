@@ -150,7 +150,7 @@ RSpec.describe "WorkoutSessions", type: :request do
   end
 
   describe "PATCH /treinos/workout_session/finish" do
-    it "marks the session completed and renders the summary" do
+    it "marks the session completed and redirects to the summary" do
       exercise = create(:exercise, kind: :strength)
       program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise, target_sets: 1, target_reps: 10)
       session = create(:workout_session, workout_program: program, program_day: day_a, user: user)
@@ -160,12 +160,31 @@ RSpec.describe "WorkoutSessions", type: :request do
 
       expect(session.reload).to be_completed
       expect(session.finished_at).to be_present
-      expect(response.body).to include("Treino Concluído")
-      expect(response.body).to include("10 reps × 60.0 kg")
+      expect(response).to redirect_to(summary_workout_session_path)
     end
 
     it "redirects to Fichas when there is no session in progress" do
       patch finish_workout_session_path
+
+      expect(response).to redirect_to(workout_programs_path)
+    end
+  end
+
+  describe "GET /treinos/workout_session/summary" do
+    it "renders the completed session's summary" do
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise, target_sets: 1, target_reps: 10)
+      session = create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user)
+      create(:set_log, :completed, workout_session: session, program_exercise: program_exercise, reps: 10, weight_kg: 60)
+
+      get summary_workout_session_path
+
+      expect(response.body).to include("Treino Concluído")
+      expect(response.body).to include("10 reps × 60.0 kg")
+    end
+
+    it "redirects to Fichas when there is no completed session to show" do
+      get summary_workout_session_path
 
       expect(response).to redirect_to(workout_programs_path)
     end

@@ -72,6 +72,18 @@ RSpec.describe "SetLogs", type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "keeps the row showing the last valid value when the submitted update is invalid" do
+      set_log = create(:set_log, workout_session: session, program_exercise: program_exercise, reps: 10, weight_kg: 50)
+
+      patch workout_session_set_log_path(set_log),
+        params: { set_log: { reps: 0 } },
+        headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      expect(set_log.reload.reps).to eq(10)
+      reps_field = Nokogiri::HTML::DocumentFragment.parse(response.body).at_css("#set_log_reps")
+      expect(reps_field["value"]).to eq("10")
+    end
   end
 
   describe "DELETE /treinos/workout_session/set_logs/:id" do

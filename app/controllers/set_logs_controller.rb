@@ -18,7 +18,8 @@ class SetLogsController < ApplicationController
   end
 
   def update
-    @set_log.update(set_log_params)
+    updated = @set_log.update(set_log_params)
+    @set_log.reload unless updated
 
     respond_to do |format|
       format.turbo_stream

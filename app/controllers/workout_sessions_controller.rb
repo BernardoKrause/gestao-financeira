@@ -51,10 +51,19 @@ class WorkoutSessionsController < ApplicationController
     end
 
     @workout_session.update!(status: :completed, finished_at: Time.current)
+    redirect_to summary_workout_session_path
+  end
+
+  def summary
+    @workout_session = current_user.workout_sessions.where(status: :completed).order(finished_at: :desc).first
+
+    if @workout_session.nil?
+      redirect_to workout_programs_path, alert: "Nenhum treino concluído para mostrar."
+      return
+    end
+
     @program_exercises = @workout_session.program_day.program_exercises.includes(:exercise).order(:position)
     @set_logs_by_program_exercise = @workout_session.set_logs.includes(program_exercise: :exercise).order(:position).group_by(&:program_exercise_id)
-
-    render :finish
   end
 
   def destroy

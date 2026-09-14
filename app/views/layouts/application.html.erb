@@ -24,7 +24,7 @@
 
   <body class="bg-gray-50 text-gray-900">
     <% if user_signed_in? && controller_name != "hub" %>
-      <% is_treinos = %w[exercises workout_programs program_days program_exercises].include?(controller_name) %>
+      <% is_treinos = %w[exercises workout_programs program_days program_exercises workout_sessions set_logs].include?(controller_name) %>
       <% nav_title = is_treinos ? "Treinos" : "Gestão Financeira" %>
       <% nav_root_path = is_treinos ? workout_programs_path : dashboard_path %>
       <% nav_links = is_treinos ? [ [ "Fichas", workout_programs_path ], [ "Exercícios", exercises_path ] ] : [ [ "Painel", dashboard_path ], [ "Categorias", categories_path ], [ "Lançamentos", transactions_path ], [ "Recorrências", recurring_entries_path ] ] %>
