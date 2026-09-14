@@ -35,6 +35,8 @@ Rails.application.routes.draw do
         end
       end
     end
+
+    resource :workout_session, only: %i[new create show]
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
