@@ -1,0 +1,24 @@
+<div id="<%= dom_id(set_log) %>" class="flex flex-wrap items-center gap-2 rounded border border-gray-100 bg-gray-50 p-2 text-sm" data-testid="set-log-<%= set_log.id %>">
+  <span class="w-6 text-xs text-gray-400"><%= set_log.position + 1 %></span>
+
+  <%= form_with model: set_log, url: workout_session_set_log_path(set_log), class: "flex flex-1 flex-wrap items-center gap-2" do |f| %>
+    <% if set_log.program_exercise.exercise.strength? %>
+      <%= f.number_field :reps, min: 0, placeholder: "Reps", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+      <span class="text-xs text-gray-500">reps ×</span>
+      <%= f.number_field :weight_kg, min: 0, step: 0.5, placeholder: "kg", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+      <span class="text-xs text-gray-500">kg</span>
+    <% else %>
+      <%= f.number_field :duration_minutes, min: 0, placeholder: "min", class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+      <span class="text-xs text-gray-500">min</span>
+    <% end %>
+
+    <label class="flex items-center gap-1 text-xs text-gray-700">
+      <%= f.check_box :completed, class: "h-4 w-4" %>
+      Concluída
+    </label>
+
+    <%= f.submit "Salvar", class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
+  <% end %>
+
+  <%= link_to "Remover", workout_session_set_log_path(set_log), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" %>
+</div>

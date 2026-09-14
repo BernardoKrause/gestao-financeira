@@ -113,5 +113,30 @@ RSpec.describe "WorkoutSessions", type: :request do
 
       expect(response).to redirect_to(workout_programs_path)
     end
+
+    it "renders the exercise grid with pre-generated set_logs" do
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise, target_sets: 2, target_reps: 10)
+      session = create(:workout_session, workout_program: program, program_day: day_a, user: user)
+      create(:set_log, workout_session: session, program_exercise: program_exercise, position: 0)
+      create(:set_log, workout_session: session, program_exercise: program_exercise, position: 1)
+
+      get workout_session_path
+
+      expect(response.body).to include(exercise.name)
+      expect(response.body).to include("Adicionar Série")
+    end
+
+    it "renders a cardio exercise with a single duration field, not reps/weight" do
+      cardio_exercise = create(:exercise, :cardio)
+      cardio_program_exercise = create(:program_exercise, :cardio, program_day: day_a, exercise: cardio_exercise, target_duration_minutes: 20)
+      session = create(:workout_session, workout_program: program, program_day: day_a, user: user)
+      create(:set_log, :cardio, workout_session: session, program_exercise: cardio_program_exercise, position: 0)
+
+      get workout_session_path
+
+      expect(response.body).to include(cardio_exercise.name)
+      expect(response.body).to include("min")
+    end
   end
 end

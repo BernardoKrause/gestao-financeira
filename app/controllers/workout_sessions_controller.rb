@@ -35,7 +35,11 @@ class WorkoutSessionsController < ApplicationController
 
     if @workout_session.nil?
       redirect_to workout_programs_path, alert: "Nenhum treino em andamento."
+      return
     end
+
+    @program_exercises = @workout_session.program_day.program_exercises.includes(:exercise).order(:position)
+    @set_logs_by_program_exercise = @workout_session.set_logs.includes(program_exercise: :exercise).order(:position).group_by(&:program_exercise_id)
   end
 
   private
