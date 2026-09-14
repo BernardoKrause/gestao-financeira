@@ -18,6 +18,10 @@ Rails.application.routes.draw do
     post "quick_entries", to: "quick_entries#create", as: :quick_entries
   end
 
+  scope "/treinos" do
+    resources :exercises
+  end
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check

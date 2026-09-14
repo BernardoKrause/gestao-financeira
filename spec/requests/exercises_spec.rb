@@ -1,0 +1,83 @@
+require "rails_helper"
+
+RSpec.describe "Exercises", type: :request do
+  let(:user) { create(:user) }
+
+  before { sign_in user }
+
+  it "lists global exercises and the user's own custom exercises, but not other users'" do
+    global = create(:exercise, name: "Supino Reto")
+    mine = create(:exercise, :custom, user: user, name: "Meu Exercício")
+    other = create(:exercise, :custom, name: "Exercício de outro usuário")
+
+    get exercises_path
+
+    expect(response.body).to include(global.name)
+    expect(response.body).to include(mine.name)
+    expect(response.body).not_to include(other.name)
+  end
+
+  it "filters by muscle group" do
+    chest = create(:exercise, name: "Supino", muscle_group: :chest)
+    legs = create(:exercise, name: "Agachamento", muscle_group: :legs)
+
+    get exercises_path, params: { muscle_group: "legs" }
+
+    expect(response.body).to include(legs.name)
+    expect(response.body).not_to include(chest.name)
+  end
+
+  it "creates a custom exercise owned by the current user" do
+    expect {
+      post exercises_path, params: { exercise: { name: "Rosca Direta", muscle_group: "biceps", kind: "strength" } }
+    }.to change(Exercise, :count).by(1)
+
+    expect(response).to redirect_to(exercises_path)
+    expect(Exercise.last.user).to eq(user)
+  end
+
+  it "does not create an exercise without a name" do
+    expect {
+      post exercises_path, params: { exercise: { name: "", muscle_group: "chest", kind: "strength" } }
+    }.not_to change(Exercise, :count)
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
+  it "updates the user's own custom exercise" do
+    exercise = create(:exercise, :custom, user: user, name: "Nome antigo")
+    patch exercise_path(exercise), params: { exercise: { name: "Nome novo" } }
+    expect(exercise.reload.name).to eq("Nome novo")
+  end
+
+  it "destroys the user's own custom exercise" do
+    exercise = create(:exercise, :custom, user: user)
+    expect { delete exercise_path(exercise) }.to change(Exercise, :count).by(-1)
+  end
+
+  it "does not destroy a custom exercise that is used in a program, and shows an error" do
+    exercise = create(:exercise, :custom, user: user)
+    create(:program_exercise, exercise: exercise)
+
+    expect { delete exercise_path(exercise) }.not_to change(Exercise, :count)
+    expect(response).to redirect_to(exercises_path)
+    expect(flash[:alert]).to be_present
+  end
+
+  it "returns 404 when trying to edit a global exercise" do
+    global = create(:exercise)
+    get edit_exercise_path(global)
+    expect(response).to have_http_status(:not_found)
+  end
+
+  it "returns 404 when trying to edit another user's custom exercise" do
+    other = create(:exercise, :custom)
+    get edit_exercise_path(other)
+    expect(response).to have_http_status(:not_found)
+  end
+
+  it "returns 404 when trying to destroy a global exercise" do
+    global = create(:exercise)
+    expect { delete exercise_path(global) }.not_to change(Exercise, :count)
+    expect(response).to have_http_status(:not_found)
+  end
+end
