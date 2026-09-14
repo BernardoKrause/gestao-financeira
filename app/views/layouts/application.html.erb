@@ -24,21 +24,24 @@
 
   <body class="bg-gray-50 text-gray-900">
     <% if user_signed_in? && controller_name != "hub" %>
+      <% is_treinos = %w[exercises workout_programs program_days program_exercises].include?(controller_name) %>
+      <% nav_title = is_treinos ? "Treinos" : "Gestão Financeira" %>
+      <% nav_root_path = is_treinos ? workout_programs_path : dashboard_path %>
+      <% nav_links = is_treinos ? [ [ "Fichas", workout_programs_path ], [ "Exercícios", exercises_path ] ] : [ [ "Painel", dashboard_path ], [ "Categorias", categories_path ], [ "Lançamentos", transactions_path ], [ "Recorrências", recurring_entries_path ] ] %>
       <nav class="mb-6 bg-gray-900 text-white">
         <input type="checkbox" id="nav-menu-toggle" class="peer sr-only md:hidden">
         <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
           <%= link_to "← Hub", root_path, class: "text-xs text-gray-400 hover:text-white" %>
-          <%= link_to "Gestão Financeira", dashboard_path, class: "text-lg font-bold text-white" %>
+          <%= link_to nav_title, nav_root_path, class: "text-lg font-bold text-white" %>
 
           <label for="nav-menu-toggle" class="ml-auto cursor-pointer rounded border border-gray-600 px-2 py-1 text-sm md:hidden" aria-label="Abrir menu">
             ☰
           </label>
 
           <div class="hidden flex-1 flex-wrap items-center gap-3 md:flex">
-            <%= link_to "Painel", dashboard_path, class: "text-sm text-gray-200 hover:text-white" %>
-            <%= link_to "Categorias", categories_path, class: "text-sm text-gray-200 hover:text-white" %>
-            <%= link_to "Lançamentos", transactions_path, class: "text-sm text-gray-200 hover:text-white" %>
-            <%= link_to "Recorrências", recurring_entries_path, class: "text-sm text-gray-200 hover:text-white" %>
+            <% nav_links.each do |label, path| %>
+              <%= link_to label, path, class: "text-sm text-gray-200 hover:text-white" %>
+            <% end %>
           </div>
           <div class="hidden items-center gap-3 md:flex">
             <%= link_to "Minha conta", edit_user_registration_path, class: "text-sm text-gray-200 hover:text-white" %>
@@ -47,10 +50,9 @@
         </div>
 
         <div class="hidden flex-col gap-3 border-t border-gray-800 px-4 py-3 peer-checked:flex md:hidden md:peer-checked:hidden">
-          <%= link_to "Painel", dashboard_path, class: "text-sm text-gray-200 hover:text-white" %>
-          <%= link_to "Categorias", categories_path, class: "text-sm text-gray-200 hover:text-white" %>
-          <%= link_to "Lançamentos", transactions_path, class: "text-sm text-gray-200 hover:text-white" %>
-          <%= link_to "Recorrências", recurring_entries_path, class: "text-sm text-gray-200 hover:text-white" %>
+          <% nav_links.each do |label, path| %>
+            <%= link_to label, path, class: "text-sm text-gray-200 hover:text-white" %>
+          <% end %>
           <%= link_to "Minha conta", edit_user_registration_path, class: "text-sm text-gray-200 hover:text-white" %>
           <%= button_to "Sair", destroy_user_session_path, method: :delete, class: "self-start rounded border border-gray-500 px-3 py-1 text-xs text-gray-200 hover:bg-gray-800" %>
         </div>

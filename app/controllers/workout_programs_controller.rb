@@ -20,7 +20,7 @@ class WorkoutProgramsController < ApplicationController
   end
 
   def edit
-    @program_days = @workout_program.program_days
+    @program_days = @workout_program.program_days.includes(program_exercises: :exercise)
   end
 
   def update
