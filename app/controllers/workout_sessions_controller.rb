@@ -42,6 +42,32 @@ class WorkoutSessionsController < ApplicationController
     @set_logs_by_program_exercise = @workout_session.set_logs.includes(program_exercise: :exercise).order(:position).group_by(&:program_exercise_id)
   end
 
+  def finish
+    @workout_session = current_user.workout_sessions.find_by(status: :in_progress)
+
+    if @workout_session.nil?
+      redirect_to workout_programs_path, alert: "Nenhum treino em andamento."
+      return
+    end
+
+    @workout_session.update!(status: :completed, finished_at: Time.current)
+    @program_exercises = @workout_session.program_day.program_exercises.includes(:exercise).order(:position)
+    @set_logs_by_program_exercise = @workout_session.set_logs.includes(program_exercise: :exercise).order(:position).group_by(&:program_exercise_id)
+
+    render :finish
+  end
+
+  def destroy
+    @workout_session = current_user.workout_sessions.find_by(status: :in_progress)
+
+    if @workout_session
+      @workout_session.destroy
+      redirect_to workout_programs_path, notice: "Treino cancelado."
+    else
+      redirect_to workout_programs_path, alert: "Nenhum treino em andamento."
+    end
+  end
+
   private
 
   def redirect_if_no_active_program

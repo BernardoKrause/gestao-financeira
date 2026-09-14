@@ -138,5 +138,52 @@ RSpec.describe "WorkoutSessions", type: :request do
       expect(response.body).to include(cardio_exercise.name)
       expect(response.body).to include("min")
     end
+
+    it "renders the Finalizar Treino button targeting PATCH" do
+      create(:workout_session, workout_program: program, program_day: day_a, user: user)
+
+      get workout_session_path
+
+      expect(response.body).to include(%(action="#{finish_workout_session_path}"))
+      expect(response.body).to match(/name="_method" value="patch"/)
+    end
+  end
+
+  describe "PATCH /treinos/workout_session/finish" do
+    it "marks the session completed and renders the summary" do
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise, target_sets: 1, target_reps: 10)
+      session = create(:workout_session, workout_program: program, program_day: day_a, user: user)
+      create(:set_log, :completed, workout_session: session, program_exercise: program_exercise, reps: 10, weight_kg: 60)
+
+      patch finish_workout_session_path
+
+      expect(session.reload).to be_completed
+      expect(session.finished_at).to be_present
+      expect(response.body).to include("Treino Concluído")
+      expect(response.body).to include("10 reps × 60.0 kg")
+    end
+
+    it "redirects to Fichas when there is no session in progress" do
+      patch finish_workout_session_path
+
+      expect(response).to redirect_to(workout_programs_path)
+    end
+  end
+
+  describe "DELETE /treinos/workout_session" do
+    it "cancels the session and destroys its set_logs" do
+      session = create(:workout_session, workout_program: program, program_day: day_a, user: user)
+      create(:set_log, workout_session: session, program_exercise: create(:program_exercise, program_day: day_a))
+
+      expect { delete workout_session_path }.to change(WorkoutSession, :count).by(-1).and change(SetLog, :count).by(-1)
+      expect(response).to redirect_to(workout_programs_path)
+    end
+
+    it "redirects to Fichas when there is no session in progress" do
+      delete workout_session_path
+
+      expect(response).to redirect_to(workout_programs_path)
+    end
   end
 end

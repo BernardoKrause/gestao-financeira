@@ -36,7 +36,8 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :workout_session, only: %i[new create show] do
+    resource :workout_session, only: %i[new create show destroy] do
+      patch :finish
       resources :set_logs, only: %i[create update destroy]
     end
   end
