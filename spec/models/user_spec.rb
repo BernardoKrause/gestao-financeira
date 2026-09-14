@@ -42,4 +42,15 @@ RSpec.describe User, type: :model do
     expect(user.setting).to be_nil
     expect(user.categories.count).to eq(0)
   end
+
+  it "destroys a user's workout programs before their custom exercises, so a fully-loaded account can be deleted" do
+    user = create(:user)
+    exercise = create(:exercise, :custom, user: user)
+    program = create(:workout_program, user: user)
+    day = create(:program_day, workout_program: program)
+    create(:program_exercise, program_day: day, exercise: exercise)
+
+    expect { user.destroy }.not_to raise_error
+    expect(Exercise.exists?(exercise.id)).to be(false)
+  end
 end

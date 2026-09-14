@@ -6,6 +6,8 @@ class User < ApplicationRecord
   has_many :transactions, dependent: :destroy
   has_many :recurring_entries, dependent: :destroy
   has_many :categories, dependent: :destroy
+  has_many :workout_programs, dependent: :destroy
+  has_many :exercises, dependent: :destroy
   has_one :setting, dependent: :destroy
 
   validate :password_complexity

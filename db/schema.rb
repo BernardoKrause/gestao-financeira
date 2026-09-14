@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_03_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_230400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_03_120000) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_categories_on_user_id"
+  end
+
+  create_table "exercises", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "kind", default: 0, null: false
+    t.integer "muscle_group", null: false
+    t.string "name", null: false
+    t.text "notes"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_exercises_on_user_id"
+  end
+
+  create_table "program_days", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "label", null: false
+    t.integer "position", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workout_program_id", null: false
+    t.index ["workout_program_id"], name: "index_program_days_on_workout_program_id"
+  end
+
+  create_table "program_exercises", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "exercise_id", null: false
+    t.integer "position", null: false
+    t.bigint "program_day_id", null: false
+    t.integer "target_duration_minutes"
+    t.integer "target_reps"
+    t.integer "target_sets"
+    t.datetime "updated_at", null: false
+    t.index ["exercise_id"], name: "index_program_exercises_on_exercise_id"
+    t.index ["program_day_id"], name: "index_program_exercises_on_program_day_id"
   end
 
   create_table "recurring_entries", force: :cascade do |t|
@@ -74,11 +108,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_03_120000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "workout_programs", force: :cascade do |t|
+    t.boolean "active", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_workout_programs_on_user_id"
+  end
+
   add_foreign_key "categories", "users"
+  add_foreign_key "exercises", "users"
+  add_foreign_key "program_days", "workout_programs"
+  add_foreign_key "program_exercises", "exercises"
+  add_foreign_key "program_exercises", "program_days"
   add_foreign_key "recurring_entries", "categories"
   add_foreign_key "recurring_entries", "users"
   add_foreign_key "settings", "users"
   add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "recurring_entries"
   add_foreign_key "transactions", "users"
+  add_foreign_key "workout_programs", "users"
 end
