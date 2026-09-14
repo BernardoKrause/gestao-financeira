@@ -13,5 +13,12 @@ FactoryBot.define do
       target_reps { nil }
       target_duration_minutes { 30 }
     end
+
+    trait :stretching do
+      exercise { association :exercise, :stretching }
+      target_sets { nil }
+      target_reps { nil }
+      target_duration_minutes { nil }
+    end
   end
 end

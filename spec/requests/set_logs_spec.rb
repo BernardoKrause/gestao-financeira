@@ -47,6 +47,21 @@ RSpec.describe "SetLogs", type: :request do
       expect(new_set_log.duration_minutes).to eq(25)
       expect(new_set_log.reps).to be_nil
     end
+
+    it "adds an extra stretching set with no target values at all" do
+      stretching_exercise = create(:exercise, :stretching)
+      stretching_program_exercise = create(:program_exercise, :stretching, program_day: day, exercise: stretching_exercise)
+      create(:set_log, workout_session: session, program_exercise: stretching_program_exercise, position: 0, reps: nil, weight_kg: nil, duration_minutes: nil)
+
+      expect {
+        post workout_session_set_logs_path(program_exercise_id: stretching_program_exercise.id)
+      }.to change(session.set_logs, :count).by(1)
+
+      new_set_log = session.set_logs.where(program_exercise: stretching_program_exercise).order(:position).last
+      expect(new_set_log.reps).to be_nil
+      expect(new_set_log.weight_kg).to be_nil
+      expect(new_set_log.duration_minutes).to be_nil
+    end
   end
 
   describe "PATCH /treinos/workout_session/set_logs/:id" do

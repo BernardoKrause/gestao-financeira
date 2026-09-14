@@ -21,6 +21,10 @@ RSpec.describe ProgramExercise, type: :model do
     expect(build(:program_exercise, :cardio, target_duration_minutes: nil)).not_to be_valid
   end
 
+  it "is valid for a stretching exercise with no target at all" do
+    expect(build(:program_exercise, :stretching)).to be_valid
+  end
+
   it "is destroyed along with its program day" do
     program_exercise = create(:program_exercise)
     day = program_exercise.program_day

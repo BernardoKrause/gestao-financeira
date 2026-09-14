@@ -19,8 +19,13 @@ RSpec.describe Exercise, type: :model do
     )
   end
 
-  it "exposes strength and cardio kinds" do
-    expect(Exercise.kinds.keys).to contain_exactly("strength", "cardio")
+  it "exposes strength, cardio and stretching kinds" do
+    expect(Exercise.kinds.keys).to contain_exactly("strength", "cardio", "stretching")
+  end
+
+  it "MUSCLE_GROUP_LABELS and KIND_LABELS cover every enum key with no gaps or stray entries" do
+    expect(Exercise::MUSCLE_GROUP_LABELS.keys).to match_array(Exercise.muscle_groups.keys)
+    expect(Exercise::KIND_LABELS.keys).to match_array(Exercise.kinds.keys)
   end
 
   describe ".visible_to" do

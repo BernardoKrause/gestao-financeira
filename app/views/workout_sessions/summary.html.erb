@@ -10,8 +10,10 @@
           <li>
             <% if program_exercise.exercise.strength? %>
               <%= set_log.reps %> reps × <%= set_log.weight_kg %> kg
-            <% else %>
+            <% elsif program_exercise.exercise.cardio? %>
               <%= set_log.duration_minutes %> min
+            <% else %>
+              Feito
             <% end %>
           </li>
         <% end %>

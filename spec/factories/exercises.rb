@@ -12,5 +12,9 @@ FactoryBot.define do
     trait :cardio do
       kind { :cardio }
     end
+
+    trait :stretching do
+      kind { :stretching }
+    end
   end
 end

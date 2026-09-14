@@ -1,20 +1,16 @@
 class WorkoutSessionsController < ApplicationController
-  before_action :redirect_if_no_active_program, only: %i[new create]
-  before_action :redirect_to_existing_session, only: %i[new create]
+  before_action :redirect_if_no_active_program, only: %i[create]
+  before_action :redirect_to_existing_session, only: %i[create]
 
-  def new
-    @program_days = @workout_program.program_days.order(:position)
+  def create
+    program_days = @workout_program.program_days.order(:position)
 
-    if @program_days.empty?
+    if program_days.empty?
       redirect_to workout_programs_path, alert: "Esta ficha não tem nenhum dia cadastrado ainda."
       return
     end
 
-    @suggested_program_day = suggested_program_day
-  end
-
-  def create
-    program_day = @workout_program.program_days.find(params[:program_day_id])
+    program_day = suggested_program_day(program_days)
 
     @workout_session = current_user.workout_sessions.new(
       workout_program: @workout_program,
@@ -91,8 +87,8 @@ class WorkoutSessionsController < ApplicationController
     redirect_to workout_session_path if current_user.workout_sessions.exists?(status: :in_progress)
   end
 
-  def suggested_program_day
-    days = @program_days.to_a
+  def suggested_program_day(program_days)
+    days = program_days.to_a
     last_completed = current_user.workout_sessions
       .where(workout_program: @workout_program, status: :completed)
       .order(finished_at: :desc)
@@ -109,7 +105,7 @@ class WorkoutSessionsController < ApplicationController
   def generate_set_logs(workout_session, program_day)
     program_day.program_exercises.includes(:exercise).order(:position).each do |program_exercise|
       exercise = program_exercise.exercise
-      count = exercise.cardio? ? 1 : program_exercise.target_sets
+      count = exercise.strength? ? program_exercise.target_sets : 1
 
       count.times do |index|
         workout_session.set_logs.create!(

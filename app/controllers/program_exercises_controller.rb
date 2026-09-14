@@ -53,7 +53,13 @@ class ProgramExercisesController < ApplicationController
   end
 
   def default_targets_for(exercise)
-    exercise.cardio? ? { target_duration_minutes: 20 } : { target_sets: 3, target_reps: 10 }
+    if exercise.strength?
+      { target_sets: 3, target_reps: 10 }
+    elsif exercise.cardio?
+      { target_duration_minutes: 20 }
+    else
+      {}
+    end
   end
 
   def program_exercise_params

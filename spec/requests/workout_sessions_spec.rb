@@ -8,34 +8,34 @@ RSpec.describe "WorkoutSessions", type: :request do
 
   before { sign_in user }
 
-  describe "GET /treinos/workout_session/new" do
-    it "suggests the first day when there is no history" do
-      get new_workout_session_path
+  describe "POST /treinos/workout_session" do
+    it "starts a session on the first day when there is no history" do
+      post workout_session_path
 
-      expect(response.body).to include("Sugerido")
-      expect(response.body).to match(/Treino A.*Sugerido/m)
+      expect(WorkoutSession.last.program_day).to eq(day_a)
+      expect(response).to redirect_to(workout_session_path)
     end
 
-    it "suggests the next day after the most recently completed session" do
+    it "starts a session on the next day after the most recently completed session" do
       create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user, finished_at: 1.day.ago)
 
-      get new_workout_session_path
+      post workout_session_path
 
-      expect(response.body).to match(/Treino B.*Sugerido/m)
+      expect(WorkoutSession.last.program_day).to eq(day_b)
     end
 
     it "wraps around to the first day after the last one" do
       create(:workout_session, :completed, workout_program: program, program_day: day_b, user: user, finished_at: 1.day.ago)
 
-      get new_workout_session_path
+      post workout_session_path
 
-      expect(response.body).to match(/Treino A.*Sugerido/m)
+      expect(WorkoutSession.last.program_day).to eq(day_a)
     end
 
     it "redirects to Fichas when there is no active program" do
       program.update!(active: false)
 
-      get new_workout_session_path
+      post workout_session_path
 
       expect(response).to redirect_to(workout_programs_path)
     end
@@ -43,29 +43,27 @@ RSpec.describe "WorkoutSessions", type: :request do
     it "redirects to Fichas when the active ficha has no days yet" do
       program.program_days.destroy_all
 
-      get new_workout_session_path
+      post workout_session_path
 
       expect(response).to redirect_to(workout_programs_path)
     end
 
-    it "redirects to the existing session when one is already in progress" do
+    it "redirects to the existing session when one is already in progress, instead of creating a new one" do
       session = create(:workout_session, workout_program: program, program_day: day_a, user: user)
 
-      get new_workout_session_path
+      post workout_session_path
 
       expect(response).to redirect_to(workout_session_path)
       expect(WorkoutSession.count).to eq(1)
       expect(session.reload).to be_in_progress
     end
-  end
 
-  describe "POST /treinos/workout_session" do
     it "creates a session and pre-generates set_logs from the day's targets" do
       exercise = create(:exercise, kind: :strength)
       create(:program_exercise, program_day: day_a, exercise: exercise, target_sets: 3, target_reps: 12)
 
       expect {
-        post workout_session_path, params: { program_day_id: day_a.id }
+        post workout_session_path
       }.to change(WorkoutSession, :count).by(1)
 
       session = WorkoutSession.last
@@ -80,21 +78,23 @@ RSpec.describe "WorkoutSessions", type: :request do
       exercise = create(:exercise, :cardio)
       create(:program_exercise, :cardio, program_day: day_a, exercise: exercise, target_duration_minutes: 25)
 
-      post workout_session_path, params: { program_day_id: day_a.id }
+      post workout_session_path
 
       set_log = WorkoutSession.last.set_logs.sole
       expect(set_log.duration_minutes).to eq(25)
       expect(set_log.reps).to be_nil
     end
 
-    it "does not create a second session when one is already in progress" do
-      create(:workout_session, workout_program: program, program_day: day_a, user: user)
+    it "pre-generates a single set_log with no target values for a stretching exercise" do
+      exercise = create(:exercise, :stretching)
+      create(:program_exercise, :stretching, program_day: day_a, exercise: exercise)
 
-      expect {
-        post workout_session_path, params: { program_day_id: day_b.id }
-      }.not_to change(WorkoutSession, :count)
+      post workout_session_path
 
-      expect(response).to redirect_to(workout_session_path)
+      set_log = WorkoutSession.last.set_logs.sole
+      expect(set_log.reps).to be_nil
+      expect(set_log.weight_kg).to be_nil
+      expect(set_log.duration_minutes).to be_nil
     end
   end
 
@@ -139,6 +139,22 @@ RSpec.describe "WorkoutSessions", type: :request do
       expect(response.body).to include("min")
     end
 
+    it "renders a stretching exercise with no numeric target fields, just the completed checkbox" do
+      stretching_exercise = create(:exercise, :stretching)
+      stretching_program_exercise = create(:program_exercise, :stretching, program_day: day_a, exercise: stretching_exercise)
+      session = create(:workout_session, workout_program: program, program_day: day_a, user: user)
+      set_log = create(:set_log, workout_session: session, program_exercise: stretching_program_exercise, position: 0, reps: nil, weight_kg: nil, duration_minutes: nil)
+
+      get workout_session_path
+
+      expect(response.body).to include(stretching_exercise.name)
+      row = Nokogiri::HTML::DocumentFragment.parse(response.body).at_css("##{ActionView::RecordIdentifier.dom_id(set_log)}")
+      expect(row.at_css("input[name='set_log[reps]']")).to be_nil
+      expect(row.at_css("input[name='set_log[weight_kg]']")).to be_nil
+      expect(row.at_css("input[name='set_log[duration_minutes]']")).to be_nil
+      expect(row.at_css("input[name='set_log[completed]']")).to be_present
+    end
+
     it "renders the Finalizar Treino button targeting PATCH" do
       create(:workout_session, workout_program: program, program_day: day_a, user: user)
 
@@ -181,6 +197,17 @@ RSpec.describe "WorkoutSessions", type: :request do
 
       expect(response.body).to include("Treino Concluído")
       expect(response.body).to include("10 reps × 60.0 kg")
+    end
+
+    it "shows 'Feito' for a completed stretching set, with no numbers" do
+      exercise = create(:exercise, :stretching)
+      program_exercise = create(:program_exercise, :stretching, program_day: day_a, exercise: exercise)
+      session = create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user)
+      create(:set_log, :completed, workout_session: session, program_exercise: program_exercise, reps: nil, weight_kg: nil, duration_minutes: nil)
+
+      get summary_workout_session_path
+
+      expect(response.body).to include("Feito")
     end
 
     it "redirects to Fichas when there is no completed session to show" do

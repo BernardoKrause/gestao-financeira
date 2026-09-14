@@ -2,17 +2,21 @@
   <span data-sortable-handle class="cursor-move text-gray-400">⠿</span>
   <span class="flex-1 font-medium text-gray-900"><%= program_exercise.exercise.name %></span>
 
-  <%= form_with model: [ workout_program, program_day, program_exercise ], class: "flex items-center gap-2" do |f| %>
-    <% if program_exercise.exercise.strength? %>
-      <%= f.number_field :target_sets, min: 1, class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
-      <span class="text-xs text-gray-500">séries de</span>
-      <%= f.number_field :target_reps, min: 1, class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
-      <span class="text-xs text-gray-500">reps</span>
-    <% else %>
-      <%= f.number_field :target_duration_minutes, min: 1, class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
-      <span class="text-xs text-gray-500">min</span>
+  <% if program_exercise.exercise.stretching? %>
+    <span class="text-xs text-gray-400">Sem meta</span>
+  <% else %>
+    <%= form_with model: [ workout_program, program_day, program_exercise ], class: "flex items-center gap-2" do |f| %>
+      <% if program_exercise.exercise.strength? %>
+        <%= f.number_field :target_sets, min: 1, class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+        <span class="text-xs text-gray-500">séries de</span>
+        <%= f.number_field :target_reps, min: 1, class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+        <span class="text-xs text-gray-500">reps</span>
+      <% else %>
+        <%= f.number_field :target_duration_minutes, min: 1, class: "w-16 rounded border border-gray-300 px-2 py-1 text-xs" %>
+        <span class="text-xs text-gray-500">min</span>
+      <% end %>
+      <%= f.submit "Salvar", class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
     <% end %>
-    <%= f.submit "Salvar", class: "rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
   <% end %>
 
   <%= link_to "Remover", workout_program_program_day_program_exercise_path(workout_program, program_day, program_exercise), data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, class: "rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" %>

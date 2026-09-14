@@ -30,6 +30,17 @@ RSpec.describe "ProgramExercises", type: :request do
     expect(program_exercise.target_sets).to be_nil
   end
 
+  it "adds a stretching exercise to a day with no default target at all" do
+    exercise = create(:exercise, :stretching)
+
+    post workout_program_program_day_program_exercises_path(program, day), params: { exercise_id: exercise.id }
+
+    program_exercise = day.program_exercises.last
+    expect(program_exercise.target_sets).to be_nil
+    expect(program_exercise.target_reps).to be_nil
+    expect(program_exercise.target_duration_minutes).to be_nil
+  end
+
   it "returns 404 when trying to add another user's custom exercise" do
     other_exercise = create(:exercise, :custom)
 
