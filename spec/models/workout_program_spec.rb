@@ -30,4 +30,11 @@ RSpec.describe WorkoutProgram, type: :model do
       expect(other_user_program.reload.active).to be true
     end
   end
+
+  it "is destroyed along with its workout_sessions" do
+    program = create(:workout_program)
+    create(:workout_session, workout_program: program)
+
+    expect { program.destroy }.to change(WorkoutSession, :count).by(-1)
+  end
 end

@@ -19,4 +19,11 @@ RSpec.describe ProgramDay, type: :model do
 
     expect { program.destroy }.to change(ProgramDay, :count).by(-1)
   end
+
+  it "is destroyed along with its workout_sessions" do
+    day = create(:program_day)
+    create(:workout_session, workout_program: day.workout_program, program_day: day)
+
+    expect { day.destroy }.to change(WorkoutSession, :count).by(-1)
+  end
 end

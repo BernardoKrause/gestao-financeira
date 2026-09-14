@@ -1,6 +1,7 @@
 class WorkoutProgram < ApplicationRecord
   belongs_to :user
   has_many :program_days, -> { order(:position) }, dependent: :destroy
+  has_many :workout_sessions, dependent: :destroy
 
   validates :name, presence: true
 

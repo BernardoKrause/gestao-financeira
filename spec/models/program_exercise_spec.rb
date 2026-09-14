@@ -27,4 +27,12 @@ RSpec.describe ProgramExercise, type: :model do
 
     expect { day.destroy }.to change(ProgramExercise, :count).by(-1)
   end
+
+  it "is destroyed along with its set_logs" do
+    program_exercise = create(:program_exercise)
+    create(:set_log, program_exercise: program_exercise)
+
+    expect { program_exercise.destroy }.not_to raise_error
+    expect(SetLog.where(program_exercise: program_exercise)).to be_empty
+  end
 end

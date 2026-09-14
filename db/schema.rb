@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_230400) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_14_090100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,6 +73,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_230400) do
     t.index ["user_id"], name: "index_recurring_entries_on_user_id"
   end
 
+  create_table "set_logs", force: :cascade do |t|
+    t.boolean "completed", default: false, null: false
+    t.datetime "created_at", null: false
+    t.integer "duration_minutes"
+    t.integer "position", null: false
+    t.bigint "program_exercise_id", null: false
+    t.integer "reps"
+    t.datetime "updated_at", null: false
+    t.decimal "weight_kg", precision: 6, scale: 2
+    t.bigint "workout_session_id", null: false
+    t.index ["program_exercise_id"], name: "index_set_logs_on_program_exercise_id"
+    t.index ["workout_session_id"], name: "index_set_logs_on_workout_session_id"
+  end
+
   create_table "settings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.decimal "initial_balance", precision: 12, scale: 2, default: "0.0", null: false
@@ -117,6 +131,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_230400) do
     t.index ["user_id"], name: "index_workout_programs_on_user_id"
   end
 
+  create_table "workout_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "finished_at"
+    t.bigint "program_day_id", null: false
+    t.datetime "started_at", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "workout_program_id", null: false
+    t.index ["program_day_id"], name: "index_workout_sessions_on_program_day_id"
+    t.index ["user_id"], name: "index_workout_sessions_on_user_id"
+    t.index ["workout_program_id"], name: "index_workout_sessions_on_workout_program_id"
+  end
+
   add_foreign_key "categories", "users"
   add_foreign_key "exercises", "users"
   add_foreign_key "program_days", "workout_programs"
@@ -124,9 +152,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_230400) do
   add_foreign_key "program_exercises", "program_days"
   add_foreign_key "recurring_entries", "categories"
   add_foreign_key "recurring_entries", "users"
+  add_foreign_key "set_logs", "program_exercises"
+  add_foreign_key "set_logs", "workout_sessions"
   add_foreign_key "settings", "users"
   add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "recurring_entries"
   add_foreign_key "transactions", "users"
   add_foreign_key "workout_programs", "users"
+  add_foreign_key "workout_sessions", "program_days"
+  add_foreign_key "workout_sessions", "users"
+  add_foreign_key "workout_sessions", "workout_programs"
 end
