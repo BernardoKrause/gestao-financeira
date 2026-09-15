@@ -3,6 +3,20 @@
     <p class="text-sm text-slate-500">Registre cargas em pelo menos um treino para ver sua evolução.</p>
   <% else %>
     <h2 class="mb-4 text-sm font-semibold text-slate-700">Evolução de carga — <%= @selected_exercise.name %></h2>
-    <p class="text-sm text-slate-500">Gráfico em construção.</p>
+    <div class="relative h-56">
+      <canvas data-controller="chart"
+              data-chart-labels-value="<%= @progress_chart_labels.to_json %>"
+              data-chart-datasets-value="<%= [
+                {
+                  label: @selected_exercise.name,
+                  data: @progress_chart_data,
+                  borderColor: "#4f46e5",
+                  backgroundColor: "rgba(79, 70, 229, 0.1)",
+                  fill: true,
+                  tension: 0.3,
+                  spanGaps: false
+                }
+              ].to_json %>"></canvas>
+    </div>
   <% end %>
 </div>

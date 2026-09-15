@@ -9,6 +9,11 @@ class WorkoutHistoryController < ApplicationController
     load_progress_chart_data
   end
 
+  def chart
+    load_progress_chart_data
+    respond_to(&:turbo_stream)
+  end
+
   private
 
   def load_calendar_data
@@ -44,7 +49,22 @@ class WorkoutHistoryController < ApplicationController
     @selected_exercise_id = params[:exercise_id].presence_in(@exercise_options.map { |e| e.id.to_s }) || default_exercise_id&.to_s
     @selected_period = params[:period].presence_in(PERIODS) || "3m"
     @selected_exercise = @exercise_options.find { |e| e.id.to_s == @selected_exercise_id }
-    @progress_chart_labels = []
-    @progress_chart_data = []
+
+    if @selected_exercise_id
+      grouped = SetLog.max_weight_by_day(user: current_user, exercise_id: @selected_exercise_id, since: period_since(@selected_period))
+      sorted = grouped.sort_by { |date, _| date }
+      @progress_chart_labels = sorted.map { |date, _| date.strftime("%d/%m") }
+      @progress_chart_data = sorted.map { |_, weight| weight.to_f }
+    else
+      @progress_chart_labels = []
+      @progress_chart_data = []
+    end
+  end
+
+  def period_since(period)
+    case period
+    when "1m" then 1.month.ago.to_date
+    when "3m" then 3.months.ago.to_date
+    end
   end
 end

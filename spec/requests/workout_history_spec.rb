@@ -69,4 +69,31 @@ RSpec.describe "WorkoutHistory", type: :request do
       expect(response.body).not_to include("Levantamento Terra")
     end
   end
+
+  describe "GET /treinos/historico/grafico" do
+    it "returns a turbo stream replacing the chart with the selected exercise's series" do
+      exercise = create(:exercise, kind: :strength, name: "Supino")
+      program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise)
+      session = create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user, finished_at: 2.days.ago)
+      create(:set_log, :completed, workout_session: session, program_exercise: program_exercise, weight_kg: 72.5)
+
+      get workout_history_chart_path, params: { exercise_id: exercise.id, period: "3m" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+      expect(response.body).to include('turbo-stream action="replace" target="workout_progress_chart"')
+      expect(response.body).to include("72.5")
+    end
+
+    it "excludes set_logs outside the selected period" do
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise)
+      old_session = create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user, finished_at: 2.months.ago)
+      create(:set_log, :completed, workout_session: old_session, program_exercise: program_exercise, weight_kg: 99)
+
+      get workout_history_chart_path, params: { exercise_id: exercise.id, period: "1m" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      expect(response.body).not_to include("99.0")
+    end
+  end
 end

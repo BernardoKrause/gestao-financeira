@@ -2,11 +2,26 @@
 
 <%= render "workout_history/calendar" %>
 
-<% unless @exercise_options.empty? %>
-  <div class="mb-3 flex flex-wrap items-center gap-3">
-    <%= select_tag :exercise_id, options_for_select(@exercise_options.map { |e| [ e.name, e.id ] }, @selected_exercise_id),
-          class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
-  </div>
-<% end %>
+<div data-controller="workout-progress-filter" data-workout-progress-filter-url-value="<%= workout_history_chart_path %>">
+  <% unless @exercise_options.empty? %>
+    <div class="mb-3 flex flex-wrap items-center gap-3">
+      <%= select_tag :exercise_id, options_for_select(@exercise_options.map { |e| [ e.name, e.id ] }, @selected_exercise_id),
+            data: { "workout-progress-filter-target": "exercise", action: "change->workout-progress-filter#changeExercise" },
+            class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
 
-<%= render "workout_history/progress_chart" %>
+      <div class="flex gap-1">
+        <% { "1m" => "1 mês", "3m" => "3 meses", "all" => "Tudo" }.each do |value, label| %>
+          <button type="button"
+                  data-workout-progress-filter-target="periodButton"
+                  data-workout-progress-filter-period-param="<%= value %>"
+                  data-action="click->workout-progress-filter#changePeriod"
+                  class="rounded-full px-3 py-1 text-xs font-medium <%= value == @selected_period ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100" %>">
+            <%= label %>
+          </button>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render "workout_history/progress_chart" %>
+</div>
