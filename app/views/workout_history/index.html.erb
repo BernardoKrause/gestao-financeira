@@ -1,0 +1,12 @@
+<h1 class="mb-4 text-2xl font-bold">Histórico</h1>
+
+<%= render "workout_history/calendar" %>
+
+<% unless @exercise_options.empty? %>
+  <div class="mb-3 flex flex-wrap items-center gap-3">
+    <%= select_tag :exercise_id, options_for_select(@exercise_options.map { |e| [ e.name, e.id ] }, @selected_exercise_id),
+          class: "rounded border border-gray-300 px-3 py-2 text-sm" %>
+  </div>
+<% end %>
+
+<%= render "workout_history/progress_chart" %>

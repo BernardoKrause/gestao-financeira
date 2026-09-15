@@ -1,0 +1,50 @@
+class WorkoutHistoryController < ApplicationController
+  PERIODS = %w[1m 3m all].freeze
+  PT_MONTHS = %w[janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro].freeze
+
+  helper_method :month_label
+
+  def index
+    load_calendar_data
+    load_progress_chart_data
+  end
+
+  private
+
+  def load_calendar_data
+    @month = parsed_month
+    @previous_month = @month.prev_month
+    @next_month = @month.next_month
+    @month_label = month_label(@month)
+    @calendar_weeks = calendar_weeks(@month)
+    @completed_dates = WorkoutSession.completed_dates_for(user: current_user, month: @month)
+  end
+
+  def parsed_month
+    Date.strptime(params[:month], "%Y-%m").beginning_of_month
+  rescue ArgumentError, TypeError
+    Date.current.beginning_of_month
+  end
+
+  def calendar_weeks(month)
+    first_day = month.beginning_of_month
+    last_day = month.end_of_month
+    cells = Array.new(first_day.wday) + (first_day..last_day).to_a + Array.new(6 - last_day.wday)
+    cells.each_slice(7).to_a
+  end
+
+  def month_label(date)
+    "#{PT_MONTHS[date.month - 1].capitalize} de #{date.year}"
+  end
+
+  def load_progress_chart_data
+    @progress_summary = SetLog.strength_progress_summary(current_user)
+    @exercise_options = Exercise.where(id: @progress_summary.keys).order(:name).to_a
+    default_exercise_id = @progress_summary.max_by { |_, last_at| last_at }&.first
+    @selected_exercise_id = params[:exercise_id].presence_in(@exercise_options.map { |e| e.id.to_s }) || default_exercise_id&.to_s
+    @selected_period = params[:period].presence_in(PERIODS) || "3m"
+    @selected_exercise = @exercise_options.find { |e| e.id.to_s == @selected_exercise_id }
+    @progress_chart_labels = []
+    @progress_chart_data = []
+  end
+end

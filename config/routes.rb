@@ -41,6 +41,10 @@ Rails.application.routes.draw do
       get :summary
       resources :set_logs, only: %i[create update destroy]
     end
+
+    get "historico", to: "workout_history#index", as: :workout_history
+    get "historico/grafico", to: "workout_history#chart", as: :workout_history_chart
+    get "historico/:date", to: "workout_history#show", as: :workout_history_day, constraints: { date: /\d{4}-\d{2}-\d{2}/ }
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

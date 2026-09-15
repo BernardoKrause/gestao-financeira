@@ -1,0 +1,30 @@
+<div class="mb-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+  <div class="mb-4 flex items-center justify-between">
+    <%= link_to "← #{month_label(@previous_month)}", workout_history_path(month: @previous_month.strftime("%Y-%m")), class: "text-sm text-slate-600 hover:text-slate-900" %>
+    <h2 class="text-sm font-semibold text-slate-700"><%= @month_label %></h2>
+    <%= link_to "#{month_label(@next_month)} →", workout_history_path(month: @next_month.strftime("%Y-%m")), class: "text-sm text-slate-600 hover:text-slate-900" %>
+  </div>
+
+  <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-slate-500">
+    <% %w[D S T Q Q S S].each do |weekday| %>
+      <div><%= weekday %></div>
+    <% end %>
+  </div>
+
+  <% @calendar_weeks.each do |week| %>
+    <div class="grid grid-cols-7 gap-1">
+      <% week.each do |date| %>
+        <% if date.nil? %>
+          <div></div>
+        <% elsif @completed_dates.include?(date) %>
+          <%= link_to workout_history_day_path(date: date.iso8601), class: "flex flex-col items-center rounded-lg py-2 text-sm font-medium text-slate-900 hover:bg-indigo-50" do %>
+            <%= date.day %>
+            <span class="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-600"></span>
+          <% end %>
+        <% else %>
+          <div class="py-2 text-center text-sm text-slate-400"><%= date.day %></div>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
