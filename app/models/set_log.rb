@@ -10,8 +10,8 @@ class SetLog < ApplicationRecord
   validates :duration_minutes, numericality: { greater_than: 0 }, allow_nil: true
 
   def self.strength_progress_summary(user)
-    exercise_id_by_program_exercise_id = ProgramExercise.joins(:exercise)
-      .where(exercises: { kind: Exercise.kinds["strength"] })
+    exercise_id_by_program_exercise_id = ProgramExercise.joins(:exercise, program_day: :workout_program)
+      .where(exercises: { kind: Exercise.kinds["strength"] }, workout_programs: { user_id: user.id })
       .pluck(:id, :exercise_id)
       .to_h
 

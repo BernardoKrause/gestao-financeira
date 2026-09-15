@@ -91,6 +91,25 @@ RSpec.describe SetLog, type: :model do
 
       expect(SetLog.strength_progress_summary(user)).to eq({})
     end
+
+    it "only maps program_exercises from the given user's own workout programs" do
+      user = create(:user)
+      other_user = create(:user)
+      program = create(:workout_program, user: user)
+      day = create(:program_day, workout_program: program)
+      other_program = create(:workout_program, user: other_user)
+      other_day = create(:program_day, workout_program: other_program)
+      own_exercise = create(:exercise, kind: :strength)
+      other_exercise = create(:exercise, kind: :strength)
+      own_program_exercise = create(:program_exercise, program_day: day, exercise: own_exercise)
+      other_program_exercise = create(:program_exercise, program_day: other_day, exercise: other_exercise)
+      session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user)
+      create(:set_log, :completed, workout_session: session, program_exercise: own_program_exercise, weight_kg: 50)
+      other_session = create(:workout_session, :completed, workout_program: other_program, program_day: other_day, user: other_user)
+      create(:set_log, :completed, workout_session: other_session, program_exercise: other_program_exercise, weight_kg: 999)
+
+      expect(SetLog.strength_progress_summary(user).keys).to eq([ own_exercise.id ])
+    end
   end
 
   describe ".max_weight_by_day" do

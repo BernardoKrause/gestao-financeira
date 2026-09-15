@@ -15,7 +15,7 @@ class WorkoutHistoryController < ApplicationController
   end
 
   def show
-    @workout_session = current_user.workout_sessions.completed.find_by!(finished_at: parsed_date.all_day)
+    @workout_session = current_user.workout_sessions.completed.order(:finished_at).find_by!(finished_at: parsed_date.all_day)
     @program_exercises = @workout_session.program_day.program_exercises.includes(:exercise).order(:position)
     @set_logs_by_program_exercise = @workout_session.set_logs.includes(program_exercise: :exercise).order(:position).group_by(&:program_exercise_id)
   end

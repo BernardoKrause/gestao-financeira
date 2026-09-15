@@ -133,5 +133,20 @@ RSpec.describe "WorkoutHistory", type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "deterministically returns the same session when two completed sessions share a date" do
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise, target_sets: 1, target_reps: 10)
+      earlier = create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user, finished_at: Time.zone.local(2026, 9, 10, 8, 0))
+      create(:set_log, :completed, workout_session: earlier, program_exercise: program_exercise, reps: 10, weight_kg: 50)
+      later = create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user, finished_at: Time.zone.local(2026, 9, 10, 20, 0))
+      create(:set_log, :completed, workout_session: later, program_exercise: program_exercise, reps: 10, weight_kg: 90)
+
+      3.times do
+        get workout_history_day_path(date: "2026-09-10")
+        expect(response.body).to include("50.0 kg")
+        expect(response.body).not_to include("90.0 kg")
+      end
+    end
   end
 end
