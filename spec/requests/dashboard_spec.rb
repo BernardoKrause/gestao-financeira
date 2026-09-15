@@ -214,9 +214,8 @@ RSpec.describe "Dashboard", type: :request do
 
     expect(response.body).to include('data-controller="chart"')
     expect(response.body).to include("data-chart-labels-value")
-    expect(response.body).to include("data-chart-historical-value")
-    expect(response.body).to include("data-chart-projected-value")
-    expect(response.body).to include("700.0") # projected balance on day 25 shows up in the projected series JSON
+    expect(response.body).to include("data-chart-datasets-value")
+    expect(response.body).to include("700.0") # projected balance on day 25 shows up in the projected dataset's JSON
   end
 
   it "keeps the month/category filter form and Resumo/Histórico inside the same turbo frame" do
