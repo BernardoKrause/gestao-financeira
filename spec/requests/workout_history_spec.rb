@@ -96,4 +96,42 @@ RSpec.describe "WorkoutHistory", type: :request do
       expect(response.body).not_to include("99.0")
     end
   end
+
+  describe "GET /treinos/historico/:date" do
+    it "shows the completed session's summary for that date" do
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise, target_sets: 1, target_reps: 10)
+      create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user, finished_at: Time.zone.local(2026, 9, 10, 12, 0)).tap do |session|
+        create(:set_log, :completed, workout_session: session, program_exercise: program_exercise, reps: 10, weight_kg: 60)
+      end
+
+      get workout_history_day_path(date: "2026-09-10")
+
+      expect(response.body).to include("10 reps × 60.0 kg")
+      expect(response.body).to include("Voltar ao Histórico")
+    end
+
+    it "returns 404 when there is no completed session on that date" do
+      get workout_history_day_path(date: "2026-01-01")
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "returns 404 for a syntactically valid but nonexistent calendar date" do
+      get workout_history_day_path(date: "2026-13-45")
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "returns 404 for another user's session on that date" do
+      other_user = create(:user)
+      other_program = create(:workout_program, user: other_user, active: true)
+      other_day = create(:program_day, workout_program: other_program)
+      create(:workout_session, :completed, workout_program: other_program, program_day: other_day, user: other_user, finished_at: Time.zone.local(2026, 9, 10, 12, 0))
+
+      get workout_history_day_path(date: "2026-09-10")
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 end

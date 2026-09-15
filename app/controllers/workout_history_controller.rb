@@ -14,6 +14,12 @@ class WorkoutHistoryController < ApplicationController
     respond_to(&:turbo_stream)
   end
 
+  def show
+    @workout_session = current_user.workout_sessions.completed.find_by!(finished_at: parsed_date.all_day)
+    @program_exercises = @workout_session.program_day.program_exercises.includes(:exercise).order(:position)
+    @set_logs_by_program_exercise = @workout_session.set_logs.includes(program_exercise: :exercise).order(:position).group_by(&:program_exercise_id)
+  end
+
   private
 
   def load_calendar_data
@@ -29,6 +35,12 @@ class WorkoutHistoryController < ApplicationController
     Date.strptime(params[:month], "%Y-%m").beginning_of_month
   rescue ArgumentError, TypeError
     Date.current.beginning_of_month
+  end
+
+  def parsed_date
+    Date.iso8601(params[:date])
+  rescue ArgumentError
+    raise ActiveRecord::RecordNotFound
   end
 
   def calendar_weeks(month)

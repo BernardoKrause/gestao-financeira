@@ -1,0 +1,7 @@
+<%= render "workout_sessions/session_summary",
+      workout_session: @workout_session,
+      program_exercises: @program_exercises,
+      set_logs_by_program_exercise: @set_logs_by_program_exercise,
+      title: "Treino de #{@workout_session.finished_at.strftime('%d/%m/%Y')}",
+      back_label: "Voltar ao Histórico",
+      back_path: workout_history_path %>

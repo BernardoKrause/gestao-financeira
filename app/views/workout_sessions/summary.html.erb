@@ -1,25 +1,7 @@
-<h1 class="mb-4 text-2xl font-bold">Treino Concluído!</h1>
-<p class="mb-6 text-sm text-gray-600">Treino <%= @workout_session.program_day.label %> — <%= @workout_session.program_day.title %></p>
-
-<div class="space-y-4">
-  <% @program_exercises.each do |program_exercise| %>
-    <div class="rounded-lg border border-gray-200 bg-white p-4">
-      <p class="font-semibold text-gray-900"><%= program_exercise.exercise.name %></p>
-      <ul class="mt-2 space-y-1 text-sm text-gray-600">
-        <% (@set_logs_by_program_exercise[program_exercise.id] || []).select(&:completed?).each do |set_log| %>
-          <li>
-            <% if program_exercise.exercise.strength? %>
-              <%= set_log.reps %> reps × <%= set_log.weight_kg %> kg
-            <% elsif program_exercise.exercise.cardio? %>
-              <%= set_log.duration_minutes %> min
-            <% else %>
-              Feito
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-</div>
-
-<%= link_to "Voltar para Fichas", workout_programs_path, class: "mt-6 inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
+<%= render "workout_sessions/session_summary",
+      workout_session: @workout_session,
+      program_exercises: @program_exercises,
+      set_logs_by_program_exercise: @set_logs_by_program_exercise,
+      title: "Treino Concluído!",
+      back_label: "Voltar para Fichas",
+      back_path: workout_programs_path %>
