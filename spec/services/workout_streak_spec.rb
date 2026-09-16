@@ -35,6 +35,27 @@ RSpec.describe WorkoutStreak do
     end
   end
 
+  describe "with a completed session that has a nil finished_at" do
+    it "ignores it instead of raising" do
+      user = create(:user)
+      program = create(:workout_program, user: user, active: true)
+      create(:program_day, workout_program: program)
+      day = program.program_days.first
+
+      travel_to Time.zone.local(2026, 9, 16, 12, 0) # Wednesday
+      create(:workout_session, :completed, workout_program: program, program_day: day, user: user,
+             finished_at: Time.zone.local(2026, 9, 14, 10, 0))
+      create(:workout_session, :completed, workout_program: program, program_day: day, user: user,
+             finished_at: nil)
+
+      streak = described_class.new(user)
+
+      expect { streak.current_week_count }.not_to raise_error
+      expect(streak.current_week_count).to eq(1)
+      travel_back
+    end
+  end
+
   describe "#current_week_count" do
     it "counts completed sessions finished within the current Sunday-Saturday week" do
       user = create(:user)

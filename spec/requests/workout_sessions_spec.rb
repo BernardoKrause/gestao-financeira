@@ -242,6 +242,27 @@ RSpec.describe "WorkoutSessions", type: :request do
     end
   end
 
+  describe "full journey: finish a workout with a PR, see it on the summary, then on Fichas" do
+    it "shows the PR banner on the summary and counts the session in the weekly streak" do
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day_a, exercise: exercise, target_sets: 1, target_reps: 10)
+      older_session = create(:workout_session, :completed, workout_program: program, program_day: day_a, user: user, finished_at: 10.days.ago)
+      create(:set_log, :completed, workout_session: older_session, program_exercise: program_exercise, reps: 10, weight_kg: 50)
+      session = create(:workout_session, workout_program: program, program_day: day_a, user: user)
+      create(:set_log, :completed, workout_session: session, program_exercise: program_exercise, reps: 10, weight_kg: 55)
+
+      patch finish_workout_session_path
+      expect(response).to redirect_to(summary_workout_session_path)
+
+      get summary_workout_session_path
+      expect(response.body).to include("recorde pessoal")
+      expect(response.body).to include("55.0 kg")
+
+      get workout_programs_path
+      expect(response.body).to include("Esta semana: 1/2 treinos")
+    end
+  end
+
   describe "DELETE /treinos/workout_session" do
     it "cancels the session and destroys its set_logs" do
       session = create(:workout_session, workout_program: program, program_day: day_a, user: user)

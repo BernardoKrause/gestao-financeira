@@ -89,8 +89,9 @@ RSpec.describe "WorkoutPrograms", type: :request do
     it "does not show the streak card without an active program" do
       get workout_programs_path
 
-      expect(response.body).not_to include("semana seguida")
       expect(response.body).not_to include("Comece sua sequência!")
+      expect(response.body).not_to include("🔥")
+      expect(response.body).not_to include("Esta semana:")
     end
 
     it "shows the streak card with weekly progress once a program is active" do
