@@ -1,10 +1,23 @@
+<%# locals: (workout_session:, program_exercises:, set_logs_by_program_exercise:, title:, back_label:, back_path:, personal_records: {}) %>
 <h1 class="mb-4 text-2xl font-bold"><%= title %></h1>
+
+<% if personal_records.any? %>
+  <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm font-medium text-amber-800">
+    🏆 Você bateu <%= personal_records.size %> <%= personal_records.size == 1 ? "recorde pessoal" : "recordes pessoais" %> hoje!
+  </div>
+<% end %>
+
 <p class="mb-6 text-sm text-gray-600">Treino <%= workout_session.program_day.label %> — <%= workout_session.program_day.title %></p>
 
 <div class="space-y-4">
   <% program_exercises.each do |program_exercise| %>
     <div class="rounded-lg border border-gray-200 bg-white p-4">
-      <p class="font-semibold text-gray-900"><%= program_exercise.exercise.name %></p>
+      <p class="font-semibold text-gray-900">
+        <%= program_exercise.exercise.name %>
+        <% if personal_records[program_exercise.id] %>
+          <span class="ml-2 text-xs font-semibold text-amber-700">🏆 Novo recorde: <%= personal_records[program_exercise.id] %> kg</span>
+        <% end %>
+      </p>
       <ul class="mt-2 space-y-1 text-sm text-gray-600">
         <% (set_logs_by_program_exercise[program_exercise.id] || []).select(&:completed?).each do |set_log| %>
           <li>

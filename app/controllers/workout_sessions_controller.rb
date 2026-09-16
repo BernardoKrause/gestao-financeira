@@ -60,6 +60,7 @@ class WorkoutSessionsController < ApplicationController
 
     @program_exercises = @workout_session.program_day.program_exercises.includes(:exercise).order(:position)
     @set_logs_by_program_exercise = @workout_session.set_logs.includes(program_exercise: :exercise).order(:position).group_by(&:program_exercise_id)
+    @personal_records = SetLog.personal_records_for(@workout_session)
   end
 
   def destroy
