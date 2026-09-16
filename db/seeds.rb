@@ -18,3 +18,5 @@ if ENV["SEED_USER_EMAIL"].present?
 
   UserOnboarding.call(user) unless user.setting
 end
+
+ExerciseCatalogSeeder.call
