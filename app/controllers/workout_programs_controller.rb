@@ -4,6 +4,7 @@ class WorkoutProgramsController < ApplicationController
   def index
     @workout_programs = current_user.workout_programs.order(:name)
     @active_workout_program = current_user.workout_programs.find_by(active: true)
+    @workout_streak = WorkoutStreak.new(current_user)
   end
 
   def new

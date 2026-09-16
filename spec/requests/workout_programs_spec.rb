@@ -84,4 +84,36 @@ RSpec.describe "WorkoutPrograms", type: :request do
     expect(response.body).to include("Ficha ativa")
     expect(response.body).to include("Ficha Ativa")
   end
+
+  describe "GET /treinos" do
+    it "does not show the streak card without an active program" do
+      get workout_programs_path
+
+      expect(response.body).not_to include("semana seguida")
+      expect(response.body).not_to include("Comece sua sequência!")
+    end
+
+    it "shows the streak card with weekly progress once a program is active" do
+      program = create(:workout_program, user: user, active: true)
+      create(:program_day, workout_program: program)
+
+      get workout_programs_path
+
+      expect(response.body).to include("Comece sua sequência!")
+      expect(response.body).to include("Esta semana: 0/1 treinos")
+    end
+
+    it "shows the current streak count and unlocked badges" do
+      program = create(:workout_program, user: user, active: true)
+      day = create(:program_day, workout_program: program)
+      [ 4, 3, 2, 1, 0 ].each do |weeks_ago|
+        create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: weeks_ago.weeks.ago)
+      end
+
+      get workout_programs_path
+
+      expect(response.body).to include("5 semanas seguidas")
+      expect(response.body).to include("🏅 4 semanas")
+    end
+  end
 end

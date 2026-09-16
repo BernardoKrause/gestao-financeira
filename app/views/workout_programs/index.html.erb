@@ -1,5 +1,26 @@
 <h1 class="mb-4 text-2xl font-bold">Fichas de Treino</h1>
 
+<% if @workout_streak.trackable? %>
+  <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+    <% if @workout_streak.current_streak_weeks.positive? %>
+      <p class="text-lg font-semibold text-gray-900">
+        🔥 <%= @workout_streak.current_streak_weeks %> <%= @workout_streak.current_streak_weeks == 1 ? "semana seguida" : "semanas seguidas" %>
+      </p>
+    <% else %>
+      <p class="text-lg font-semibold text-gray-900">Comece sua sequência!</p>
+    <% end %>
+    <p class="mt-1 text-sm text-gray-600">Esta semana: <%= @workout_streak.current_week_count %>/<%= @workout_streak.weekly_goal %> treinos</p>
+
+    <% if @workout_streak.unlocked_badges.any? %>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <% @workout_streak.unlocked_badges.each do |milestone| %>
+          <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">🏅 <%= milestone %> semanas</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
 <% if @active_workout_program %>
   <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
     <p class="text-xs font-medium uppercase tracking-wide text-blue-600">Ficha ativa</p>
