@@ -36,4 +36,35 @@ class SetLog < ApplicationRecord
     pairs.group_by { |_, finished_at| finished_at.to_date }
          .transform_values { |rows| rows.map(&:first).max }
   end
+
+  def self.personal_records_for(workout_session)
+    exercise_id_by_program_exercise_id = ProgramExercise.joins(:exercise)
+      .where(id: workout_session.set_logs.select(:program_exercise_id), exercises: { kind: Exercise.kinds["strength"] })
+      .pluck(:id, :exercise_id)
+      .to_h
+    return {} if exercise_id_by_program_exercise_id.empty?
+
+    current_max_by_program_exercise_id = completed_with_weight
+      .where(workout_session: workout_session, program_exercise_id: exercise_id_by_program_exercise_id.keys)
+      .pluck(:program_exercise_id, :weight_kg)
+      .group_by(&:first)
+      .transform_values { |rows| rows.map(&:last).max }
+
+    records = {}
+    exercise_id_by_program_exercise_id.each do |program_exercise_id, exercise_id|
+      current_max = current_max_by_program_exercise_id[program_exercise_id]
+      next if current_max.nil?
+
+      previous_max = completed_with_weight
+        .joins(:workout_session)
+        .where(program_exercise_id: ProgramExercise.where(exercise_id: exercise_id))
+        .where(workout_sessions: { user_id: workout_session.user_id, status: WorkoutSession.statuses["completed"] })
+        .where("workout_sessions.finished_at < ?", workout_session.finished_at)
+        .maximum(:weight_kg)
+
+      records[program_exercise_id] = current_max if previous_max.present? && current_max > previous_max
+    end
+
+    records
+  end
 end

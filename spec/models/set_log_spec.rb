@@ -158,4 +158,80 @@ RSpec.describe SetLog, type: :model do
       expect(result).to eq({})
     end
   end
+
+  describe ".personal_records_for" do
+    it "returns the exercise when this session's max weight beats the prior best" do
+      user = create(:user)
+      program = create(:workout_program, user: user)
+      day = create(:program_day, workout_program: program)
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day, exercise: exercise)
+      older_session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: 10.days.ago)
+      create(:set_log, :completed, workout_session: older_session, program_exercise: program_exercise, weight_kg: 50)
+      new_session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: Time.current)
+      create(:set_log, :completed, workout_session: new_session, program_exercise: program_exercise, weight_kg: 55)
+
+      expect(SetLog.personal_records_for(new_session)).to eq({ program_exercise.id => 55.0 })
+    end
+
+    it "does not count a tied weight as a personal record" do
+      user = create(:user)
+      program = create(:workout_program, user: user)
+      day = create(:program_day, workout_program: program)
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day, exercise: exercise)
+      older_session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: 10.days.ago)
+      create(:set_log, :completed, workout_session: older_session, program_exercise: program_exercise, weight_kg: 50)
+      new_session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: Time.current)
+      create(:set_log, :completed, workout_session: new_session, program_exercise: program_exercise, weight_kg: 50)
+
+      expect(SetLog.personal_records_for(new_session)).to eq({})
+    end
+
+    it "does not count a first-ever weight entry as a personal record" do
+      user = create(:user)
+      program = create(:workout_program, user: user)
+      day = create(:program_day, workout_program: program)
+      exercise = create(:exercise, kind: :strength)
+      program_exercise = create(:program_exercise, program_day: day, exercise: exercise)
+      new_session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: Time.current)
+      create(:set_log, :completed, workout_session: new_session, program_exercise: program_exercise, weight_kg: 40)
+
+      expect(SetLog.personal_records_for(new_session)).to eq({})
+    end
+
+    it "excludes cardio and stretching exercises" do
+      user = create(:user)
+      program = create(:workout_program, user: user)
+      day = create(:program_day, workout_program: program)
+      cardio_exercise = create(:exercise, :cardio)
+      cardio_program_exercise = create(:program_exercise, :cardio, program_day: day, exercise: cardio_exercise)
+      new_session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: Time.current)
+      create(:set_log, :cardio, :completed, workout_session: new_session, program_exercise: cardio_program_exercise, duration_minutes: 20)
+
+      expect(SetLog.personal_records_for(new_session)).to eq({})
+    end
+
+    it "does not use another user's sessions as the prior best" do
+      user = create(:user)
+      other_user = create(:user)
+      exercise = create(:exercise, kind: :strength)
+
+      other_program = create(:workout_program, user: other_user)
+      other_day = create(:program_day, workout_program: other_program)
+      other_program_exercise = create(:program_exercise, program_day: other_day, exercise: exercise)
+      other_session = create(:workout_session, :completed, workout_program: other_program, program_day: other_day, user: other_user, finished_at: 10.days.ago)
+      create(:set_log, :completed, workout_session: other_session, program_exercise: other_program_exercise, weight_kg: 999)
+
+      program = create(:workout_program, user: user)
+      day = create(:program_day, workout_program: program)
+      program_exercise = create(:program_exercise, program_day: day, exercise: exercise)
+      older_session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: 10.days.ago)
+      create(:set_log, :completed, workout_session: older_session, program_exercise: program_exercise, weight_kg: 49)
+      new_session = create(:workout_session, :completed, workout_program: program, program_day: day, user: user, finished_at: Time.current)
+      create(:set_log, :completed, workout_session: new_session, program_exercise: program_exercise, weight_kg: 50)
+
+      expect(SetLog.personal_records_for(new_session)).to eq({ program_exercise.id => 50.0 })
+    end
+  end
 end
