@@ -4,17 +4,17 @@ class ProgramExercisesController < ApplicationController
   before_action :set_program_exercise, only: %i[update destroy]
 
   def create
-    exercise = Exercise.visible_to(current_user).find(params[:exercise_id])
+    @exercise = Exercise.visible_to(current_user).find(params[:exercise_id])
     @program_exercise = @program_day.program_exercises.new(
-      exercise: exercise,
+      exercise: @exercise,
       position: @program_day.program_exercises.maximum(:position).to_i + 1,
-      **default_targets_for(exercise)
+      **default_targets_for(@exercise)
     )
 
     if @program_exercise.save
       respond_to do |format|
-        format.turbo_stream { flash.now[:notice] = "#{exercise.name} adicionado à ficha." }
-        format.html { redirect_to edit_workout_program_path(@workout_program), notice: "#{exercise.name} adicionado à ficha." }
+        format.turbo_stream { flash.now[:notice] = "#{@exercise.name} adicionado à ficha." }
+        format.html { redirect_to edit_workout_program_path(@workout_program), notice: "#{@exercise.name} adicionado à ficha." }
       end
     else
       respond_to do |format|

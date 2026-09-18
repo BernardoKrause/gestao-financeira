@@ -1,3 +1,12 @@
 <%= turbo_stream.update "flash" do %>
   <%= render "shared/flash" %>
 <% end %>
+
+<% if @program_exercise.persisted? %>
+  <%= turbo_stream.replace "add_exercise_#{@exercise.id}_table" do %>
+    <td class="border px-3 py-2 text-right text-xs font-medium text-green-700" id="add_exercise_<%= @exercise.id %>_table">✓ Adicionado</td>
+  <% end %>
+  <%= turbo_stream.replace "add_exercise_#{@exercise.id}_card" do %>
+    <div class="mt-3 flex gap-3 text-xs font-medium text-green-700" id="add_exercise_<%= @exercise.id %>_card">✓ Adicionado</div>
+  <% end %>
+<% end %>

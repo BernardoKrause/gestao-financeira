@@ -32,6 +32,19 @@ RSpec.describe "ProgramExercises", type: :request do
     expect(response).not_to be_redirect
   end
 
+  it "replaces the exercise row with a confirmation via turbo_stream, so a repeat click can't happen unnoticed" do
+    exercise = create(:exercise, name: "Supino Reto", kind: :strength)
+
+    post workout_program_program_day_program_exercises_path(program, day),
+      params: { exercise_id: exercise.id },
+      headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+    expect(response.body).to include("add_exercise_#{exercise.id}_table")
+    expect(response.body).to include("add_exercise_#{exercise.id}_card")
+    expect(response.body).to include("✓ Adicionado")
+    expect(response.body).not_to include("Adicionar a esta ficha")
+  end
+
   it "adds a cardio exercise to a day with a default duration" do
     exercise = create(:exercise, :cardio)
 

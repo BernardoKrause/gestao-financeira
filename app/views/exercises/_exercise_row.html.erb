@@ -5,7 +5,7 @@
     <td class="border px-3 py-2"><%= exercise.name %></td>
     <td class="border px-3 py-2"><%= Exercise::MUSCLE_GROUP_LABELS[exercise.muscle_group] %></td>
     <td class="border px-3 py-2"><%= Exercise::KIND_LABELS[exercise.kind] %></td>
-    <td class="border px-3 py-2 text-right">
+    <td class="border px-3 py-2 text-right" id="add_exercise_<%= exercise.id %>_table">
       <% if program_day %>
         <%= button_to "Adicionar a esta ficha", workout_program_program_day_program_exercises_path(workout_program, program_day, exercise_id: exercise.id), class: "rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700" %>
       <% elsif exercise.global? %>
@@ -23,7 +23,7 @@
       <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700"><%= Exercise::MUSCLE_GROUP_LABELS[exercise.muscle_group] %></span>
     </div>
     <p class="mt-1 text-xs text-gray-500"><%= Exercise::KIND_LABELS[exercise.kind] %></p>
-    <div class="mt-3 flex gap-3">
+    <div class="mt-3 flex gap-3" id="add_exercise_<%= exercise.id %>_card">
       <% if program_day %>
         <%= button_to "Adicionar a esta ficha", workout_program_program_day_program_exercises_path(workout_program, program_day, exercise_id: exercise.id), class: "rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700" %>
       <% elsif !exercise.global? %>
