@@ -1,0 +1,21 @@
+<div class="grid gap-3 md:hidden" data-testid="exercises-cards">
+  <% exercises.each do |exercise| %>
+    <%= render "exercise_row", exercise: exercise, format: :card, workout_program: workout_program, program_day: program_day %>
+  <% end %>
+</div>
+
+<table class="hidden w-full bg-white text-sm md:table" data-testid="exercises-table">
+  <thead>
+    <tr>
+      <th class="border px-3 py-2 text-left">Nome</th>
+      <th class="border px-3 py-2 text-left">Grupo</th>
+      <th class="border px-3 py-2 text-left">Tipo</th>
+      <th class="border px-3 py-2 text-left"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% exercises.each do |exercise| %>
+      <%= render "exercise_row", exercise: exercise, format: :table, workout_program: workout_program, program_day: program_day %>
+    <% end %>
+  </tbody>
+</table>

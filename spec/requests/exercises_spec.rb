@@ -27,6 +27,17 @@ RSpec.describe "Exercises", type: :request do
     expect(response.body).not_to include(chest.name)
   end
 
+  it "filters via turbo_stream, for live filtering, without a full page reload" do
+    chest = create(:exercise, name: "Supino", muscle_group: :chest)
+    legs = create(:exercise, name: "Agachamento", muscle_group: :legs)
+
+    get exercises_path, params: { muscle_group: "legs" }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+    expect(response.media_type).to eq(Mime[:turbo_stream])
+    expect(response.body).to include(legs.name)
+    expect(response.body).not_to include(chest.name)
+  end
+
   it "creates a custom exercise owned by the current user" do
     expect {
       post exercises_path, params: { exercise: { name: "Rosca Direta", muscle_group: "biceps", kind: "strength" } }
