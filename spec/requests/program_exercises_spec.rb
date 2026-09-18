@@ -20,6 +20,18 @@ RSpec.describe "ProgramExercises", type: :request do
     expect(response).to redirect_to(edit_workout_program_path(program))
   end
 
+  it "adds an exercise via turbo_stream without redirecting, so the caller stays on the picker" do
+    exercise = create(:exercise, name: "Supino Reto", kind: :strength)
+
+    post workout_program_program_day_program_exercises_path(program, day),
+      params: { exercise_id: exercise.id },
+      headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+    expect(response.media_type).to eq(Mime[:turbo_stream])
+    expect(response.body).to include("Supino Reto adicionado à ficha.")
+    expect(response).not_to be_redirect
+  end
+
   it "adds a cardio exercise to a day with a default duration" do
     exercise = create(:exercise, :cardio)
 

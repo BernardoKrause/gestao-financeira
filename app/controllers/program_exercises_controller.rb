@@ -12,9 +12,15 @@ class ProgramExercisesController < ApplicationController
     )
 
     if @program_exercise.save
-      redirect_to edit_workout_program_path(@workout_program), notice: "#{exercise.name} adicionado à ficha."
+      respond_to do |format|
+        format.turbo_stream { flash.now[:notice] = "#{exercise.name} adicionado à ficha." }
+        format.html { redirect_to edit_workout_program_path(@workout_program), notice: "#{exercise.name} adicionado à ficha." }
+      end
     else
-      redirect_to edit_workout_program_path(@workout_program), alert: @program_exercise.errors.full_messages.to_sentence
+      respond_to do |format|
+        format.turbo_stream { flash.now[:alert] = @program_exercise.errors.full_messages.to_sentence }
+        format.html { redirect_to edit_workout_program_path(@workout_program), alert: @program_exercise.errors.full_messages.to_sentence }
+      end
     end
   end
 
