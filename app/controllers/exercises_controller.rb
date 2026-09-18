@@ -1,16 +1,12 @@
 class ExercisesController < ApplicationController
   before_action :set_own_exercise, only: %i[edit update destroy]
+  before_action :load_program_context, only: %i[index new create]
 
   def index
     @exercises = Exercise.visible_to(current_user).order(:name)
     @exercises = @exercises.where(muscle_group: params[:muscle_group]) if params[:muscle_group].present?
     @exercises = @exercises.where(kind: params[:kind]) if params[:kind].present?
     @exercises = @exercises.where("name ILIKE ?", "%#{params[:query]}%") if params[:query].present?
-
-    if params[:workout_program_id].present?
-      @workout_program = current_user.workout_programs.find(params[:workout_program_id])
-      @program_day = @workout_program.program_days.find(params[:program_day_id])
-    end
   end
 
   def new
@@ -22,7 +18,8 @@ class ExercisesController < ApplicationController
   def create
     @exercise = current_user.exercises.new(exercise_params)
     if @exercise.save
-      redirect_to exercises_path, notice: "Exercício criado com sucesso."
+      destination = @workout_program ? exercises_path(workout_program_id: @workout_program.id, program_day_id: @program_day.id) : exercises_path
+      redirect_to destination, notice: "Exercício criado com sucesso."
     else
       render :new, status: :unprocessable_entity
     end
@@ -45,6 +42,13 @@ class ExercisesController < ApplicationController
   end
 
   private
+
+  def load_program_context
+    return unless params[:workout_program_id].present?
+
+    @workout_program = current_user.workout_programs.find(params[:workout_program_id])
+    @program_day = @workout_program.program_days.find(params[:program_day_id])
+  end
 
   def set_own_exercise
     @exercise = current_user.exercises.find(params[:id])

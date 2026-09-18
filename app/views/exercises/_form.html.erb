@@ -1,4 +1,7 @@
-<%= form_with model: exercise do |f| %>
+<% workout_program = local_assigns[:workout_program]
+   program_day = local_assigns[:program_day] %>
+<%= form_with model: exercise,
+      url: exercise.persisted? ? exercise_path(exercise) : exercises_path(workout_program_id: workout_program&.id, program_day_id: program_day&.id) do |f| %>
   <div class="mb-4">
     <%= f.label :name, "Nome", class: "mb-1 block text-sm font-medium text-gray-700" %>
     <%= f.text_field :name, class: "w-full rounded border border-gray-300 px-3 py-2 text-sm" %>

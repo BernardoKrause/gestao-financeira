@@ -43,6 +43,36 @@ RSpec.describe "Exercises", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
+  it "returns to the day-scoped picker after creating an exercise from within a program day" do
+    program = create(:workout_program, user: user)
+    day = create(:program_day, workout_program: program)
+
+    post exercises_path(workout_program_id: program.id, program_day_id: day.id),
+      params: { exercise: { name: "Rosca Direta", muscle_group: "biceps", kind: "strength" } }
+
+    expect(response).to redirect_to(exercises_path(workout_program_id: program.id, program_day_id: day.id))
+  end
+
+  it "returns 404 when creating an exercise scoped to another user's program" do
+    other_program = create(:workout_program)
+    other_day = create(:program_day, workout_program: other_program)
+
+    expect {
+      post exercises_path(workout_program_id: other_program.id, program_day_id: other_day.id),
+        params: { exercise: { name: "X", muscle_group: "chest", kind: "strength" } }
+    }.not_to change(Exercise, :count)
+    expect(response).to have_http_status(:not_found)
+  end
+
+  it "shows the day-scoped 'add to program' form when opened from a program day" do
+    program = create(:workout_program, user: user)
+    day = create(:program_day, workout_program: program)
+
+    get new_exercise_path(workout_program_id: program.id, program_day_id: day.id)
+
+    expect(response).to have_http_status(:ok)
+  end
+
   it "updates the user's own custom exercise" do
     exercise = create(:exercise, :custom, user: user, name: "Nome antigo")
     patch exercise_path(exercise), params: { exercise: { name: "Nome novo" } }
