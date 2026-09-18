@@ -38,6 +38,20 @@ RSpec.describe "Exercises", type: :request do
     expect(response.body).not_to include(chest.name)
   end
 
+  it "preserves workout_program and program_day context when filtering via turbo_stream" do
+    program = create(:workout_program, user: user)
+    day = create(:program_day, workout_program: program)
+    exercise = create(:exercise, name: "Supino", muscle_group: :chest)
+
+    get exercises_path(workout_program_id: program.id, program_day_id: day.id),
+      params: { muscle_group: "chest" },
+      headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+    expect(response.media_type).to eq(Mime[:turbo_stream])
+    expect(response.body).to include(exercise.name)
+    expect(response.body).to include("Adicionar a esta ficha")
+  end
+
   it "creates a custom exercise owned by the current user" do
     expect {
       post exercises_path, params: { exercise: { name: "Rosca Direta", muscle_group: "biceps", kind: "strength" } }

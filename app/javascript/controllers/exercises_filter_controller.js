@@ -14,7 +14,8 @@ export default class extends Controller {
 
   submit() {
     const url = new URL(this.urlValue, window.location.origin)
-    url.search = new URLSearchParams(new FormData(this.element)).toString()
+    const formParams = new URLSearchParams(new FormData(this.element))
+    formParams.forEach((value, key) => url.searchParams.set(key, value))
 
     fetch(url, { headers: { Accept: "text/vnd.turbo-stream.html" } })
       .then((response) => {
