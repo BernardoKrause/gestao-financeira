@@ -57,7 +57,7 @@ RSpec.describe "Exercises", type: :request do
       post exercises_path, params: { exercise: { name: "Rosca Direta", muscle_group: "biceps", kind: "strength" } }
     }.to change(Exercise, :count).by(1)
 
-    expect(response).to redirect_to(exercises_path)
+    expect(response).to redirect_to(exercises_path(format: :html))
     expect(Exercise.last.user).to eq(user)
   end
 
@@ -75,7 +75,21 @@ RSpec.describe "Exercises", type: :request do
     post exercises_path(workout_program_id: program.id, program_day_id: day.id),
       params: { exercise: { name: "Rosca Direta", muscle_group: "biceps", kind: "strength" } }
 
-    expect(response).to redirect_to(exercises_path(workout_program_id: program.id, program_day_id: day.id))
+    expect(response).to redirect_to(exercises_path(format: :html, workout_program_id: program.id, program_day_id: day.id))
+  end
+
+  it "redirects to an html response even when Turbo's redirect-following request still prefers turbo_stream" do
+    program = create(:workout_program, user: user)
+    day = create(:program_day, workout_program: program)
+    turbo_accept = "text/vnd.turbo-stream.html, text/html, application/xhtml+xml"
+
+    post exercises_path(workout_program_id: program.id, program_day_id: day.id),
+      params: { exercise: { name: "Rosca Direta", muscle_group: "biceps", kind: "strength" } },
+      headers: { "Accept" => turbo_accept }
+
+    get response.location, headers: { "Accept" => turbo_accept }
+
+    expect(response.media_type).to eq("text/html")
   end
 
   it "returns 404 when creating an exercise scoped to another user's program" do

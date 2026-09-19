@@ -18,7 +18,7 @@ class ExercisesController < ApplicationController
   def create
     @exercise = current_user.exercises.new(exercise_params)
     if @exercise.save
-      destination = @workout_program ? exercises_path(workout_program_id: @workout_program.id, program_day_id: @program_day.id) : exercises_path
+      destination = @workout_program ? exercises_path(format: :html, workout_program_id: @workout_program.id, program_day_id: @program_day.id) : exercises_path(format: :html)
       redirect_to destination, notice: "Exercício criado com sucesso."
     else
       render :new, status: :unprocessable_entity
