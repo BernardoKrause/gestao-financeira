@@ -48,6 +48,7 @@ class ExercisesController < ApplicationController
 
     @workout_program = current_user.workout_programs.find(params[:workout_program_id])
     @program_day = @workout_program.program_days.find(params[:program_day_id])
+    @added_exercise_ids = @program_day.program_exercises.pluck(:exercise_id).to_set
   end
 
   def set_own_exercise

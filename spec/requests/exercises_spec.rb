@@ -68,6 +68,23 @@ RSpec.describe "Exercises", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
+  it "marks exercises already added to the day, instead of offering to add them again" do
+    program = create(:workout_program, user: user)
+    day = create(:program_day, workout_program: program)
+    added = create(:exercise, name: "Supino Reto")
+    not_added = create(:exercise, name: "Agachamento")
+    create(:program_exercise, program_day: day, exercise: added)
+
+    get exercises_path(workout_program_id: program.id, program_day_id: day.id)
+
+    added_cell = response.body[/id="add_exercise_#{added.id}_table".*?<\/td>/m]
+    not_added_cell = response.body[/id="add_exercise_#{not_added.id}_table".*?<\/td>/m]
+
+    expect(added_cell).to include("Adicionado")
+    expect(added_cell).not_to include("Adicionar a esta ficha")
+    expect(not_added_cell).to include("Adicionar a esta ficha")
+  end
+
   it "returns to the day-scoped picker after creating an exercise from within a program day" do
     program = create(:workout_program, user: user)
     day = create(:program_day, workout_program: program)
